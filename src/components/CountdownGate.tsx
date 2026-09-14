@@ -305,26 +305,16 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full lg:w-1/2 max-w-md sm:max-w-lg flex flex-col relative"
+          className="w-full lg:w-1/2 max-w-md sm:max-w-lg flex flex-col justify-center relative"
         >
-          {/* Subtle poetic eyebrow */}
-          <div className="flex items-center justify-between pb-3 mb-2 border-b border-white/10 text-[#8ED4D6]/70">
-            <span className="font-serif italic text-sm tracking-wide text-[#FFE8B2]/90">
-              Rathinamo
-            </span>
-            <span className="text-[11px] font-sans tracking-widest uppercase text-[#B8E7E5]/50">
-              Saurav Srisan
-            </span>
-          </div>
-
           {/* Floating Starlit Lyrics Container (Masked gradient fade on top/bottom) */}
           <div
             ref={lyricsContainerRef}
-            className="relative h-[340px] sm:h-[380px] overflow-y-auto pr-2 space-y-7 scroll-smooth select-none"
+            className="relative h-[380px] sm:h-[420px] overflow-y-auto pr-2 space-y-7 scroll-smooth select-none py-6"
             style={{
               scrollbarWidth: 'none',
-              maskImage: 'linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%)',
+              maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
             }}
           >
             {countdown.lyricsData.lines.map((line, idx) => {
@@ -337,14 +327,14 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
                   ref={isActive ? activeLineRef : null}
                   className={`transition-all duration-700 ${
                     isActive
-                      ? 'scale-[1.03] translate-x-1'
+                      ? 'scale-[1.04] translate-x-1'
                       : 'scale-100'
                   }`}
                 >
                   <p
                     className={`font-serif leading-relaxed whitespace-pre-line tracking-wide transition-all duration-700 ${
                       isActive
-                        ? 'text-[#FFFDF8] text-xl sm:text-2xl font-normal drop-shadow-[0_2px_20px_rgba(255,248,220,0.7)]'
+                        ? 'text-[#FFFDF8] text-xl sm:text-2xl font-medium drop-shadow-[0_2px_22px_rgba(255,248,220,0.8)]'
                         : isPast
                         ? 'text-[#B8E7E5]/45 text-base sm:text-lg'
                         : 'text-[#B8E7E5]/25 text-base sm:text-lg'
@@ -355,13 +345,6 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
                 </div>
               );
             })}
-          </div>
-
-          {/* Subtle whisper footnote */}
-          <div className="pt-2 text-right">
-            <span className="font-handwriting text-sm text-[#8ED4D6]/50">
-              playing in the background...
-            </span>
           </div>
         </motion.div>
       </div>
