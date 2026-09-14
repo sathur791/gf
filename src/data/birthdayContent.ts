@@ -52,6 +52,19 @@ export const birthdayContent = {
     "sadurkalai"
   ],
 
+  // Pre-Birthday Countdown Gate
+  countdown: {
+    eyebrow: "FOR KALAIVANI",
+    title: "Something special is waiting for you.",
+    subtitle: "Not yet, Kalai...",
+    dateDisplay: "10.10.2026",
+    timeDisplay: "12:00:00 AM IST",
+    music: {
+      title: "Something Waiting",
+      source: "/music/countdown.mp3",
+    }
+  },
+
   // Ocean Blue Cover Copy
   opening: {
     eyebrow: "FOR KALAI",
