@@ -62,7 +62,30 @@ export const birthdayContent = {
     music: {
       title: "Rathinamo",
       source: "/music/Rathinamo.mp3",
-    }
+    },
+    lyricsData: {
+      title: "ஏ ரத்தினமே",
+      singer: "லட்சுமிகாந்த் எம்",
+      composer: "சித்து குமார்",
+      lyricist: "ஜி. கே. பி",
+      lines: [
+        { start: 0, end: 26, text: "♪ (மெல்லிசை தொடக்கம்...) ♪" },
+        { start: 26, end: 34, text: "ஏ ரத்தினமே உயிர் அந்துருச்சே\nஏ ரத்தினமே ரத்தம் சண்ட வெச்சா" },
+        { start: 34, end: 44, text: "இருட்டிலும் தாய் மடி\nதேடும் புள்ள போல நானும் ஏங்கி நின்னேனே" },
+        { start: 44, end: 54, text: "கனவிலும் நினைக்கல\nஒத்த குத்தம் செஞ்ச நானும் பாவி ஆனேனே" },
+        { start: 54, end: 60, text: "சோறு தண்ணி வேணாண்டி\nமன்னிப்பு ஒன்னு நீ தாடி....ஓ...." },
+        { start: 60, end: 65, text: "நெஞ்சுக்குள்ள பாரம் இன்னும் நீங்கல" },
+        { start: 65, end: 74, text: "வேற எதும் வேணாண்டி\nவாழ மட்டும் நீ வாடி...ஓ....ஓ..." },
+        { start: 74, end: 84, text: "ஆசையா கேக்குறேன் வாடி என் கூட" },
+        { start: 84, end: 94, text: "பாவமா நிக்குறேன் வாடி என் கூட.....ஆ...." },
+        { start: 94, end: 104, text: "மோதலும் காதலே வாடி என் கூட.....அ...." },
+        { start: 104, end: 114, text: "மௌனமும் கெஞ்சுதே வாடி என் கூட.....ஆ...." },
+        { start: 114, end: 120, text: "மறச்சேனே நெஞ்சில் மறச்சேனே" },
+        { start: 120, end: 126, text: "விலகாத கண்ணே விலகாத" },
+        { start: 126, end: 131, text: "தனியா நான் நின்னு தவிச்சேன்" },
+        { start: 131, end: 139, text: "ஆனாலும் உன்ன மறக்கலையே" },
+      ],
+    },
   },
 
   // 1. Classic Cinematic Film Opening (Slow anticipation, romantic, delicate)
@@ -71,6 +94,7 @@ export const birthdayContent = {
     secondLine: "I kept a little piece of my heart here for you.",
     invitation: "Come closer.",
     title: "Happy Birthday, Kalai.",
+    coverImage: "/images/cover.jpg",
     sealHint: "Unseal",
     date: "10.10.2026",
     buttonText: "OPEN"

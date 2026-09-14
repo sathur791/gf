@@ -7,7 +7,7 @@ import {
   setDevTestTargetMs,
   type CountdownState,
 } from '../utils/countdownTime';
-import { Volume2, VolumeX, Sparkles, Moon, Clock } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Moon, Clock, Play, Pause, Music } from 'lucide-react';
 
 interface CountdownGateProps {
   onUnlock: () => void;
@@ -18,16 +18,20 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
   const [state, setState] = useState<CountdownState>(() => calculateCountdown());
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
-  // Countdown Music state
+  // Audio & Live Lyrics state
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(false);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(138);
   const [musicError, setMusicError] = useState<boolean>(false);
+  const activeLineRef = useRef<HTMLDivElement | null>(null);
+  const lyricsContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Initialize countdown music
   useEffect(() => {
     const audio = new Audio(countdown.music.source);
     audio.loop = true;
-    audio.volume = 0.35;
+    audio.volume = 0.4;
     audio.preload = 'auto';
 
     audio.addEventListener('play', () => {
@@ -35,8 +39,15 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       setMusicError(false);
     });
     audio.addEventListener('pause', () => setIsPlayingMusic(false));
+    audio.addEventListener('timeupdate', () => {
+      setCurrentTime(audio.currentTime);
+    });
+    audio.addEventListener('loadedmetadata', () => {
+      if (audio.duration && !isNaN(audio.duration)) {
+        setDuration(audio.duration);
+      }
+    });
     audio.addEventListener('error', () => {
-      // Graceful fallback if countdown song is not yet uploaded
       setMusicError(true);
       setIsPlayingMusic(false);
     });
@@ -93,6 +104,29 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     }
   }, [isPlayingMusic]);
 
+  // Seek to specific timestamp in song
+  const seekTo = (seconds: number) => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = seconds;
+    if (audioRef.current.paused) {
+      audioRef.current.play().catch(() => {});
+    }
+  };
+
+  // Auto-scroll lyrics container when active line changes
+  const activeLineIndex = countdown.lyricsData.lines.findIndex(
+    (line) => currentTime >= line.start && currentTime < line.end
+  );
+
+  useEffect(() => {
+    if (activeLineRef.current && lyricsContainerRef.current) {
+      activeLineRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [activeLineIndex]);
+
   // Smooth fade-out of countdown audio on unlock
   const fadeOutAudio = useCallback(() => {
     if (!audioRef.current || !isPlayingMusic) return;
@@ -128,13 +162,28 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     return () => clearInterval(timer);
   }, [isTransitioning, onUnlock, fadeOutAudio]);
 
+  const formatAudioTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center relative px-4 sm:px-6 py-12 select-none overflow-hidden bg-[#0B6075] text-[#123E45]">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 select-none overflow-x-hidden bg-[#0B6075] text-[#123E45]">
       {/* ============================================================ */}
       {/* 1. LAYERED OCEAN ATMOSPHERE & BLENDED MOON                   */}
       {/* ============================================================ */}
       {/* Deep Ocean Gradient Base */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#073F4D] via-[#0B6075] to-[#147C8A] pointer-events-none" />
+
+      {/* Ambient warm glow from cover picture */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        <img
+          src="/images/cover.jpg"
+          alt=""
+          className="w-full h-full object-cover filter blur-[90px] scale-120 transform"
+        />
+      </div>
 
       {/* Atmospheric Moving Caustics & Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[42rem] h-[42rem] rounded-full bg-[#8ED4D6]/20 blur-[130px] pointer-events-none" />
@@ -149,10 +198,9 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           y: 0,
         }}
         transition={{ duration: isTransitioning ? 2.2 : 2.5, ease: 'easeOut' }}
-        className="absolute top-6 sm:top-10 right-4 sm:right-14 w-32 h-32 sm:w-48 sm:h-48 pointer-events-none select-none z-0"
+        className="absolute top-4 sm:top-8 right-4 sm:right-12 w-24 h-24 sm:w-36 sm:h-36 pointer-events-none select-none z-0"
       >
         <div className="absolute inset-0 rounded-full bg-[#FFFDF8]/20 blur-2xl transform scale-125" />
-        <div className="absolute inset-0 rounded-full bg-[#8ED4D6]/25 blur-3xl transform scale-150" />
         <img
           src={moon.image}
           alt="Moon"
@@ -166,149 +214,240 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
         />
       </motion.div>
 
-      {/* Floating Starlight Particles */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <motion.div
-          className="absolute top-[20%] left-[15%] w-2 h-2 rounded-full bg-[#FFFDF8]/40 blur-[0.5px]"
-          animate={{ y: [0, -16, 0], opacity: [0.2, 0.6, 0.2] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.div
-          className="absolute top-[42%] right-[20%] w-2.5 h-2.5 rounded-full bg-[#B8E7E5]/50 blur-[0.8px]"
-          animate={{ y: [0, -22, 0], opacity: [0.25, 0.7, 0.25] }}
-          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        />
-        <motion.div
-          className="absolute bottom-[22%] left-[22%] w-1.5 h-1.5 rounded-full bg-[#FFFDF8]/45 blur-[0.5px]"
-          animate={{ y: [0, -14, 0], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 2.5 }}
-        />
-      </div>
-
       {/* ============================================================ */}
-      {/* 2. MAIN COUNTDOWN CARD CONTAINER                             */}
+      {/* 2. MAIN SIDE-BY-SIDE CONTAINER: COUNTDOWN + LYRICS           */}
       {/* ============================================================ */}
-      <motion.div
-        initial={{ opacity: 0, y: 22, scale: 0.98 }}
-        animate={{
-          opacity: isTransitioning ? [1, 1, 0] : 1,
-          scale: isTransitioning ? [1, 1.04, 0.96] : 1,
-          y: isTransitioning ? -15 : 0,
-        }}
-        transition={{ duration: isTransitioning ? 2.2 : 1.2, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-lg flex flex-col items-center text-center z-10"
-      >
-        {/* Eyebrow badge */}
+      <div className="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 z-10 py-4 my-auto">
+        {/* ------------------------------------------------------------ */}
+        {/* LEFT COLUMN: COUNTDOWN GATE CARD                             */}
+        {/* ------------------------------------------------------------ */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="mb-6"
+          initial={{ opacity: 0, y: 22, scale: 0.98 }}
+          animate={{
+            opacity: isTransitioning ? [1, 1, 0] : 1,
+            scale: isTransitioning ? [1, 1.04, 0.96] : 1,
+            y: isTransitioning ? -15 : 0,
+          }}
+          transition={{ duration: isTransitioning ? 2.2 : 1.2, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full lg:w-1/2 max-w-md sm:max-w-lg flex flex-col items-center text-center"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFFDF8]/10 border border-[#B8E7E5]/30 text-xs font-sans tracking-[0.28em] uppercase text-[#B8E7E5] font-medium backdrop-blur-sm shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-[#8ED4D6]" />
-            {countdown.eyebrow}
-          </span>
-        </motion.div>
-
-        {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 16, filter: 'blur(8px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 1.2, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#FFFDF8] font-light tracking-wide mb-3 leading-tight"
-        >
-          {countdown.title}
-        </motion.h1>
-
-        {/* Handwritten subtitle: "Not yet, Kalai..." */}
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 0.95, y: 0 }}
-          transition={{ duration: 1, delay: 0.55 }}
-          className="font-handwriting text-2xl sm:text-3xl text-[#DDF3E9] mb-8 sm:mb-10"
-        >
-          {countdown.subtitle}
-        </motion.p>
-
-        {/* ========================================================== */}
-        {/* LIVE COUNTDOWN TILES (DAYS • HOURS • MINUTES • SECONDS)    */}
-        {/* ========================================================== */}
-        <div className="w-full max-w-md grid grid-cols-4 gap-2 sm:gap-3.5 mb-8">
-          {[
-            { label: 'DAYS', value: formatTwoDigits(state.days) },
-            { label: 'HOURS', value: formatTwoDigits(state.hours) },
-            { label: 'MINUTES', value: formatTwoDigits(state.minutes) },
-            { label: 'SECONDS', value: formatTwoDigits(state.seconds) },
-          ].map((item, idx) => (
-            <motion.div
-              key={item.label}
-              initial={{ opacity: 0, y: 18, scale: 0.92 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.6 + idx * 0.1 }}
-              className="bg-[#FFFDF8] rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-[#0B6075]/15 shadow-[0_16px_36px_rgba(7,63,77,0.18)] flex flex-col items-center justify-center relative overflow-hidden group"
-            >
-              {/* Soft card sheen */}
-              <div className="absolute top-0 right-0 w-12 h-12 bg-radial from-[#8ED4D6]/20 to-transparent rounded-full blur-lg pointer-events-none" />
-
-              {/* Numerical Value */}
-              <span className="font-serif text-2xl sm:text-3xl md:text-4xl text-[#0B6075] font-light tracking-tight tabular-nums mb-0.5 sm:mb-1">
-                {item.value}
-              </span>
-
-              {/* Label */}
-              <span className="text-[9px] sm:text-[10px] font-sans tracking-[0.2em] uppercase text-[#147C8A]/75 font-semibold">
-                {item.label}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Target Date Note */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.85 }}
-          transition={{ duration: 1, delay: 1 }}
-          className="flex items-center justify-center gap-2 text-xs font-sans tracking-[0.24em] uppercase text-[#8ED4D6] font-medium mb-8"
-        >
-          <Clock className="w-3.5 h-3.5 text-[#8ED4D6]" />
-          <span>
-            {countdown.dateDisplay} • {countdown.timeDisplay}
-          </span>
-        </motion.div>
-
-        {/* Subtle Countdown Music Activation Button */}
-        <motion.button
-          onClick={toggleMusic}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.1 }}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.96 }}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#FFFDF8]/90 hover:bg-[#FFFDF8] text-[#0B6075] text-xs font-sans font-medium tracking-wider shadow-sm transition-all border border-[#0B6075]/20 backdrop-blur-sm"
-          aria-label={isPlayingMusic ? 'Pause music' : 'Play music'}
-        >
-          {isPlayingMusic ? (
-            <Volume2 className="w-4 h-4 text-[#0B6075]" />
-          ) : (
-            <VolumeX className="w-4 h-4 text-[#147C8A]/70" />
-          )}
-          <span>
-            {isPlayingMusic
-              ? `♪ ${countdown.music.title.toUpperCase()}`
-              : musicError
-              ? 'Soundtrack preparing...'
-              : '♪ Tap for sound'}
-          </span>
-          {isPlayingMusic && (
-            <span className="flex items-center gap-0.5 ml-1">
-              <span className="w-0.5 h-2.5 bg-[#0B6075] rounded-full animate-pulse" />
-              <span className="w-0.5 h-3 bg-[#0B6075] rounded-full animate-pulse delay-150" />
-              <span className="w-0.5 h-1.5 bg-[#0B6075] rounded-full animate-pulse delay-300" />
+          {/* Eyebrow badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="mb-4"
+          >
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFFDF8]/10 border border-[#B8E7E5]/30 text-xs font-sans tracking-[0.28em] uppercase text-[#B8E7E5] font-medium backdrop-blur-sm shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-[#8ED4D6]" />
+              {countdown.eyebrow}
             </span>
-          )}
-        </motion.button>
-      </motion.div>
+          </motion.div>
+
+          {/* Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 16, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 1.2, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="text-2xl sm:text-3xl md:text-4xl font-serif text-[#FFFDF8] font-light tracking-wide mb-2 leading-tight"
+          >
+            {countdown.title}
+          </motion.h1>
+
+          {/* Handwritten subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 0.95, y: 0 }}
+            transition={{ duration: 1, delay: 0.55 }}
+            className="font-handwriting text-2xl sm:text-3xl text-[#DDF3E9] mb-6"
+          >
+            {countdown.subtitle}
+          </motion.p>
+
+          {/* LIVE COUNTDOWN TILES */}
+          <div className="w-full grid grid-cols-4 gap-2 sm:gap-3 mb-6">
+            {[
+              { label: 'DAYS', value: formatTwoDigits(state.days) },
+              { label: 'HOURS', value: formatTwoDigits(state.hours) },
+              { label: 'MINUTES', value: formatTwoDigits(state.minutes) },
+              { label: 'SECONDS', value: formatTwoDigits(state.seconds) },
+            ].map((item, idx) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, y: 18, scale: 0.92 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.6 + idx * 0.1 }}
+                className="bg-[#FFFDF8] rounded-2xl p-3 sm:p-4 border border-[#0B6075]/15 shadow-[0_16px_36px_rgba(7,63,77,0.18)] flex flex-col items-center justify-center relative overflow-hidden group"
+              >
+                <div className="absolute top-0 right-0 w-10 h-10 bg-radial from-[#8ED4D6]/20 to-transparent rounded-full blur-lg pointer-events-none" />
+                <span className="font-serif text-2xl sm:text-3xl text-[#0B6075] font-light tracking-tight tabular-nums mb-0.5">
+                  {item.value}
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-sans tracking-[0.2em] uppercase text-[#147C8A]/75 font-semibold">
+                  {item.label}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Target Date Note */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.85 }}
+            transition={{ duration: 1, delay: 1 }}
+            className="flex items-center justify-center gap-2 text-xs font-sans tracking-[0.24em] uppercase text-[#8ED4D6] font-medium mb-3"
+          >
+            <Clock className="w-3.5 h-3.5 text-[#8ED4D6]" />
+            <span>
+              {countdown.dateDisplay} • {countdown.timeDisplay}
+            </span>
+          </motion.div>
+
+          <p className="font-serif italic text-sm text-[#B8E7E5]/75 max-w-sm">
+            "The moon is waiting. The stars are waiting. And I am waiting for you."
+          </p>
+        </motion.div>
+
+        {/* ------------------------------------------------------------ */}
+        {/* RIGHT COLUMN: SYNCHRONIZED RATHINAMO LYRICS STREAM PLAYER     */}
+        {/* ------------------------------------------------------------ */}
+        <motion.div
+          initial={{ opacity: 0, y: 24, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1.1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full lg:w-1/2 max-w-md sm:max-w-lg bg-[#052831]/75 backdrop-blur-xl border border-[#8ED4D6]/25 rounded-3xl p-5 sm:p-6 shadow-[0_20px_50px_rgba(3,28,35,0.65)] flex flex-col relative overflow-hidden"
+        >
+          {/* Ambient Card Sheen */}
+          <div className="absolute -top-12 -right-12 w-44 h-44 bg-[#8ED4D6]/15 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Track Header & Credits */}
+          <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/10 relative z-10">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Music className="w-4 h-4 text-[#FFE8B2]" />
+                <h3 className="font-serif text-xl sm:text-2xl text-[#FFE8B2] font-semibold tracking-wide">
+                  {countdown.lyricsData.title}
+                </h3>
+                {isPlayingMusic && (
+                  <span className="flex items-center gap-0.5 ml-1.5">
+                    <span className="w-1 h-3 bg-[#FFE8B2] rounded-full animate-pulse" />
+                    <span className="w-1 h-4 bg-[#FFE8B2] rounded-full animate-pulse delay-150" />
+                    <span className="w-1 h-2 bg-[#FFE8B2] rounded-full animate-pulse delay-300" />
+                  </span>
+                )}
+              </div>
+              <div className="text-[11px] sm:text-xs text-[#B8E7E5]/75 font-sans leading-relaxed space-y-0.5">
+                <p>
+                  <span className="text-[#FFE8B2]/90">பாடகர்:</span> {countdown.lyricsData.singer}
+                </p>
+                <p>
+                  <span className="text-[#FFE8B2]/90">இசை:</span> {countdown.lyricsData.composer} •{' '}
+                  <span className="text-[#FFE8B2]/90">வரிகள்:</span> {countdown.lyricsData.lyricist}
+                </p>
+              </div>
+            </div>
+
+            {/* Play/Pause Button */}
+            <button
+              onClick={toggleMusic}
+              className="w-11 h-11 rounded-full bg-[#FFE8B2] hover:bg-white text-[#052831] flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95 shrink-0 mt-1"
+              aria-label={isPlayingMusic ? 'Pause song' : 'Play song'}
+            >
+              {isPlayingMusic ? (
+                <Pause className="w-5 h-5 fill-current" />
+              ) : (
+                <Play className="w-5 h-5 fill-current ml-0.5" />
+              )}
+            </button>
+          </div>
+
+          {/* Song Timeline Scrubber */}
+          <div className="py-3 relative z-10">
+            <div className="flex items-center justify-between text-[10px] font-mono text-[#B8E7E5]/70 mb-1">
+              <span className="flex items-center gap-1.5">
+                <button
+                  onClick={toggleMusic}
+                  className="hover:text-[#FFE8B2] transition-colors"
+                  title={isPlayingMusic ? 'Mute' : 'Play'}
+                >
+                  {isPlayingMusic ? (
+                    <Volume2 className="w-3.5 h-3.5 text-[#FFE8B2]" />
+                  ) : (
+                    <VolumeX className="w-3.5 h-3.5 text-[#B8E7E5]/60" />
+                  )}
+                </button>
+                <span>{formatAudioTime(currentTime)}</span>
+              </span>
+              {musicError ? (
+                <span className="text-rose-300 font-sans">Audio unavailable</span>
+              ) : (
+                <span>{formatAudioTime(duration)}</span>
+              )}
+            </div>
+            <div
+              className="w-full h-1.5 bg-white/10 hover:h-2.5 rounded-full cursor-pointer transition-all relative overflow-hidden"
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+                seekTo(ratio * duration);
+              }}
+            >
+              <div
+                className="h-full bg-gradient-to-r from-[#8ED4D6] to-[#FFE8B2] rounded-full transition-all"
+                style={{ width: `${(currentTime / duration) * 100}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Synchronized Lyrics Container */}
+          <div
+            ref={lyricsContainerRef}
+            className="mt-2 h-[260px] sm:h-[300px] overflow-y-auto pr-1.5 space-y-3.5 scroll-smooth select-text relative z-10"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(142, 212, 214, 0.3) transparent',
+            }}
+          >
+            {countdown.lyricsData.lines.map((line, idx) => {
+              const isActive = idx === activeLineIndex;
+              const isPast = idx < activeLineIndex;
+
+              return (
+                <div
+                  key={idx}
+                  ref={isActive ? activeLineRef : null}
+                  onClick={() => seekTo(line.start)}
+                  className={`p-3 rounded-2xl transition-all duration-300 cursor-pointer ${
+                    isActive
+                      ? 'bg-gradient-to-r from-[#FFE8B2]/20 to-transparent border-l-4 border-[#FFE8B2] shadow-[0_4px_20px_rgba(255,232,178,0.15)] scale-[1.01]'
+                      : isPast
+                      ? 'text-[#B8E7E5]/50 hover:text-[#B8E7E5]/80 hover:bg-white/5'
+                      : 'text-[#B8E7E5]/35 hover:text-[#B8E7E5]/70 hover:bg-white/5'
+                  }`}
+                >
+                  <p
+                    className={`font-serif leading-relaxed whitespace-pre-line text-sm sm:text-base ${
+                      isActive
+                        ? 'text-[#FFFDF8] font-medium text-base sm:text-lg drop-shadow-[0_2px_10px_rgba(255,232,178,0.4)]'
+                        : ''
+                    }`}
+                  >
+                    {line.text}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Hint */}
+          <div className="pt-3 text-center border-t border-white/10 mt-3">
+            <span className="text-[10px] font-sans text-[#B8E7E5]/60 tracking-wider">
+              {isPlayingMusic ? '• Synchronized with music •' : 'Tap play or any line to listen'}
+            </span>
+          </div>
+        </motion.div>
+      </div>
 
       {/* ============================================================ */}
       {/* 3. CINEMATIC MIDNIGHT TRANSITION FLASH LIGHT                 */}
@@ -361,7 +500,6 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           </button>
           <button
             onClick={() => {
-              // Set target to 10 seconds in the future
               setDevTestTargetMs(Date.now() + 10000);
               setState(calculateCountdown());
             }}
@@ -385,3 +523,5 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     </div>
   );
 };
+
+export default CountdownGate;

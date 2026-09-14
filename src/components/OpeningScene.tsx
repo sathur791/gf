@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { birthdayContent } from '../data/birthdayContent';
-import { QrCode } from 'lucide-react';
+import { QrCode, ChevronDown } from 'lucide-react';
 import { PrintableGiftQR } from './PrintableGiftQR';
 
 interface OpeningSceneProps {
@@ -9,7 +9,7 @@ interface OpeningSceneProps {
 }
 
 export const OpeningScene: React.FC<OpeningSceneProps> = ({ onOpen }) => {
-  const { opening, envelope, moon } = birthdayContent;
+  const { opening } = birthdayContent;
   const [showQRModal, setShowQRModal] = useState(false);
   const [isUnsealing, setIsUnsealing] = useState(false);
 
@@ -19,168 +19,134 @@ export const OpeningScene: React.FC<OpeningSceneProps> = ({ onOpen }) => {
     window.dispatchEvent(new CustomEvent('play-birthday-music'));
     setTimeout(() => {
       onOpen();
-    }, 320);
+    }, 450);
   };
 
+  // Allow scrolling or swiping down on the cover to begin the experience
+  useEffect(() => {
+    let touchStartY = 0;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY > 25) {
+        handleOpen();
+      }
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const touchDiff = touchStartY - e.touches[0].clientY;
+      if (touchDiff > 40) {
+        handleOpen();
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [isUnsealing]);
+
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center relative px-6 py-12 select-none overflow-hidden bg-[#073642]">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center relative px-3 sm:px-6 py-6 sm:py-10 select-none overflow-hidden bg-[#052831]">
       {/* ============================================================ */}
-      {/* 1. ATMOSPHERIC CINEMATIC NIGHT & SUBTLE MOON                 */}
+      {/* 1. AMBIENT ATMOSPHERIC BACKDROP WITH COVER GLOW              */}
       {/* ============================================================ */}
-      {/* Soft ocean-blue / muted aqua film atmosphere */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#052831] via-[#09414F] to-[#0D5564] pointer-events-none" />
+      {/* Deep Ocean Vignette Base */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#031C23] via-[#073642] to-[#0A4755] pointer-events-none" />
 
-      {/* Subtle organic light gradient */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[42rem] h-[42rem] rounded-full bg-[#8ED4D6]/15 blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-[48rem] h-[28rem] rounded-full bg-[#B8E7E5]/10 blur-[130px] pointer-events-none" />
-
-      {/* Subtle Companion Moon (Quiet in the distance) */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 0.85, scale: 1 }}
-        transition={{ duration: 1.2, ease: 'easeOut' }}
-        className="absolute top-8 sm:top-14 right-6 sm:right-16 w-24 h-24 sm:w-36 sm:h-36 pointer-events-none select-none z-0"
-      >
-        <div className="absolute inset-0 rounded-full bg-[#FFFDF8]/15 blur-2xl transform scale-125" />
+      {/* Atmospheric blurred version of the cover creating radiant mood glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30 sm:opacity-40">
         <img
-          src={moon.image}
-          alt="Moon"
-          loading="eager"
-          decoding="async"
-          className="w-full h-full object-contain filter drop-shadow-[0_0_25px_rgba(255,253,248,0.4)] opacity-90"
-          style={{
-            maskImage: 'radial-gradient(circle at center, black 65%, rgba(0,0,0,0.6) 80%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(circle at center, black 65%, rgba(0,0,0,0.6) 80%, transparent 100%)',
-          }}
+          src={opening.coverImage || '/images/cover.jpg'}
+          alt=""
+          className="w-full h-full object-cover filter blur-[70px] sm:blur-[100px] scale-120 transform"
         />
-      </motion.div>
+      </div>
 
-      {/* Discreet Gift Card / QR Modal Trigger (Minimalist) */}
-      <div className="absolute top-4 left-4 z-20">
+      {/* Soft starlight caustics */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] rounded-full bg-[#8ED4D6]/15 blur-[120px] pointer-events-none" />
+
+      {/* Discreet Gift Card / QR Modal Trigger */}
+      <div className="absolute top-4 left-4 z-30">
         <button
           onClick={() => setShowQRModal(true)}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-[#B8E7E5]/75 hover:text-white transition-all text-[11px] font-sans tracking-widest border border-white/10 backdrop-blur-xs"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-[#B8E7E5]/90 hover:text-white transition-all text-[11px] font-sans tracking-widest border border-white/15 backdrop-blur-md shadow-lg"
           title="Print High-Res QR Card"
         >
-          <QrCode className="w-3 h-3 text-[#B8E7E5]/70" />
+          <QrCode className="w-3.5 h-3.5 text-[#8ED4D6]" />
           <span className="hidden sm:inline">QR Keepsake</span>
         </button>
       </div>
 
       {/* ============================================================ */}
-      {/* 2. POETIC SCRIPT REVEAL (WRITTEN NATURALLY)                  */}
+      {/* 2. THE OFFICIAL COVER PICTURE FOR THE WEBSITE                */}
       {/* ============================================================ */}
-      <div className="w-full max-w-lg flex flex-col items-center text-center z-10 space-y-3 sm:space-y-4">
-        {/* "for Kalai" (Delicate handwritten style) */}
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 0.95, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
-          className="font-handwriting text-3xl sm:text-4xl text-[#DDF3E9] tracking-wide"
-        >
-          {opening.firstLine}
-        </motion.p>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, y: 16 }}
+        animate={{
+          opacity: isUnsealing ? 0 : 1,
+          scale: isUnsealing ? 1.04 : 1,
+          y: isUnsealing ? -20 : 0,
+        }}
+        transition={{ duration: isUnsealing ? 0.45 : 1.1, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-[390px] sm:max-w-[430px] md:max-w-[460px] flex flex-col items-center cursor-pointer group"
+        onClick={handleOpen}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') handleOpen();
+        }}
+        aria-label="Begin birthday experience"
+      >
+        {/* Ambient poster drop shadow */}
+        <div className="absolute -inset-2 bg-gradient-to-b from-[#8ED4D6]/20 via-[#0B6075]/30 to-[#031C23]/60 rounded-[2.5rem] blur-2xl transition-opacity duration-700 group-hover:opacity-100 opacity-70" />
 
-        {/* "I kept a little piece of my heart here for you." */}
-        <motion.p
-          initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
-          animate={{ opacity: 0.9, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 0.8, delay: 0.65, ease: 'easeOut' }}
-          className="font-serif italic text-base sm:text-lg text-[#B8E7E5] font-light max-w-sm leading-relaxed"
-        >
-          "{opening.secondLine}"
-        </motion.p>
+        {/* Poster Frame Container */}
+        <div className="relative w-full aspect-[2/3] rounded-[2rem] sm:rounded-[2.25rem] overflow-hidden border border-[#8ED4D6]/30 shadow-[0_25px_60px_rgba(3,28,35,0.85)] bg-[#073642] transition-transform duration-500 group-hover:scale-[1.015]">
+          {/* Main Cover Photograph */}
+          <img
+            src={opening.coverImage || '/images/cover.jpg'}
+            alt="A Little World For You — Kalai"
+            loading="eager"
+            decoding="async"
+            className="w-full h-full object-cover object-center select-none"
+          />
 
-        {/* "Come closer." */}
+          {/* Delicate glass reflection sheen on hover */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+          {/* Interactive touch pulse overlay over the "SCROLL TO BEGIN" zone */}
+          <div className="absolute bottom-4 sm:bottom-6 inset-x-0 flex flex-col items-center justify-center pointer-events-none">
+            <motion.div
+              animate={{ y: [0, 5, 0], opacity: [0.75, 1, 0.75] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              className="flex flex-col items-center gap-1"
+            >
+              <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/30 backdrop-blur-md border border-white/25 flex items-center justify-center shadow-lg group-hover:bg-black/45 transition-colors">
+                <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFFDF8]" />
+              </span>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Quiet Whisper caption beneath the cover */}
         <motion.p
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.8 }}
-          transition={{ duration: 0.6, delay: 1.15, ease: 'easeOut' }}
-          className="font-handwriting text-xl sm:text-2xl text-[#8ED4D6] pt-1"
+          animate={{ opacity: 0.85 }}
+          transition={{ duration: 0.8, delay: 0.9 }}
+          className="mt-3.5 sm:mt-4 font-handwriting text-lg sm:text-xl text-[#DDF3E9] tracking-wider text-center"
         >
-          {opening.invitation}
+          touch anywhere or scroll to enter
         </motion.p>
-
-        {/* Main Title: "Happy Birthday, Kalai." (The ONE prominent birthday greeting) */}
-        <motion.h1
-          initial={{ opacity: 0, y: 12, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.9, delay: 1.6, ease: [0.16, 1, 0.3, 1] }}
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#FFFDF8] font-light tracking-wide pt-2 pb-6 leading-tight drop-shadow-[0_2px_20px_rgba(142,212,214,0.25)]"
-        >
-          {opening.title}
-        </motion.h1>
-
-        {/* ============================================================ */}
-        {/* 3. PHYSICAL CREAM STATIONERY ENVELOPE WITH WAX SEAL          */}
-        {/* ============================================================ */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 14 }}
-          animate={{ opacity: 1, scale: isUnsealing ? 1.03 : 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 2.0, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col items-center pt-2"
-        >
-          <div
-            onClick={handleOpen}
-            className="relative w-52 sm:w-56 h-36 sm:h-38 cursor-pointer group"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') handleOpen();
-            }}
-            aria-label="Open the envelope"
-          >
-            {/* Soft Shadow */}
-            <div className="absolute inset-0 translate-y-3 bg-[#052831]/70 rounded-2xl blur-xl transition-all group-hover:blur-2xl group-hover:translate-y-4" />
-
-            {/* Handcrafted Envelope Body */}
-            <div className="relative w-full h-full bg-[#FFFDF8] border border-[#0B6075]/15 rounded-2xl shadow-[0_16px_45px_rgba(5,40,49,0.35)] flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1">
-              {/* Subtle Crease Lines */}
-              <svg
-                className="absolute inset-0 w-full h-full pointer-events-none opacity-60"
-                viewBox="0 0 224 152"
-                fill="none"
-              >
-                <path
-                  d="M0 0 L112 80 L224 0"
-                  stroke="rgba(11, 96, 117, 0.14)"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M0 152 L80 68"
-                  stroke="rgba(11, 96, 117, 0.08)"
-                  strokeWidth="1.2"
-                />
-                <path
-                  d="M224 152 L144 68"
-                  stroke="rgba(11, 96, 117, 0.08)"
-                  strokeWidth="1.2"
-                />
-              </svg>
-
-              {/* Embossed Crimson Wax Seal "K" */}
-              <motion.div
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.94 }}
-                className="w-13 h-13 rounded-full bg-[#8E3B46] text-[#FFFDF8] flex items-center justify-center font-serif text-xl font-medium shadow-[0_4px_16px_rgba(142,59,70,0.4)] z-10 border border-white/25 relative"
-              >
-                <span className="font-serif italic text-amber-100 drop-shadow-xs">
-                  {envelope.sealText}
-                </span>
-                <span className="absolute -inset-1 rounded-full border border-amber-200/30 animate-ping pointer-events-none opacity-30" />
-              </motion.div>
-
-              {/* Whisper text */}
-              <div className="absolute bottom-2.5 inset-x-0 text-center pointer-events-none">
-                <span className="font-handwriting text-base text-[#147C8A]/80 tracking-wide">
-                  touch to unseal
-                </span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+      </motion.div>
 
       {/* Printable QR Keepsake Modal */}
       <PrintableGiftQR isOpen={showQRModal} onClose={() => setShowQRModal(false)} />
