@@ -1,0 +1,260 @@
+@layer base {
+  :root {
+    /* Exact Color System */
+    --color-ocean-dark: #0B6075;
+    --color-ocean-mid: #147C8A;
+    --color-ocean-light: #1D8994;
+
+    --color-aqua-dark: #8ED4D6;
+    --color-aqua-light: #B8E7E5;
+
+    --color-mint-dark: #DDF3E9;
+    --color-mint-light: #EAF7F0;
+
+    --color-cream-pure: #FFFDF8;
+    --color-cream-warm: #FAF6ED;
+
+    --color-text-deep: #123E45;
+    --color-text-muted: #2A646E;
+
+    /* Paper & Card Tokens */
+    --card-bg: rgba(255, 253, 248, 0.94);
+    --card-bg-solid: #FFFDF8;
+    --card-border: rgba(11, 96, 117, 0.14);
+    --card-border-hover: rgba(20, 124, 138, 0.3);
+
+    /* Accents */
+    --wax-seal: #A64B56;
+    --wax-seal-hover: #963F4A;
+
+    /* Shadows & Atmosphere */
+    --shadow-paper: 0 16px 40px -8px rgba(11, 96, 117, 0.14), 0 4px 12px -2px rgba(18, 62, 69, 0.08);
+    --shadow-lift: 0 24px 50px -10px rgba(11, 96, 117, 0.22), 0 8px 20px -4px rgba(20, 124, 138, 0.15);
+    --glow-aqua: 0 0 32px rgba(142, 212, 214, 0.32);
+    --glow-moon: 0 0 45px rgba(255, 253, 248, 0.45);
+  }
+
+  body {
+    background-color: #0B6075;
+    color: var(--color-text-deep);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  .font-handwriting {
+    font-family: 'Caveat', cursive, sans-serif;
+  }
+
+  .font-sans-clean {
+    font-family: 'Outfit', 'Inter', sans-serif;
+  }
+}
+
+/* ============================================================ */
+/* UNIQUE ANIMATIONS & AMBIENT WATER CAUSTICS                   */
+/* ============================================================ */
+
+/* Water Caustic Light Waves */
+@keyframes waterCaustics {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.25;
+  }
+  50% {
+    transform: scale(1.15) rotate(180deg);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 0.25;
+  }
+}
+
+.animate-caustics {
+  animation: waterCaustics 24s ease-in-out infinite;
+}
+
+/* Liquid Float */
+@keyframes liquidFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+
+.animate-float {
+  animation: liquidFloat 6s ease-in-out infinite;
+}
+
+/* Slow Wave Layers */
+@keyframes waveFlow {
+  0% {
+    transform: translateX(0) translateZ(0);
+  }
+  50% {
+    transform: translateX(-25%) translateZ(0);
+  }
+  100% {
+    transform: translateX(-50%) translateZ(0);
+  }
+}
+
+@keyframes waveFlowReverse {
+  0% {
+    transform: translateX(-50%) translateZ(0);
+  }
+  50% {
+    transform: translateX(-25%) translateZ(0);
+  }
+  100% {
+    transform: translateX(0) translateZ(0);
+  }
+}
+
+.animate-wave-1 {
+  animation: waveFlow 25s ease-in-out infinite;
+}
+
+.animate-wave-2 {
+  animation: waveFlowReverse 32s ease-in-out infinite;
+}
+
+/* Shimmer Sheen Across Photos */
+@keyframes lightSheen {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+.photo-sheen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  pointer-events: none;
+  transform: translateX(-150%) skewX(-20deg);
+}
+
+.photo-sheen:hover::after {
+  animation: lightSheen 1.2s ease-out;
+}
+
+/* Sea-Mint Stationery Card */
+.mint-blue-card {
+  background: rgba(245, 252, 249, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(20, 125, 138, 0.16);
+  box-shadow: var(--shadow-blue-mint);
+  border-radius: 22px;
+  position: relative;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mint-blue-card:hover {
+  border-color: rgba(78, 168, 222, 0.35);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Paper Button with Blue-Mint Glow */
+.paper-button {
+  background: rgba(255, 255, 255, 0.95);
+  color: #083B4A;
+  border: 1px solid rgba(20, 125, 138, 0.22);
+  box-shadow: 0 4px 18px rgba(11, 95, 115, 0.1);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.paper-button:hover {
+  background: #FFFFFF;
+  border-color: #2A7B6B;
+  box-shadow: 0 8px 25px rgba(20, 125, 138, 0.22), 0 0 15px rgba(117, 201, 208, 0.3);
+  transform: translateY(-2px);
+}
+
+.paper-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(11, 95, 115, 0.1);
+}
+
+/* Wax seal badge */
+.wax-seal {
+  background: radial-gradient(circle at 35% 35%, #C25B64 0%, #A3454E 70%, #833038 100%);
+  box-shadow: 0 4px 14px rgba(131, 48, 56, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.45), inset 0 -2px 4px rgba(0, 0, 0, 0.25);
+  color: #F7FAF8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: 'Cormorant Garamond', serif;
+  user-select: none;
+}
+
+/* Photo Frames in Blue-Mint */
+.photo-frame {
+  background: #FFFFFF;
+  border: 1px solid rgba(20, 125, 138, 0.14);
+  box-shadow: 0 12px 34px rgba(11, 95, 115, 0.1);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: all 0.35s ease;
+}
+
+.photo-frame img {
+  image-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrapbook Mint Washi Tape */
+.scrapbook-tape {
+  background: rgba(207, 235, 221, 0.85);
+  box-shadow: 0 2px 6px rgba(11, 95, 115, 0.1);
+  backdrop-filter: blur(2px);
+  border-left: 1px dashed rgba(20, 125, 138, 0.25);
+  border-right: 1px dashed rgba(20, 125, 138, 0.25);
+}
+
+/* Stamp border detail in soft mint */
+.stamp-edge {
+  border: 1.5px dashed rgba(20, 125, 138, 0.24);
+  border-radius: 14px;
+}
+
+/* 3D Perspective container */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+/* Custom Scrollbar in Mint-Blue */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(11, 95, 115, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #75C9D0 0%, #2A7B6B 100%);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4EA8DE 0%, #1B5E50 100%);
+}
