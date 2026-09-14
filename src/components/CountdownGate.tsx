@@ -41,9 +41,36 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       setIsPlayingMusic(false);
     });
 
+    const triggerPlay = () => {
+      if (audioRef.current && audioRef.current.paused) {
+        audioRef.current
+          .play()
+          .then(() => {
+            setIsPlayingMusic(true);
+            setMusicError(false);
+          })
+          .catch(() => {});
+      }
+    };
+
+    const interactionEvents = ['click', 'touchstart', 'pointerdown'];
+    const handleFirstInteraction = () => {
+      triggerPlay();
+      interactionEvents.forEach((ev) => {
+        window.removeEventListener(ev, handleFirstInteraction);
+      });
+    };
+
+    interactionEvents.forEach((ev) => {
+      window.addEventListener(ev, handleFirstInteraction, { once: true });
+    });
+
     audioRef.current = audio;
 
     return () => {
+      interactionEvents.forEach((ev) => {
+        window.removeEventListener(ev, handleFirstInteraction);
+      });
       audio.pause();
       audio.src = '';
       audioRef.current = null;

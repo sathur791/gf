@@ -8,7 +8,7 @@ export interface MemoryItem {
   story: string;
   hiddenMessage?: string;
   rotation?: number;
-  layoutType?: 'portrait' | 'tilted' | 'overlapping' | 'polaroid' | 'full';
+  layoutType?: 'portrait' | 'tilted' | 'overlapping' | 'polaroid' | 'full' | 'monogram';
 }
 
 export interface QuestionItem {
@@ -52,62 +52,92 @@ export const birthdayContent = {
     "sadurkalai"
   ],
 
-  // Pre-Birthday Countdown Gate
+  // Pre-Birthday Countdown Gate (Official Soundtrack: Rathinamo)
   countdown: {
-    eyebrow: "FOR KALAIVANI",
-    title: "Something special is waiting for you.",
+    eyebrow: "KALAIVANI",
+    title: "Something quiet is waiting for you.",
     subtitle: "Not yet, Kalai...",
     dateDisplay: "10.10.2026",
     timeDisplay: "12:00:00 AM IST",
     music: {
-      title: "Something Waiting",
-      source: "/music/countdown.mp3",
+      title: "Rathinamo",
+      source: "/music/Rathinamo.mp3",
     }
   },
 
-  // Ocean Blue Cover Copy
+  // 1. Classic Cinematic Film Opening (Slow anticipation, romantic, delicate)
   opening: {
-    eyebrow: "FOR KALAI",
-    title: "Something I wanted you to keep.",
+    firstLine: "for Kalai",
+    secondLine: "I kept a little piece of my heart here for you.",
+    invitation: "Come closer.",
+    title: "Happy Birthday, Kalai.",
+    sealHint: "Unseal",
     date: "10.10.2026",
-    subtitle: "Open when you're ready.",
     buttonText: "OPEN"
   },
+
+  // Deep Romantic Reflections (Mixture of long vulnerable passages and short poetic rhythms)
+  romanticReflections: {
+    long1: "I don't remember the exact moment you became so important to me. Maybe there wasn't one. Maybe it happened quietly, in all those little moments I didn't know I'd end up keeping.",
+    long2: "I wish I could show you the way I see you sometimes. Maybe then you'd understand why even the smallest things about you stay with me for so long.",
+    long3: "There are days when I don't say much, but somehow you're still the person my mind finds its way back to.",
+    long4: "I've kept so many little moments with you in my heart that I sometimes forget they were ordinary moments when they happened. They only became precious later, because they were ours.",
+    long5: "I don't love you only in the beautiful moments. I love the quiet ones too — the random conversations, the silly things, the days that don't seem special until I realize I'd miss them if they weren't there.",
+    long6: "You became a part of my life so naturally that I can't remember what it felt like before your presence had a place in it.",
+    long7: "Maybe that's what loving someone really is — carrying little pieces of them with you, even when they're nowhere near you.",
+    long8: "Sometimes I look at you and wonder how someone can feel so familiar and still make my heart feel completely new.",
+    short1: "you became my favourite thought.",
+    short2: "somehow, it became you.",
+    short3: "just you. always you.",
+    short4: "I think my favourite memories are the ones I didn't know would become memories.",
+    short5: "quietly yours."
+  },
+
+  // Couple Quotes for the US section (Intimate, vulnerable, future-facing)
+  coupleQuotes: [
+    "I don't want only the beautiful photographs of us. I want the sleepy mornings, the stupid arguments, the random evenings, the journeys, the quiet days — all of it. As long as it is ours.",
+    "If someone asked me what my favourite chapter has been so far, I'd probably just show them a picture of us.",
+    "I want more ordinary days with you. Somehow, those are the ones I treasure most.",
+    "I hope we keep collecting little moments that neither of us thinks are important at the time — and years later, realize they were everything.",
+    "Maybe the best part of our story isn't what has already happened. Maybe it's everything we haven't lived yet.",
+    "Wherever life takes us, I hope there is always a little bit of 'us' in the middle of it.",
+    "One day, we'll look back at these photographs and realize we were already living some of the days we were wishing for."
+  ],
 
   // Password Page
   secretKey: {
     eyebrow: "A PRIVATE NOTE",
     title: "olunga password podu",
     subtitle: "What's the key?",
-    placeholder: "Enter the secret key...",
+    placeholder: "Enter the key...",
     buttonText: "UNLOCK",
     wrongFeedback: "Not quite... think about us."
   },
 
-  // Post-open Hero Quote
+  // Post-open Keepsake (Soft personal dedication, no UI labels)
   hero: {
     quote: "For all the little moments that became us.",
-    heading: "Happy Birthday, Kalai.",
+    heading: "A little world of ours.",
     subtitle: "Made especially for you."
   },
 
+  // Envelope Interior (Poetic, intimate)
   envelope: {
     sealText: "K",
-    hint: "Tap the seal to open your letter",
-    heading: "Happy Birthday, Kalai.",
     salutation: "Dear Kalai,",
     paragraphs: [
-      "I wanted to make something unique that belongs just to you on your birthday. A quiet, soft space holding our thoughts, memories, and promises.",
-      "From the first time we talked to the gentle comfort we share today, having you in my life is a gift I cherish every moment.",
-      "Take your time and discover each piece inside this little gift."
+      "I wanted to build a quiet, timeless place that belongs only to you. A space holding our thoughts, the memories we've gathered, and all the promises I hold quietly in my heart.",
+      "From the first time we talked to the gentle comfort we share today, having you in my life has made everything feel warmer, softer, and more honest.",
+      "Take your time with every little piece here. It was made with all my love."
     ]
   },
 
-  // Childhood Section
+  // Childhood Section (Emotional tenderness, no invented memories)
   childhood: {
-    intro: "Before there was us.",
-    secondary: "There was you.",
-    afterPhotoNote: "Funny how life keeps a few moments for us.",
+    intro: "Before I knew you,",
+    secondary: "there was already a little girl growing into the person I'd one day love.",
+    interlude1: "I wish I could tell that little girl that one day, she'd become my whole world.",
+    interlude2: "Funny how life keeps a few moments for us, just waiting for the right person to look at them.",
     photos: [
       {
         id: "childhood-01",
@@ -126,7 +156,7 @@ export const birthdayContent = {
         number: "02",
         title: "Growing Up",
         date: "Early Days",
-        caption: "One of the earliest chapters.",
+        caption: "A gentle early chapter.",
         story: "Surrounded by loved ones, every step and smile was shaping the gentle, caring soul you are today.",
         hiddenMessage: "That radiant sparkle in your smile has never changed.",
         rotation: 1.5
@@ -145,10 +175,11 @@ export const birthdayContent = {
     ] as MemoryItem[]
   },
 
+  // Memories & Moments (Nostalgic, natural)
   questions: [
     {
       id: "q1",
-      label: "A LITTLE MEMORY",
+      label: "NOSTALGIA",
       question: "Do you remember the first late-night conversation we had?",
       options: [
         "When we talked for hours without noticing time slip away",
@@ -156,8 +187,8 @@ export const birthdayContent = {
         "When we shared silly jokes that made no sense to anyone else"
       ],
       correctAnswer: "When we talked for hours without noticing time slip away",
-      feedbackCorrect: "You remembered. That was the night I realized talking to you felt like home.",
-      feedbackWrong: "Close... but think about us."
+      feedbackCorrect: "That was the night I realized talking to you felt like home.",
+      feedbackWrong: "Close... think about us."
     },
     {
       id: "q2",
@@ -169,40 +200,76 @@ export const birthdayContent = {
         "Every single second we get to share together"
       ],
       correctAnswer: "Every single second we get to share together",
-      feedbackCorrect: "Always. Because with you, even the simplest ordinary moments turn into treasures.",
+      feedbackCorrect: "Always. Because with you, even the quietest ordinary days turn into treasures.",
       feedbackWrong: "Close... think about what matters most to my heart."
     }
   ] as QuestionItem[],
 
-  // MOON CONFIGURATION ("Muzumathi" - The Full Moon motif)
+  // Companion Moon ("Muzumathi")
   moon: {
     image: "/images/moon.png",
     crescentImage: "/images/moon-crescent.png",
     title: "Muzumathi"
   },
 
-  // "KALAI" SECTION
+  // "KALAI" SECTION (Quiet admiration & personal observations)
   kalai: {
     title: "KALAI",
-    subtitle: "A little collection of you.",
-    hint: "Tap any photograph to open full view",
+    subtitle: "I wish you could borrow my eyes for a moment.",
+    notes: [
+      "this smile.",
+      "this is one of my favourite views.",
+      "you, being you.",
+      "somehow, you make simple things look beautiful.",
+      "just Kalai."
+    ],
     photos: [
+      {
+        id: "kalai-beach",
+        image: "/images/kalai-beach.png",
+        title: "Ocean Breeze",
+        caption: "ocean breeze, and you.",
+        date: "By the Sea",
+        story: "Standing by the open sea, the wind in your hair, with that quiet, effortless smile. You make the whole world feel calm and gentle.",
+        hiddenMessage: "My favorite view will always be you against the open sky.",
+        layoutType: "portrait"
+      },
+      {
+        id: "kalai-blue-saree-traditional",
+        image: "/images/kalai-blue-saree-traditional.png",
+        title: "Grace & Jasmine",
+        caption: "pure grace.",
+        date: "Traditional Elegance",
+        story: "In royal blue and soft gold, jasmine blossoms in your hair. A radiant, unmistakable presence that lights up every corner of the room.",
+        hiddenMessage: "Looking at you, I realize some people simply radiate light.",
+        layoutType: "portrait"
+      },
       {
         id: "kalai-gown",
         image: "/images/kalai-gown.png",
         title: "Royalty in Bloom",
-        caption: "Queen of every room you enter.",
-        date: "Celebration",
+        caption: "somehow, you make simple things look beautiful.",
+        date: "Grace",
         story: "Seated gracefully beneath the floral arch in rich magenta. Unmistakable poise, gentle warmth, and a presence that lights up everything around you.",
         hiddenMessage: "You are the queen of my heart, today and in every tomorrow.",
+        layoutType: "portrait"
+      },
+      {
+        id: "kalai-maroon",
+        image: "/images/kalai-maroon.png",
+        title: "A Quiet Glimpse",
+        caption: "this smile.",
+        date: "Celebration",
+        story: "Looking down with that shy, gentle smile. Sparkling yet subtle, exactly like you.",
+        hiddenMessage: "Every little expression of yours is a memory I treasure.",
         layoutType: "portrait"
       },
       {
         id: "kalai-blue-dress",
         image: "/images/kalai-blue-dress.jpg",
         title: "A Quiet Radiance",
-        caption: "My favorite smile in the whole world.",
-        date: "Special Moments",
+        caption: "this smile.",
+        date: "Warmth",
         story: "Seated with that gentle, unmistakable smile. The quiet elegance and warmth you carry effortlessly in every frame.",
         hiddenMessage: "You take my breath away every single time.",
         layoutType: "portrait"
@@ -211,7 +278,7 @@ export const birthdayContent = {
         id: "kalai-saree",
         image: "/images/kalai-saree.jpg",
         title: "Grace & Jasmine",
-        caption: "Grace in every detail.",
+        caption: "this is one of my favourite views.",
         date: "Treasured Days",
         story: "There is an effortless elegance in the way you carry yourself. This portrait will always be one of my favorites.",
         hiddenMessage: "A beauty that is gentle, quiet, and timeless.",
@@ -221,7 +288,7 @@ export const birthdayContent = {
         id: "kalai-full",
         image: "/images/kalai-full.jpg",
         title: "Calm & Radiant",
-        caption: "In your element.",
+        caption: "you, being you.",
         date: "Gentle Days",
         story: "Your smile has this quiet power to brighten any room, any day, and any thought.",
         hiddenMessage: "Seeing you happy is all I ever want.",
@@ -231,7 +298,7 @@ export const birthdayContent = {
         id: "kalai-traditional",
         image: "/images/kalai-traditional.jpg",
         title: "Pure Warmth",
-        caption: "A smile that stays with me.",
+        caption: "just Kalai.",
         date: "Forever Treasured",
         story: "Looking at this reminds me of how genuinely beautiful your soul is, inside and out.",
         hiddenMessage: "You are truly one of a kind, Kalai.",
@@ -250,13 +317,16 @@ export const birthdayContent = {
     ] as MemoryItem[]
   },
 
-  // "US" SECTION (Progression: Photo 1 -> Photo 2 -> Photo 3 -> Photo 4)
+  // "US" SECTION (The Emotional Turning Point: You -> Us)
   us: {
-    transitionIntro: "And then...",
-    transitionSecondary: "there was us.",
+    prelude: "All those little moments...",
+    preludePause: "somehow led me here.",
+    firstCoupleLine: "And then there was us.",
+    firstCoupleReflection: "I don't remember the exact moment you became so important to me. Maybe there wasn't one. Maybe it happened quietly, in all those little moments I didn't know I'd end up keeping.",
+    secondCoupleLine: "I don't think I'll ever stop being grateful that, out of all the people in this world...",
+    secondCoupleReflection: "I got to find you.",
     title: "US",
     subtitle: "Just us.",
-    hint: "Tap to open our story",
     photos: [
       {
         id: "us-real-couple",
@@ -267,6 +337,26 @@ export const birthdayContent = {
         story: "Held close, smiling together. No filters, no distance, just the gentle, honest truth of being right where we belong.",
         hiddenMessage: "My favorite place in the entire world is right beside you.",
         layoutType: "portrait"
+      },
+      {
+        id: "us-videocall-sleep",
+        image: "/images/us-videocall-sleep.png",
+        title: "Late Night Call",
+        caption: "even in your sleep, you are my peace.",
+        date: "Our Nights",
+        story: "Curled up and sleeping peacefully on call while the world is quiet. Looking over at your face on my screen, I know that no matter where I am, you are my peace.",
+        hiddenMessage: "Distance never mattered when you were right there on my screen, holding my peace.",
+        layoutType: "polaroid"
+      },
+      {
+        id: "us-01",
+        image: "/images/us-01.jpg",
+        title: "Side by Side",
+        caption: "it's who I'm standing beside.",
+        date: "Our Journey",
+        story: "From ordinary afternoons to unforgettable moments, having you beside me makes life complete.",
+        hiddenMessage: "I looked over at you and knew with certainty: here is where I belong.",
+        layoutType: "polaroid"
       },
       {
         id: "us-stars",
@@ -287,38 +377,28 @@ export const birthdayContent = {
         story: "A hand-drawn pen sketch on paper — the letter S curving softly around Kalai, crowned with a little heart. Simple, handmade, and eternal.",
         hiddenMessage: "Our story isn't just spoken; it's etched into each other's souls.",
         layoutType: "monogram"
-      },
-      {
-        id: "us-01",
-        image: "/images/us-01.jpg",
-        title: "Side by Side",
-        caption: "Where everything feels right.",
-        date: "Our Journey",
-        story: "From ordinary afternoons to unforgettable moments, having you beside me makes life complete.",
-        hiddenMessage: "I looked over at you and knew with certainty: here is where I belong.",
-        layoutType: "polaroid"
       }
     ] as MemoryItem[]
   },
 
-  // Interactive Floating Balloons
+  // Interactive Floating Balloons (Quiet thoughts)
   balloons: [
     {
       id: "balloon-01",
       color: "aqua",
-      label: "A tiny secret",
+      label: "a quiet thought",
       message: "You make ordinary days feel like poetry."
     },
     {
       id: "balloon-02",
       color: "mint",
-      label: "One more thing...",
+      label: "something I keep",
       message: "Your laughter is literally my favorite sound in the universe."
     },
     {
       id: "balloon-03",
       color: "cream",
-      label: "Just between us",
+      label: "just us",
       message: "Thank you for being my safe place, today and every single day."
     }
   ],
@@ -328,33 +408,32 @@ export const birthdayContent = {
     {
       id: "note-01",
       teaser: "wait...",
-      title: "A quiet thought",
+      title: "a quiet thought",
       message: "I looked over at you and thought: I never want this moment to end."
     },
     {
       id: "note-02",
       teaser: "look closely...",
-      title: "Written for you",
+      title: "written for you",
       message: "Of all the stars in the night sky, you will always be my brightest."
     },
     {
       id: "note-03",
       teaser: "one more...",
-      title: "Forever promise",
-      message: "No matter how many birthdays come, I'll be right beside you celebrating every single one."
+      title: "forever promise",
+      message: "I never needed perfect moments. I just wanted more moments with you."
     }
   ],
 
-  // Wishes Section
+  // Wishes Section (Warm, heartfelt wishes)
   wishes: {
     title: "A few things I hope for you.",
-    subtitle: "Tap each card to open its wish",
     cards: [
       {
         id: "dreams",
         category: "FOR YOUR DREAMS",
         symbol: "❊",
-        message: "May every wish and dream you hold quietly in your heart unfold with grace, courage, and beautiful success."
+        message: "May every dream you hold quietly in your heart unfold with grace, courage, and beautiful success."
       },
       {
         id: "peace",
@@ -404,32 +483,40 @@ export const birthdayContent = {
     }
   ] as BouquetItem[],
 
-  // Love Letter Section
+  // Love Letter (Handwritten, authentic, vulnerable)
   letter: {
-    title: "One last thing.",
-    subtitle: "Something I wanted to say properly.",
+    introLine1: "There are some things I can say easily...",
+    introLine2: "and some things I can only write.",
+    heading: "for the things I never say enough...",
     salutation: "Kalai,",
     paragraphs: [
-      "There are feelings that words can barely carry, but today I want to try. Out of all the people and all the paths in this world, having you in my life is the greatest blessing I have ever known.",
+      "There are feelings that ordinary words can barely carry, but tonight I want to try. Out of all the people and all the winding paths in this world, having you in my life is the greatest blessing I have ever known.",
       "Thank you for the comfort you bring into my days, for understanding me in ways no one else can, and for your gentle patience. You are my safe harbor, my favorite conversation, and my deepest peace.",
-      "As you celebrate another year of life, I want you to know how deeply you are loved, how proud I am of the woman you are, and how excited I am for all our years to come."
+      "There are things I don't always know how to say when you're standing right in front of me, but I hope you feel them in the way I look at you. In the way my days feel empty when we don't talk. In the way you became my home without even trying.",
+      "I love you, Kalai. For who you were, for who you are today, and for every version of us that we haven't even met yet."
     ],
     signaturePrefix: "Always yours.",
     signatureName: "Sathur"
   },
 
-  // Final Climax Section
+  // Classic Cinematic Climax (Final frame of an old romantic movie)
   final: {
-    prelude: "And that's not even the best part.",
-    pauseText: "Because this...",
+    line1: "Maybe this is my favourite picture.",
+    line2: "Not because it's perfect.",
+    line3: "But because it's us.",
+    futureLead: "I don't know what the years ahead will look like.",
+    futureChoice: "I only know that if I get to choose...",
+    futurePromise: "I'd choose more days with you.",
+    rhythm: [
+      "More memories.",
+      "More laughter.",
+      "More ordinary days.",
+      "More us."
+    ],
     couplePhoto: "/images/couple-final.png",
-    date: "10.10.2026",
-    birthdayTitle: "HAPPY BIRTHDAY",
-    name: "KALAIVANI",
-    message: "To the person who holds my whole heart — today and in every memory yet to come.",
-    signature: "Always yours. Sathur",
-    closing: "Until our next memory.",
-    replayText: "Open it again"
+    signaturePrefix: "Always yours.",
+    signatureName: "Sathur",
+    replayText: "Watch again"
   },
 
   music: {

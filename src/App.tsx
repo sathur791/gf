@@ -6,23 +6,56 @@ import { SecretKey } from './components/SecretKey';
 import { GiftOpening } from './components/GiftOpening';
 import { BirthdayExperience } from './components/BirthdayExperience';
 import { MusicController } from './components/MusicController';
+import { DevPreviewBadge } from './components/DevPreviewBadge';
 import { calculateCountdown } from './utils/countdownTime';
 
 type AppFlowState = 'intro' | 'key' | 'opening' | 'experience';
 
-export const App: React.FC = () => {
-  // Check if birthday has arrived based on real IST target timestamp
-  const [isBirthdayUnlocked, setIsBirthdayUnlocked] = useState<boolean>(
-    () => calculateCountdown().isUnlocked
-  );
+const getInitialUnlockState = (): boolean => {
+  // DEVELOPMENT PREVIEW MODE:
+  // In development only (import.meta.env.DEV), allow ?preview=birthday or ?preview=countdown
+  // In production builds, import.meta.env.DEV is replaced with false at compile time by Vite,
+  // making this branch unreachable and dead-code eliminated.
+  if (import.meta.env.DEV && typeof window !== 'undefined') {
+    const preview = new URLSearchParams(window.location.search).get('preview');
+    if (preview === 'birthday') return true;
+    if (preview === 'countdown') return false;
+  }
+  // Production relies strictly on the real IST birthday timestamp
+  return calculateCountdown().isUnlocked;
+};
 
-  const [appState, setAppState] = useState<AppFlowState>('intro');
+const getInitialAppState = (): AppFlowState => {
+  if (import.meta.env.DEV && typeof window !== 'undefined') {
+    const step = new URLSearchParams(window.location.search).get('step');
+    if (step === 'intro' || step === 'key' || step === 'opening' || step === 'experience') {
+      return step;
+    }
+  }
+  return 'intro';
+};
+
+export const App: React.FC = () => {
+  // Determine if birthday is unlocked
+  const [isBirthdayUnlocked, setIsBirthdayUnlocked] = useState<boolean>(getInitialUnlockState);
+
+  // Scene flow within birthday world
+  const [appState, setAppState] = useState<AppFlowState>(getInitialAppState);
 
   const isCover =
     !isBirthdayUnlocked ||
     appState === 'intro' ||
     appState === 'key' ||
     appState === 'opening';
+
+  const devMode: 'birthday' | 'countdown' | 'real' = (() => {
+    if (import.meta.env.DEV && typeof window !== 'undefined') {
+      const preview = new URLSearchParams(window.location.search).get('preview');
+      if (preview === 'birthday') return 'birthday';
+      if (preview === 'countdown') return 'countdown';
+    }
+    return 'real';
+  })();
 
   return (
     <div
@@ -39,6 +72,20 @@ export const App: React.FC = () => {
       */}
       {isBirthdayUnlocked && (
         <MusicController autoStart={appState === 'experience'} />
+      )}
+
+      {/* 
+        DEVELOPMENT PREVIEW BADGE:
+        Guarded strictly by import.meta.env.DEV.
+        This entire block is stripped and excluded from production builds.
+      */}
+      {import.meta.env.DEV && (
+        <DevPreviewBadge
+          currentMode={devMode}
+          appState={appState}
+          isUnlocked={isBirthdayUnlocked}
+          onSelectState={(nextState) => setAppState(nextState)}
+        />
       )}
 
       <main className="relative z-10 w-full min-h-screen flex flex-col items-center">

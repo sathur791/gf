@@ -14,28 +14,15 @@ export const WishCards: React.FC = () => {
   return (
     <section className="w-full py-20 sm:py-28 px-6 flex flex-col items-center relative">
       <div className="w-full max-w-lg text-center mb-12">
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 0.85 }}
-          viewport={{ once: true, margin: '-50px' }}
-          className="text-[10px] font-sans tracking-[0.28em] uppercase text-[#147C8A] mb-2 font-semibold"
-        >
-          FROM MY HEART
-        </motion.p>
-
         <motion.h2
-          initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
-          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.8 }}
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#0B6075] font-light tracking-wide mb-3"
+          transition={{ duration: 0.7 }}
+          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#0B6075] font-light tracking-wide mb-2"
         >
-          A few little wishes for you.
+          {wishes.title}
         </motion.h2>
-
-        <p className="font-handwriting text-2xl text-[#147C8A]">
-          Tap each card to open its wish
-        </p>
       </div>
 
       {/* Cards Grid */}
@@ -78,9 +65,6 @@ export const WishCards: React.FC = () => {
                 </div>
 
                 <div className="text-[#147C8A] flex items-center gap-1.5">
-                  <span className="text-[11px] font-sans uppercase tracking-wider hidden sm:inline opacity-70 font-medium">
-                    {isExpanded ? 'Close' : 'Open'}
-                  </span>
                   <ChevronDown
                     className={`w-4 h-4 transition-transform duration-300 ${
                       isExpanded ? 'rotate-180 text-[#0B6075]' : ''
