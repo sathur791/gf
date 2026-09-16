@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { birthdayContent } from '../data/birthdayContent';
+import { setupAudioClarity, type EnhancedAudioNodeGraph } from '../utils/audioClarity';
 
 interface MusicControllerProps {
   autoStart?: boolean;
@@ -8,6 +9,7 @@ interface MusicControllerProps {
 
 export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = false }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const clarityRef = useRef<EnhancedAudioNodeGraph | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
 
@@ -18,6 +20,9 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
       audio.loop = true;
       audio.preload = autoStart ? 'auto' : 'none';
       audio.muted = true; // Primed for iOS Safari
+
+      // Connect Web Audio Clarity enhancement pipeline (anti-rumble, vocal air & presence, mastering compressor)
+      clarityRef.current = setupAudioClarity(audio, 1.0);
 
       audio.addEventListener('play', () => {
         setIsPlaying(true);
@@ -71,10 +76,14 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
         if (audioRef.current) {
           const nextVol = Math.max(0, Math.min(1, startVol + volDelta * currentStep));
           audioRef.current.volume = nextVol;
+          clarityRef.current?.setVolume(nextVol);
         }
         if (currentStep >= steps) {
           if (fadeInterval) clearInterval(fadeInterval);
-          if (audioRef.current) audioRef.current.volume = targetVol;
+          if (audioRef.current) {
+            audioRef.current.volume = targetVol;
+            clarityRef.current?.setVolume(targetVol);
+          }
         }
       }, stepTime);
     };

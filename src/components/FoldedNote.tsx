@@ -30,16 +30,16 @@ export const FoldedNote: React.FC<FoldedNoteProps> = ({
         {/* Stationery Tape Accent */}
         <span className="absolute -top-1.5 left-4 w-7 h-2.5 bg-[#BFE8EA]/50 border border-white/40 -rotate-3 rounded-sm pointer-events-none" />
 
-        <Sparkles className="w-3.5 h-3.5 text-[#147D8A] group-hover:rotate-12 transition-transform duration-300" />
+        <Sparkles className="w-3.5 h-3.5 text-[#0B6075] group-hover:rotate-12 transition-transform duration-300" />
 
-        <span className="font-handwriting text-lg text-[#2C636D] group-hover:text-[#083B4A] transition-colors">
+        <span className="font-handwriting text-lg text-[#0B6075] group-hover:text-[#073F4D] transition-colors font-medium">
           {teaser}
         </span>
 
         {isOpen ? (
-          <ChevronUp className="w-3.5 h-3.5 text-[#538A94]" />
+          <ChevronUp className="w-3.5 h-3.5 text-[#147C8A]" />
         ) : (
-          <ChevronDown className="w-3.5 h-3.5 text-[#538A94]" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#147C8A]" />
         )}
       </motion.button>
 

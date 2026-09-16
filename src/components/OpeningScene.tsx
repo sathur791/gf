@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { birthdayContent } from '../data/birthdayContent';
 import { QrCode } from 'lucide-react';
 import { PrintableGiftQR } from './PrintableGiftQR';
+import { StarField } from './StarField';
 
 interface OpeningSceneProps {
   onOpen: () => void;
@@ -73,6 +74,8 @@ export const OpeningScene: React.FC<OpeningSceneProps> = ({ onOpen }) => {
           className="w-full h-full object-cover filter blur-[70px] sm:blur-[100px] scale-120 transform"
         />
       </div>
+
+      <StarField count={25} />
 
       {/* Soft starlight caustics */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] rounded-full bg-[#8ED4D6]/15 blur-[120px] pointer-events-none" />
@@ -206,7 +209,7 @@ export const OpeningScene: React.FC<OpeningSceneProps> = ({ onOpen }) => {
               alt="A Little World For You — Kalai"
               loading="eager"
               decoding="async"
-              className="w-full h-full object-cover object-center select-none"
+              className="w-full h-full object-cover object-center select-none photo-enhanced"
             />
           </motion.div>
 

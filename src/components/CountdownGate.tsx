@@ -8,6 +8,8 @@ import {
   type CountdownState,
 } from '../utils/countdownTime';
 import { Volume2, VolumeX, Sparkles, Moon, Clock } from 'lucide-react';
+import { StarField } from './StarField';
+import { setupAudioClarity } from '../utils/audioClarity';
 
 interface CountdownGateProps {
   onUnlock: () => void;
@@ -17,6 +19,8 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
   const { countdown, moon } = birthdayContent;
   const [state, setState] = useState<CountdownState>(() => calculateCountdown());
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+  const [secondsPulse, setSecondsPulse] = useState(false);
+  const prevSecondsRef = useRef(state.seconds);
 
   // Audio & Live Lyrics state (Plays seamlessly in the background)
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -29,10 +33,13 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
   useEffect(() => {
     const audio = new Audio(countdown.music.source);
     audio.loop = true;
-    audio.volume = 0.45;
+    audio.volume = 0.95;
     audio.preload = 'auto';
 
-    audio.muted = true; // Prime muted for iOS Safari policies
+    // Initialize Web Audio clarity enhancement (EQ presence, anti-rumble, dynamic compression)
+    setupAudioClarity(audio, 0.95);
+
+    audio.muted = false;
 
     audio.addEventListener('play', () => setIsPlayingMusic(true));
     audio.addEventListener('pause', () => setIsPlayingMusic(false));
@@ -42,43 +49,58 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       }
     });
 
-    // Auto-trigger audio on first touch/click anywhere on page (iOS Safari fallback)
-    const triggerPlay = () => {
+    audioRef.current = audio;
+
+    // Trigger audio immediately or on first interaction (iOS / Chrome policy fallback)
+    const unlockAudio = () => {
       if (audioRef.current) {
         audioRef.current.muted = false;
         if (audioRef.current.paused) {
-          audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(() => {});
+          audioRef.current
+            .play()
+            .then(() => setIsPlayingMusic(true))
+            .catch(() => {});
         }
       }
     };
 
-    const interactionEvents = ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown'];
-    const handleFirstInteraction = () => {
-      triggerPlay();
+    const interactionEvents = [
+      'pointerdown',
+      'touchstart',
+      'touchend',
+      'click',
+      'scroll',
+      'keydown',
+      'wheel',
+    ];
+
+    const handleFirstGesture = () => {
+      unlockAudio();
       interactionEvents.forEach((ev) => {
-        window.removeEventListener(ev, handleFirstInteraction);
+        window.removeEventListener(ev, handleFirstGesture);
+        document.removeEventListener(ev, handleFirstGesture);
       });
     };
 
     interactionEvents.forEach((ev) => {
-      window.addEventListener(ev, handleFirstInteraction, { once: true });
+      window.addEventListener(ev, handleFirstGesture, { once: true, passive: true });
+      document.addEventListener(ev, handleFirstGesture, { once: true, passive: true });
     });
 
-    audioRef.current = audio;
-
-    // Attempt immediate auto-play (browser may allow or defer to first touch)
-    audio.play()
+    // Attempt immediate automatic playback
+    audio
+      .play()
       .then(() => {
-        // If unmuted autoplay succeeds
-        audio.muted = false;
+        setIsPlayingMusic(true);
       })
       .catch(() => {
-        // iOS Safari will wait for handleFirstInteraction
+        // Browser requires gesture — handleFirstGesture will activate on first touch/scroll
       });
 
     return () => {
       interactionEvents.forEach((ev) => {
-        window.removeEventListener(ev, handleFirstInteraction);
+        window.removeEventListener(ev, handleFirstGesture);
+        document.removeEventListener(ev, handleFirstGesture);
       });
       audio.pause();
       audio.src = '';
@@ -149,6 +171,16 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     }, 100);
   }, [isPlayingMusic]);
 
+  // Pulse seconds tile on each tick
+  useEffect(() => {
+    if (state.seconds !== prevSecondsRef.current) {
+      prevSecondsRef.current = state.seconds;
+      setSecondsPulse(true);
+      const t = window.setTimeout(() => setSecondsPulse(false), 350);
+      return () => window.clearTimeout(t);
+    }
+  }, [state.seconds]);
+
   // Live 1-second countdown ticker
   useEffect(() => {
     const timer = setInterval(() => {
@@ -185,37 +217,52 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
         />
       </div>
 
+      <StarField count={35} />
+
       {/* Atmospheric Caustics & Glow */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[46rem] h-[46rem] rounded-full bg-[#8ED4D6]/15 blur-[140px] pointer-events-none" />
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[52rem] h-[28rem] rounded-full bg-[#B8E7E5]/10 blur-[150px] pointer-events-none" />
 
-      {/* Atmospheric Blended Moon in the distance */}
+      {/* Atmospheric Seamless Blended Moon in the distance */}
       <motion.div
         initial={{ opacity: 0, scale: 0.92, y: 15 }}
         animate={{
-          opacity: isTransitioning ? [0.85, 1, 0.4] : 0.85,
+          opacity: isTransitioning ? [0.9, 1, 0.4] : 0.9,
           scale: isTransitioning ? [1, 1.25, 1.4] : 1,
           y: 0,
         }}
         transition={{ duration: isTransitioning ? 2.2 : 2.5, ease: 'easeOut' }}
-        className="absolute top-4 sm:top-8 right-4 sm:right-12 w-24 h-24 sm:w-36 sm:h-36 pointer-events-none select-none z-0"
+        className="absolute top-4 sm:top-8 right-3 sm:right-10 w-24 h-24 sm:w-36 sm:h-36 pointer-events-none select-none z-10"
       >
-        <div className="absolute inset-0 rounded-full bg-[#FFFDF8]/20 blur-2xl transform scale-125" />
-        <img
-          src={moon.image}
-          alt="Moon"
-          className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(255,253,248,0.45)]"
+        {/* Soft spherical moonlight aura that merges seamlessly into the ocean sky */}
+        <div
+          className="absolute -inset-6 rounded-full pointer-events-none"
           style={{
-            maskImage:
-              'radial-gradient(circle at center, black 65%, rgba(0,0,0,0.6) 80%, transparent 100%)',
-            WebkitMaskImage:
-              'radial-gradient(circle at center, black 65%, rgba(0,0,0,0.6) 80%, transparent 100%)',
+            background:
+              'radial-gradient(circle at center, rgba(255, 253, 248, 0.35) 0%, rgba(142, 212, 214, 0.2) 38%, rgba(11, 96, 117, 0.08) 65%, transparent 80%)',
+            filter: 'blur(16px)',
           }}
         />
+
+        {/* Optical Screen-blended Moon disc (no dark square borders) */}
+        <div className="relative w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+          <img
+            src={moon.image}
+            alt="Moon"
+            className="w-full h-full object-contain filter brightness-110 contrast-105"
+            style={{
+              mixBlendMode: 'screen',
+              maskImage:
+                'radial-gradient(circle at center, black 55%, rgba(0,0,0,0.8) 72%, transparent 92%)',
+              WebkitMaskImage:
+                'radial-gradient(circle at center, black 55%, rgba(0,0,0,0.8) 72%, transparent 92%)',
+            }}
+          />
+        </div>
       </motion.div>
 
-      {/* Discreet Sound Button (Minimal Icon Only) */}
-      <div className="absolute top-4 left-4 z-30">
+      {/* Discreet Sound Button + Ambient Tap Invite */}
+      <div className="absolute top-4 left-4 z-30 flex items-center gap-2.5">
         <button
           onClick={toggleMusic}
           className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#B8E7E5]/90 hover:text-white transition-all border border-white/20 shadow-sm flex items-center justify-center cursor-pointer"
@@ -228,6 +275,19 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
             <VolumeX className="w-4 h-4 text-[#B8E7E5]/70" />
           )}
         </button>
+
+        {/* Subtle auto-play affordance if browser initially held audio */}
+        {!isPlayingMusic && (
+          <motion.button
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={toggleMusic}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] font-sans tracking-wide text-[#FFFDF8] hover:bg-white/20 transition-all cursor-pointer backdrop-blur-xs"
+          >
+            <span className="text-[#8ED4D6]">♪</span>
+            <span>Tap to play song</span>
+          </motion.button>
+        )}
       </div>
 
       {/* ============================================================ */}
@@ -293,12 +353,20 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
                 initial={{ opacity: 0, y: 18, scale: 0.92 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.6 + idx * 0.1 }}
-                className="bg-[#FFFDF8] rounded-2xl p-3 sm:p-4 border border-[#0B6075]/15 shadow-[0_16px_36px_rgba(3,28,35,0.35)] flex flex-col items-center justify-center relative overflow-hidden group"
+                className={`bg-[#FFFDF8] rounded-2xl p-3 sm:p-4 border border-[#0B6075]/15 shadow-[0_16px_36px_rgba(3,28,35,0.35)] flex flex-col items-center justify-center relative overflow-hidden group ${
+                  item.label === 'SECONDS' && secondsPulse ? 'animate-seconds-pulse' : ''
+                }`}
               >
                 <div className="absolute top-0 right-0 w-10 h-10 bg-radial from-[#8ED4D6]/20 to-transparent rounded-full blur-lg pointer-events-none" />
-                <span className="font-serif text-2xl sm:text-3xl text-[#073642] font-light tracking-tight tabular-nums mb-0.5">
+                <motion.span
+                  key={item.label === 'SECONDS' ? item.value : item.label}
+                  initial={item.label === 'SECONDS' ? { y: -8, opacity: 0 } : false}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="font-serif text-2xl sm:text-3xl text-[#073642] font-light tracking-tight tabular-nums mb-0.5"
+                >
                   {item.value}
-                </span>
+                </motion.span>
                 <span className="text-[9px] sm:text-[10px] font-sans tracking-[0.2em] uppercase text-[#147C8A]/80 font-semibold">
                   {item.label}
                 </span>
@@ -325,45 +393,69 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
         </motion.div>
 
         {/* ------------------------------------------------------------ */}
-        {/* RIGHT COLUMN: FLOATING ATMOSPHERIC LYRICS (NO PLATFORM UI)   */}
+        {/* RIGHT COLUMN: CINEMATIC ATMOSPHERIC LYRICS MUSIC SCENE       */}
         {/* ------------------------------------------------------------ */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full lg:w-1/2 max-w-md sm:max-w-lg flex flex-col justify-center relative"
+          className="w-full lg:w-1/2 max-w-md sm:max-w-lg flex flex-col justify-center relative z-10"
         >
+          {/* Tasteful Minimal Music Soundtrack Indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.7 }}
+            className="flex items-center justify-center lg:justify-start gap-2.5 mb-3 px-2"
+          >
+            <span className="text-xs text-[#8ED4D6]">♪</span>
+            <span className="text-[10px] sm:text-[11px] font-sans tracking-[0.28em] uppercase text-[#B8E7E5]/80 font-medium">
+              {countdown.music.title} • SOUNDTRACK
+            </span>
+          </motion.div>
+
+          {/* Atmospheric Layered Glow behind Lyrics */}
+          <div className="absolute inset-0 -inset-x-6 bg-radial from-[#8ED4D6]/15 via-[#0B6075]/10 to-transparent blur-3xl pointer-events-none -z-10" />
+
           {/* Floating Starlit Lyrics Container (Masked gradient fade on top/bottom) */}
           <div
             ref={lyricsContainerRef}
-            className="relative h-[380px] sm:h-[420px] overflow-y-auto pr-2 space-y-7 scroll-smooth select-none py-6"
+            className="relative h-[380px] sm:h-[440px] overflow-y-auto px-6 sm:px-10 pl-8 sm:pl-12 space-y-7 scroll-smooth select-none py-16 text-center lg:text-left"
             style={{
               scrollbarWidth: 'none',
-              maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
+              maskImage: 'linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%)',
             }}
           >
             {countdown.lyricsData.lines.map((line, idx) => {
               const isActive = idx === activeLineIndex;
+              const isPrevious = idx === activeLineIndex - 1;
+              const isNext = idx === activeLineIndex + 1;
               const isPast = idx < activeLineIndex;
 
               return (
                 <div
                   key={idx}
                   ref={isActive ? activeLineRef : null}
-                  className={`transition-all duration-700 ${
+                  className={`transition-all duration-600 ease-out ${
                     isActive
-                      ? 'scale-[1.04] translate-x-1'
-                      : 'scale-100'
+                      ? 'translate-y-0 opacity-100'
+                      : isPrevious
+                      ? '-translate-y-1 opacity-75'
+                      : isNext
+                      ? 'translate-y-1 opacity-65'
+                      : 'opacity-35'
                   }`}
                 >
                   <p
-                    className={`font-serif leading-relaxed whitespace-pre-line tracking-wide transition-all duration-700 ${
+                    className={`font-serif leading-relaxed whitespace-pre-line tracking-wide pl-3 sm:pl-4 pr-2 inline-block lg:block transition-all duration-600 ${
                       isActive
-                        ? 'text-[#FFFDF8] text-xl sm:text-2xl font-medium drop-shadow-[0_2px_22px_rgba(255,248,220,0.8)]'
+                        ? 'text-[#FFFDF8] text-2xl sm:text-3xl md:text-4xl font-normal drop-shadow-[0_2px_24px_rgba(255,253,248,0.75)]'
+                        : isPrevious || isNext
+                        ? 'text-[#DDF3E9] text-base sm:text-xl italic font-light drop-shadow-xs'
                         : isPast
-                        ? 'text-[#B8E7E5]/45 text-base sm:text-lg'
-                        : 'text-[#B8E7E5]/25 text-base sm:text-lg'
+                        ? 'text-[#B8E7E5] text-base sm:text-lg font-light'
+                        : 'text-[#8ED4D6] text-base sm:text-lg font-light'
                     }`}
                   >
                     {line.text}

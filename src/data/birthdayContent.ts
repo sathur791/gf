@@ -444,16 +444,6 @@ export const birthdayContent = {
         layoutType: "polaroid"
       },
       {
-        id: "us-01",
-        image: "/images/us-01.jpg",
-        title: "Side by Side",
-        caption: "it's who I'm standing beside.",
-        date: "Our Journey",
-        story: "From ordinary afternoons to unforgettable moments, having you beside me makes life complete.",
-        hiddenMessage: "I looked over at you and knew with certainty: here is where I belong.",
-        layoutType: "polaroid"
-      },
-      {
         id: "us-stars",
         image: "/images/us-stars.png",
         title: "Written in the Stars",

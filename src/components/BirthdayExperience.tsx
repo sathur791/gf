@@ -14,6 +14,7 @@ import { StationeryDecorations } from './StationeryDecorations';
 import { MoonAtmosphere } from './MoonAtmosphere';
 import { FloatingBalloons } from './FloatingBalloons';
 import { WhisperText } from './WhisperText';
+import { ScrollProgress } from './ScrollProgress';
 import type { MemoryItem } from '../data/birthdayContent';
 
 interface BirthdayExperienceProps {
@@ -36,6 +37,9 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
       ref={containerRef}
       className="relative min-h-screen w-full flex flex-col items-center select-none"
     >
+      {/* Scroll progress indicator */}
+      <ScrollProgress />
+
       {/* Cinematic Parallax Moon Atmosphere ("Muzumathi") */}
       <MoonAtmosphere />
 

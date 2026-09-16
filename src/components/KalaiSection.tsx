@@ -131,7 +131,7 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
                     alt={item.title}
                     decoding="async"
                     loading="lazy"
-                    className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                    className="w-full h-full object-cover object-center photo-enhanced group-hover:scale-[1.02] transition-transform duration-500 ease-out"
                   />
                 </div>
 
@@ -211,7 +211,7 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
               alt="Kalai Present Day"
               decoding="async"
               loading="lazy"
-              className="w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+              className="w-full h-full object-cover object-top photo-enhanced group-hover:scale-[1.02] transition-transform duration-500 ease-out"
             />
           </div>
 

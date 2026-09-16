@@ -58,30 +58,33 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
       {/* COUPLE PHOTOS STREAM (LINE-BY-LINE POPUPS)                   */}
       {/* ============================================================ */}
       <div className="w-full max-w-2xl flex flex-col items-center relative z-10 space-y-16 sm:space-y-24">
-        {/* PHOTO 1: "And then there was us." */}
+        {/* PHOTO 1: CINEMATIC REVEAL: "And then there was us." */}
         {p1 && (
           <div className="w-full flex flex-col items-center">
             <motion.div
-              initial={{ opacity: 0, y: 30, filter: 'blur(5px)' }}
-              whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              viewport={{ once: true, margin: '-70px' }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ y: -4 }}
+              initial={{ opacity: 0, scale: 0.97, filter: 'blur(12px)' }}
+              whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              whileHover={{ y: -3 }}
               onClick={() => onSelectMemory(p1)}
-              className="w-full bg-[#FFFDF8] rounded-3xl p-6 sm:p-8 border border-[#0B6075]/18 shadow-[0_24px_60px_rgba(7,63,77,0.16)] cursor-pointer group relative"
+              className="w-full max-w-2xl bg-[#FFFDF8] rounded-[2rem] sm:rounded-[2.5rem] p-3.5 sm:p-5 border border-[#0B6075]/18 shadow-[0_28px_70px_rgba(7,63,77,0.2)] cursor-pointer group relative"
             >
-              <div className="w-full aspect-[4/3] sm:aspect-[16/10] max-h-[520px] rounded-2xl overflow-hidden bg-[#FAF6ED] border border-[#0B6075]/10 shadow-xs mb-3">
+              {/* Soft warm backlight glow */}
+              <div className="absolute inset-0 bg-radial from-[#FAF6ED]/40 via-[#8ED4D6]/15 to-transparent rounded-[2.5rem] blur-2xl pointer-events-none -z-10" />
+
+              <div className="w-full aspect-[4/3] sm:aspect-[16/10] max-h-[540px] rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-[#FAF6ED] border border-[#0B6075]/10 shadow-xs mb-3 relative">
                 <img
                   src={p1.image}
                   alt={p1.title}
                   decoding="async"
                   loading="lazy"
-                  className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                  className="w-full h-full object-cover object-center photo-enhanced group-hover:scale-[1.015] transition-transform duration-700 ease-out"
                 />
               </div>
 
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] font-sans tracking-[0.2em] uppercase text-[#147C8A]/70 font-semibold">
+              <div className="flex items-center justify-between px-2 pb-0.5">
+                <span className="text-[10px] font-sans tracking-[0.22em] uppercase text-[#147C8A]/75 font-semibold">
                   01 • {p1.date || 'Our Forever'}
                 </span>
                 <span className="text-xs font-serif italic text-[#147C8A]/60">
@@ -90,25 +93,50 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
               </div>
             </motion.div>
 
-            {/* Emotional lines beneath first couple photo */}
-            <div className="w-full max-w-md text-center mt-6 space-y-2.5">
+            {/* Emotional lines beneath first couple photo (Sequenced independently with pauses) */}
+            <div className="w-full max-w-md text-center mt-8 space-y-3.5 px-4">
+              {/* Line 1: "And then there was us." */}
               <motion.p
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.7 }}
-                className="font-handwriting text-3xl sm:text-4xl text-[#0B6075]"
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="font-handwriting text-3xl sm:text-4xl text-[#0B6075] tracking-wide"
               >
-                {us.firstCoupleLine}
+                "And then there was us."
               </motion.p>
+
+              {/* Line 2: "Maybe this is my favourite picture." */}
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
-                whileInView={{ opacity: 0.85, y: 0 }}
+                whileInView={{ opacity: 0.9, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="font-serif italic text-base sm:text-lg text-[#147C8A] leading-relaxed"
+                transition={{ duration: 0.8, delay: 1.4 }}
+                className="font-serif italic text-lg sm:text-xl text-[#147C8A] font-light"
               >
-                "{us.firstCoupleReflection}"
+                "Maybe this is my favourite picture."
+              </motion.p>
+
+              {/* Line 3: "Not because it's perfect." */}
+              <motion.p
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 0.8, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.8, delay: 2.5 }}
+                className="font-serif italic text-base sm:text-lg text-[#147C8A]/85 font-light"
+              >
+                Not because it's perfect.
+              </motion.p>
+
+              {/* Line 4: "But because it's us." */}
+              <motion.p
+                initial={{ opacity: 0, scale: 0.98, y: 8 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.9, delay: 3.6 }}
+                className="font-handwriting text-2xl sm:text-3xl text-[#0B6075] font-semibold pt-1"
+              >
+                "But because it's us."
               </motion.p>
             </div>
           </div>
@@ -132,7 +160,7 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
                   alt={p2.title}
                   decoding="async"
                   loading="lazy"
-                  className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                  className="w-full h-full object-cover object-center photo-enhanced group-hover:scale-[1.02] transition-transform duration-500 ease-out"
                 />
               </div>
 
@@ -203,7 +231,7 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
                   alt={item.title}
                   decoding="async"
                   loading="lazy"
-                  className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                  className="w-full h-full object-cover object-center photo-enhanced group-hover:scale-[1.02] transition-transform duration-500 ease-out"
                 />
               </div>
 

@@ -71,7 +71,7 @@ export const ChildhoodStory: React.FC<ChildhoodStoryProps> = ({ onSelectMemory }
                 alt="Kalai Childhood"
                 decoding="async"
                 loading="lazy"
-                className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                className="w-full h-full object-cover object-center photo-enhanced group-hover:scale-[1.02] transition-transform duration-500 ease-out"
               />
             </div>
 
@@ -115,7 +115,7 @@ export const ChildhoodStory: React.FC<ChildhoodStoryProps> = ({ onSelectMemory }
                 alt="Kalai Early Days"
                 decoding="async"
                 loading="lazy"
-                className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                className="w-full h-full object-cover object-center photo-enhanced group-hover:scale-[1.02] transition-transform duration-500 ease-out"
               />
             </div>
 
@@ -159,7 +159,7 @@ export const ChildhoodStory: React.FC<ChildhoodStoryProps> = ({ onSelectMemory }
                 alt="Kalai Childhood 3"
                 decoding="async"
                 loading="lazy"
-                className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                className="w-full h-full object-cover object-center photo-enhanced group-hover:scale-[1.02] transition-transform duration-500 ease-out"
               />
             </div>
 

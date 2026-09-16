@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { birthdayContent } from '../data/birthdayContent';
+import { StarField } from './StarField';
 
 interface MoonAtmosphereProps {
   containerRef?: React.RefObject<HTMLDivElement | null>;
@@ -18,6 +19,8 @@ export const MoonAtmosphere: React.FC<MoonAtmosphereProps> = () => {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+      <StarField count={50} />
+
       {/* Soft Ethereal Ocean Sky Ambient Glow */}
       <div className="absolute top-[6%] right-[5%] w-[40rem] h-[40rem] rounded-full bg-radial from-[#8ED4D6]/18 via-[#B8E7E5]/10 to-transparent blur-[120px]" />
       <div className="absolute top-[40%] left-[-10%] w-[36rem] h-[36rem] rounded-full bg-radial from-[#0B6075]/12 via-[#DDF3E9]/8 to-transparent blur-[100px]" />

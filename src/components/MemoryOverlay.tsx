@@ -16,10 +16,11 @@ const MemoryCardContent: React.FC<{ memory: MemoryItem; onClose: () => void }> =
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 15 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, y: 15 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, scale: 0.88, y: 30, rotateX: 8 }}
+      animate={{ opacity: 1, scale: 1, y: 0, rotateX: 0 }}
+      exit={{ opacity: 0, scale: 0.92, y: 20 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      style={{ perspective: 800, transformStyle: 'preserve-3d' }}
       className="w-full max-w-lg bg-[#FFFDF8] border border-[#0B6075]/20 rounded-3xl shadow-[0_28px_70px_rgba(7,63,77,0.45)] overflow-hidden my-auto flex flex-col relative"
       onClick={(e) => e.stopPropagation()}
     >
@@ -32,14 +33,13 @@ const MemoryCardContent: React.FC<{ memory: MemoryItem; onClose: () => void }> =
         <X className="w-4 h-4" />
       </button>
 
-      {/* Large Image Frame - Pristine, natural skin tones */}
-      <div className="relative w-full max-h-[50vh] sm:max-h-[55vh] min-h-[260px] bg-[#FAF6ED] overflow-hidden border-b border-[#0B6075]/10 flex items-center justify-center p-3">
+      {/* Large Image Frame - High-definition clarity and depth */}
+      <div className="relative w-full max-h-[52vh] sm:max-h-[58vh] min-h-[260px] bg-gradient-to-b from-[#FAF6ED] to-[#F5EFE3] overflow-hidden border-b border-[#0B6075]/10 flex items-center justify-center p-3 sm:p-4">
         <img
           src={memory.image}
           alt={memory.title}
           decoding="async"
-          className="max-h-[48vh] sm:max-h-[53vh] w-auto max-w-full object-contain rounded-xl shadow-sm"
-          style={{ imageRendering: 'auto' }}
+          className="max-h-[50vh] sm:max-h-[55vh] w-auto max-w-full object-contain rounded-xl shadow-md photo-enhanced"
         />
       </div>
 
@@ -124,12 +124,16 @@ export const MemoryOverlay: React.FC<MemoryOverlayProps> = ({ memory, onClose })
 
   return (
     <AnimatePresence>
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
         className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#073F4D]/80 backdrop-blur-md overflow-y-auto"
         onClick={onClose}
       >
         <MemoryCardContent key={memory.id} memory={memory} onClose={onClose} />
-      </div>
+      </motion.div>
     </AnimatePresence>
   );
 };
