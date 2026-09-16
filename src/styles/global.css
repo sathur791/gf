@@ -53,6 +53,15 @@
     font-family: 'Caveat', cursive, sans-serif;
   }
 
+  .font-script {
+    font-family: 'Dancing Script', cursive, sans-serif;
+  }
+
+  .font-display-italic {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+  }
+
   .font-sans-clean {
     font-family: 'Outfit', 'Inter', sans-serif;
   }
@@ -155,10 +164,9 @@
   animation: lightSheen 1.2s ease-out;
 }
 
-/* Sea-Mint Stationery Card */
+/* Sea-Mint Stationery Card (High-Performance Paper Fill, zero GPU backdrop blur) */
 .mint-blue-card {
-  background: rgba(245, 252, 249, 0.92);
-  backdrop-filter: blur(12px);
+  background: rgba(248, 253, 250, 0.98);
   border: 1px solid rgba(20, 125, 138, 0.16);
   box-shadow: var(--shadow-blue-mint);
   border-radius: 22px;
@@ -173,7 +181,7 @@
 
 /* Paper Button with Blue-Mint Glow */
 .paper-button {
-  background: rgba(255, 255, 255, 0.95);
+  background: #FFFFFF;
   color: #083B4A;
   border: 1px solid rgba(20, 125, 138, 0.22);
   box-shadow: 0 4px 18px rgba(11, 95, 115, 0.1);
@@ -223,9 +231,8 @@
 
 /* Scrapbook Mint Washi Tape */
 .scrapbook-tape {
-  background: rgba(207, 235, 221, 0.85);
+  background: rgba(215, 238, 227, 0.94);
   box-shadow: 0 2px 6px rgba(11, 95, 115, 0.1);
-  backdrop-filter: blur(2px);
   border-left: 1px dashed rgba(20, 125, 138, 0.25);
   border-right: 1px dashed rgba(20, 125, 138, 0.25);
 }

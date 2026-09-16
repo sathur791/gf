@@ -6,8 +6,9 @@
  * Exact ISO representation: 2026-10-10T00:00:00+05:30
  */
 
-// Exact target epoch timestamp in milliseconds (independent of user's local timezone)
-export const TARGET_BIRTHDAY_IST = new Date('2026-10-10T00:00:00+05:30').getTime();
+// Exact target epoch timestamp: 10 Oct 2026 00:00:00 IST (+05:30) is 09 Oct 2026 18:30:00 UTC
+// Date.UTC(year, monthIndex, day, hours, minutes, seconds, ms) -> month 9 = October
+export const TARGET_BIRTHDAY_IST = Date.UTC(2026, 9, 9, 18, 30, 0, 0);
 
 export interface CountdownState {
   totalMs: number;

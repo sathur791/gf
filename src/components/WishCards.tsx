@@ -25,19 +25,40 @@ export const WishCards: React.FC = () => {
         </motion.h2>
       </div>
 
-      {/* Cards Grid */}
-      <div className="w-full max-w-md flex flex-col gap-4">
-        {wishes.cards.map((wish: WishCardItem, index: number) => {
+      {/* Cards Grid - Batched Single-Observer Stagger */}
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-50px' }}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.12 },
+          },
+        }}
+        className="w-full max-w-md flex flex-col gap-4"
+      >
+        {wishes.cards.map((wish: WishCardItem) => {
           const isExpanded = expandedId === wish.id;
 
           return (
             <motion.div
               key={wish.id}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.7, delay: index * 0.1 }}
+              variants={{
+                hidden: { opacity: 0, y: 16 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
+                },
+              }}
               layout
+              animate={{
+                opacity: expandedId && !isExpanded ? 0.65 : 1,
+                scale: expandedId && !isExpanded ? 0.98 : 1,
+              }}
+              transition={{ duration: 0.3 }}
               onClick={() => toggleCard(wish.id)}
               role="button"
               tabIndex={0}
@@ -56,9 +77,13 @@ export const WishCards: React.FC = () => {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-[#DDF3E9] text-[#0B6075] flex items-center justify-center text-sm font-bold shadow-xs">
+                  <motion.span
+                    animate={isExpanded ? { scale: [1, 1.18, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                    className="w-8 h-8 rounded-full bg-[#DDF3E9] text-[#0B6075] flex items-center justify-center text-sm font-bold shadow-xs"
+                  >
                     {wish.symbol}
-                  </span>
+                  </motion.span>
                   <h3 className="text-xs sm:text-sm font-sans tracking-[0.16em] uppercase font-bold text-[#0B6075]">
                     {wish.category}
                   </h3>
@@ -80,7 +105,7 @@ export const WishCards: React.FC = () => {
                     initial={{ opacity: 0, height: 0, rotateX: -12 }}
                     animate={{ opacity: 1, height: 'auto', rotateX: 0 }}
                     exit={{ opacity: 0, height: 0, rotateX: -12 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ type: 'spring', stiffness: 200, damping: 22 }}
                     className="overflow-hidden border-t border-[#0B6075]/10 pt-4 mt-4"
                   >
                     <p className="font-serif text-base sm:text-lg leading-relaxed text-[#123E45]/90 font-light">
@@ -92,7 +117,7 @@ export const WishCards: React.FC = () => {
             </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </section>
   );
 };

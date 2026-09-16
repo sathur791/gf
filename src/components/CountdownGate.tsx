@@ -32,20 +32,27 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     audio.volume = 0.45;
     audio.preload = 'auto';
 
+    audio.muted = true; // Prime muted for iOS Safari policies
+
     audio.addEventListener('play', () => setIsPlayingMusic(true));
     audio.addEventListener('pause', () => setIsPlayingMusic(false));
     audio.addEventListener('timeupdate', () => {
-      setCurrentTime(audio.currentTime);
+      if (!isTransitioning) {
+        setCurrentTime(audio.currentTime);
+      }
     });
 
-    // Auto-trigger audio on first touch/click anywhere on page
+    // Auto-trigger audio on first touch/click anywhere on page (iOS Safari fallback)
     const triggerPlay = () => {
-      if (audioRef.current && audioRef.current.paused) {
-        audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(() => {});
+      if (audioRef.current) {
+        audioRef.current.muted = false;
+        if (audioRef.current.paused) {
+          audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(() => {});
+        }
       }
     };
 
-    const interactionEvents = ['click', 'touchstart', 'pointerdown', 'keydown'];
+    const interactionEvents = ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown'];
     const handleFirstInteraction = () => {
       triggerPlay();
       interactionEvents.forEach((ev) => {
@@ -59,10 +66,15 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
 
     audioRef.current = audio;
 
-    // Attempt immediate auto-play
-    audio.play().catch(() => {
-      // Browser autoplay policy will wait for first interaction
-    });
+    // Attempt immediate auto-play (browser may allow or defer to first touch)
+    audio.play()
+      .then(() => {
+        // If unmuted autoplay succeeds
+        audio.muted = false;
+      })
+      .catch(() => {
+        // iOS Safari will wait for handleFirstInteraction
+      });
 
     return () => {
       interactionEvents.forEach((ev) => {
@@ -72,11 +84,12 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       audio.src = '';
       audioRef.current = null;
     };
-  }, [countdown.music.source]);
+  }, [countdown.music.source, isTransitioning]);
 
   // Subtle audio mute/unmute toggle
   const toggleMusic = useCallback(() => {
     if (!audioRef.current) return;
+    audioRef.current.muted = false;
     if (isPlayingMusic) {
       audioRef.current.pause();
     } else {
@@ -84,20 +97,42 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     }
   }, [isPlayingMusic]);
 
-  // Active lyric line index based on current playback time
-  const activeLineIndex = countdown.lyricsData.lines.findIndex(
-    (line) => currentTime >= line.start && currentTime < line.end
-  );
+  // Active lyric line index based on current playback time (guarded against transition)
+  const activeLineIndex = !isTransitioning
+    ? countdown.lyricsData.lines.findIndex(
+        (line) => currentTime >= line.start && currentTime < line.end
+      )
+    : -1;
 
-  // Smooth cinematic auto-scroll keeping the active verse in view
+  // Track last scrolled index and debounce to prevent competing smooth-scroll jank
+  const lastScrolledIndexRef = useRef<number>(-1);
+  const scrollDebounceRef = useRef<number | null>(null);
+
   useEffect(() => {
-    if (activeLineRef.current && lyricsContainerRef.current) {
-      activeLineRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+    if (isTransitioning || activeLineIndex < 0 || activeLineIndex === lastScrolledIndexRef.current) {
+      return;
     }
-  }, [activeLineIndex]);
+
+    if (scrollDebounceRef.current) {
+      clearTimeout(scrollDebounceRef.current);
+    }
+
+    scrollDebounceRef.current = window.setTimeout(() => {
+      if (activeLineRef.current && lyricsContainerRef.current && !isTransitioning) {
+        lastScrolledIndexRef.current = activeLineIndex;
+        activeLineRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+    }, 80);
+
+    return () => {
+      if (scrollDebounceRef.current) {
+        clearTimeout(scrollDebounceRef.current);
+      }
+    };
+  }, [activeLineIndex, isTransitioning]);
 
   // Smooth fade-out of countdown audio on unlock
   const fadeOutAudio = useCallback(() => {
@@ -179,27 +214,18 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
         />
       </motion.div>
 
-      {/* Discreet Sound Button (Minimal, NOT a music player platform) */}
+      {/* Discreet Sound Button (Minimal Icon Only) */}
       <div className="absolute top-4 left-4 z-30">
         <button
           onClick={toggleMusic}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-[#B8E7E5]/90 hover:text-white transition-all text-xs font-sans tracking-wider border border-white/15 backdrop-blur-md shadow-sm"
+          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#B8E7E5]/90 hover:text-white transition-all border border-white/20 shadow-sm flex items-center justify-center cursor-pointer"
           aria-label={isPlayingMusic ? 'Mute background song' : 'Play background song'}
+          title={isPlayingMusic ? 'Mute sound' : 'Play sound'}
         >
           {isPlayingMusic ? (
-            <Volume2 className="w-3.5 h-3.5 text-[#FFE8B2]" />
+            <Volume2 className="w-4 h-4 text-[#FFE8B2]" />
           ) : (
-            <VolumeX className="w-3.5 h-3.5 text-[#B8E7E5]/60" />
-          )}
-          <span className="font-serif italic text-xs text-[#FFE8B2]/90">
-            {isPlayingMusic ? '♪ Rathinamo' : '♪ play sound'}
-          </span>
-          {isPlayingMusic && (
-            <span className="flex items-center gap-0.5 ml-0.5">
-              <span className="w-1 h-2 bg-[#FFE8B2] rounded-full animate-pulse" />
-              <span className="w-1 h-3 bg-[#FFE8B2] rounded-full animate-pulse delay-150" />
-              <span className="w-1 h-1.5 bg-[#FFE8B2] rounded-full animate-pulse delay-300" />
-            </span>
+            <VolumeX className="w-4 h-4 text-[#B8E7E5]/70" />
           )}
         </button>
       </div>

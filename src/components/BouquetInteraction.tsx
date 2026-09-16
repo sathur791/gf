@@ -51,10 +51,19 @@ export const BouquetInteraction: React.FC = () => {
               }`}
               aria-label={`Select ${item.flowerName}`}
             >
-              {/* Botanical SVG Icon with Blossoming Motion */}
+              {/* Botanical SVG Icon with Stem Bending Reaction */}
               <motion.div
-                animate={isSelected ? { rotate: [0, -10, 10, 0], scale: [1, 1.18, 1] } : {}}
-                transition={{ duration: 0.6 }}
+                animate={
+                  isSelected
+                    ? {
+                        rotate: [0, -18, 14, -8, 4, 0],
+                        y: [0, -6, 2, -3, 0],
+                        scale: [1, 1.22, 0.95, 1.05, 1],
+                      }
+                    : {}
+                }
+                transition={{ duration: 0.85, ease: 'easeOut' }}
+                style={{ transformOrigin: 'bottom center' }}
                 className={`w-11 h-11 rounded-full flex items-center justify-center mb-2 transition-colors ${
                   isSelected ? 'bg-[#75C9D0]/50 text-[#083B4A]' : 'bg-[#EAF7F0] text-[#147D8A]'
                 }`}

@@ -70,21 +70,37 @@ export const PrintableGiftQR: React.FC<PrintableGiftQRProps> = ({ isOpen, onClos
   const [copied, setCopied] = useState(false);
   const [dataUrl, setDataUrl] = useState<string>('');
 
+  const isLocalOrDev =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.startsWith('192.168.') ||
+      window.location.hostname.startsWith('10.') ||
+      import.meta.env.DEV);
+
+  // Defaults to true so local changes immediately reflect in the QR code for testing
+  const [useCurrentLiveUrl, setUseCurrentLiveUrl] = useState<boolean>(true);
+
+  const activeTargetUrl =
+    isLocalOrDev && useCurrentLiveUrl && typeof window !== 'undefined'
+      ? `${window.location.origin}${window.location.pathname}${window.location.search || ''}`
+      : siteConfig.productionUrl;
+
   useEffect(() => {
     if (!isOpen) return;
 
     const generateQRs = async () => {
       try {
-        const { productionUrl, qr } = siteConfig;
+        const { qr } = siteConfig;
 
-        // Render preview canvas (400px)
+        // Render preview canvas (360px) pointing to the exact active target URL
         if (canvasRef.current) {
-          await renderQRWithCenterMark(canvasRef.current, productionUrl, 360, qr);
+          await renderQRWithCenterMark(canvasRef.current, activeTargetUrl, 360, qr);
         }
 
         // Render high-res printable canvas (1200px)
         if (printCanvasRef.current) {
-          await renderQRWithCenterMark(printCanvasRef.current, productionUrl, qr.printableWidth, qr);
+          await renderQRWithCenterMark(printCanvasRef.current, activeTargetUrl, qr.printableWidth, qr);
           setDataUrl(printCanvasRef.current.toDataURL('image/png'));
         }
       } catch (err) {
@@ -93,11 +109,11 @@ export const PrintableGiftQR: React.FC<PrintableGiftQRProps> = ({ isOpen, onClos
     };
 
     generateQRs();
-  }, [isOpen]);
+  }, [isOpen, activeTargetUrl]);
 
   const handleCopyUrl = async () => {
     try {
-      await navigator.clipboard.writeText(siteConfig.productionUrl);
+      await navigator.clipboard.writeText(activeTargetUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -120,7 +136,7 @@ export const PrintableGiftQR: React.FC<PrintableGiftQRProps> = ({ isOpen, onClos
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#06404E]/80 backdrop-blur-md overflow-y-auto print:p-0 print:bg-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-[#06404E]/85 overflow-y-auto print:p-0 print:bg-white">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -179,23 +195,57 @@ export const PrintableGiftQR: React.FC<PrintableGiftQRProps> = ({ isOpen, onClos
             {/* Hidden 1200px canvas for 300DPI high-res export */}
             <canvas ref={printCanvasRef} className="hidden" aria-hidden="true" />
 
-            {/* Production URL & Copy (Hidden on print) */}
-            <div className="mt-6 bg-[#EAF7F0] border border-[#B8E7E5] rounded-xl p-3.5 flex items-center justify-between gap-2 text-xs print:hidden">
-              <div className="truncate text-[#123E45]">
-                <span className="font-semibold text-[#0B6075] block text-[10px] uppercase tracking-wider">
-                  Target Destination URL:
-                </span>
-                <span className="font-mono text-[11px] select-all">
-                  {siteConfig.productionUrl}
-                </span>
+            {/* Production / Demo URL & Copy (Hidden on print) */}
+            <div className="mt-6 bg-[#EAF7F0] border border-[#B8E7E5] rounded-xl p-3.5 flex flex-col gap-2.5 text-xs print:hidden">
+              {isLocalOrDev && (
+                <div className="flex items-center justify-between pb-2 border-b border-[#B8E7E5]/60">
+                  <span className="text-[10.5px] font-semibold text-[#0B6075] uppercase tracking-wider">
+                    QR Destination:
+                  </span>
+                  <div className="flex items-center gap-1 bg-[#FFFDF8] p-0.5 rounded-lg border border-[#0B6075]/20">
+                    <button
+                      type="button"
+                      onClick={() => setUseCurrentLiveUrl(true)}
+                      className={`px-2 py-0.5 rounded text-[10.5px] font-medium transition-all ${
+                        useCurrentLiveUrl
+                          ? 'bg-[#0B6075] text-white shadow-xs'
+                          : 'text-[#147C8A] hover:text-[#0B6075]'
+                      }`}
+                    >
+                      Active Demo (Live Changes)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUseCurrentLiveUrl(false)}
+                      className={`px-2 py-0.5 rounded text-[10.5px] font-medium transition-all ${
+                        !useCurrentLiveUrl
+                          ? 'bg-[#0B6075] text-white shadow-xs'
+                          : 'text-[#147C8A] hover:text-[#0B6075]'
+                      }`}
+                    >
+                      Production URL
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-2">
+                <div className="truncate text-[#123E45]">
+                  <span className="font-semibold text-[#0B6075] block text-[10px] uppercase tracking-wider">
+                    {useCurrentLiveUrl && isLocalOrDev ? 'Current Demo URL (Synced):' : 'Production URL:'}
+                  </span>
+                  <span className="font-mono text-[11px] select-all">
+                    {activeTargetUrl}
+                  </span>
+                </div>
+                <button
+                  onClick={handleCopyUrl}
+                  className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0B6075] text-[#FFFDF8] hover:bg-[#147C8A] transition-colors font-medium text-xs cursor-pointer"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                </button>
               </div>
-              <button
-                onClick={handleCopyUrl}
-                className="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0B6075] text-[#FFFDF8] hover:bg-[#147C8A] transition-colors font-medium text-xs"
-              >
-                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Copied' : 'Copy'}</span>
-              </button>
             </div>
 
             {/* NFC Tip Box (Hidden on print) */}

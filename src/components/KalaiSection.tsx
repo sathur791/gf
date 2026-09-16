@@ -12,7 +12,7 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
   const { kalai, romanticReflections } = birthdayContent;
   const [favoriteSecretOpen, setFavoriteSecretOpen] = useState(false);
 
-  // Present-day photo for transition
+  // Present-day photo for the climax reveal
   const editorialPhotos = kalai.photos.filter((p) => p.id !== 'kalai-present');
   const presentPhoto = kalai.photos.find((p) => p.id === 'kalai-present') || {
     id: 'kalai-present',
@@ -25,8 +25,8 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
     layoutType: 'full',
   };
 
-  // Quotes to interweave between photo moments
-  const interludeQuotes = [
+  // Curated reflections to interlace between photos
+  const interludes = [
     romanticReflections.long2,
     romanticReflections.short1,
     romanticReflections.long3,
@@ -70,59 +70,43 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
       </div>
 
       {/* ============================================================ */}
-      {/* EDITORIAL GALLERY WITH INTIMATE REFLECTIONS                  */}
+      {/* PHOTO GALLERY (LINE-BY-LINE STREAM WITH POPUP ON SCROLL)     */}
       {/* ============================================================ */}
-      <div className="w-full max-w-3xl flex flex-col gap-14 sm:gap-20 relative z-10">
-        {editorialPhotos.map((item: MemoryItem, idx: number) => {
-          const isGown = item.id === 'kalai-gown';
+      <div className="w-full max-w-xl flex flex-col items-center space-y-16 sm:space-y-24 relative z-10">
+        {editorialPhotos.map((item, idx) => {
+          const rotation = idx % 2 === 0 ? -1.2 : 1.2;
+          const alignmentClass =
+            idx % 2 === 0 ? 'sm:self-start sm:w-[94%]' : 'sm:self-end sm:w-[94%]';
           const isBlueDress = item.id === 'kalai-blue-dress';
-          const isSaree = item.id === 'kalai-saree';
-          const isBeach = item.id === 'kalai-beach';
-          const isTraditional = item.id === 'kalai-blue-saree-traditional';
-
-          // Varied editorial rhythm
-          const alignmentClass = isGown
-            ? 'sm:w-5/6 self-start'
-            : isBlueDress
-            ? 'sm:w-5/6 self-end sm:translate-x-4'
-            : isBeach
-            ? 'sm:w-4/5 self-start sm:-translate-x-2'
-            : isTraditional
-            ? 'sm:w-5/6 self-end'
-            : isSaree
-            ? 'sm:w-4/5 self-start'
-            : 'sm:w-4/5 mx-auto';
-
-          const rotation = idx % 2 === 0 ? -1.2 : 1.4;
-          const quoteForThisIndex = interludeQuotes[idx % interludeQuotes.length];
 
           return (
             <React.Fragment key={item.id}>
-              {/* Quiet romantic lines appearing between photos */}
-              {idx % 2 === 0 && quoteForThisIndex && (
+              {/* Interlaced Romantic Reflection between photos */}
+              {idx > 0 && idx % 2 === 0 && (
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  whileInView={{ opacity: 0.85, y: 0 }}
-                  viewport={{ once: true, margin: '-40px' }}
-                  transition={{ duration: 0.6 }}
-                  className="w-full text-center py-2 px-4 max-w-md mx-auto"
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 0.9, y: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.8 }}
+                  className="w-full text-center py-2 px-4"
                 >
-                  <p className="font-serif italic text-sm sm:text-base text-[#147C8A] leading-relaxed">
-                    "{quoteForThisIndex}"
+                  <p className="font-serif italic text-sm sm:text-base text-[#147C8A]/90 max-w-md mx-auto font-light leading-relaxed">
+                    "{interludes[(idx / 2 - 1) % interludes.length]}"
                   </p>
                 </motion.div>
               )}
 
+              {/* Individual Photo Card with Pop-Up Entrance */}
               <motion.div
-                initial={{ opacity: 0, y: 22, rotate: rotation * 1.2, filter: 'blur(3px)' }}
+                initial={{ opacity: 0, y: 35, rotate: rotation * 1.5, filter: 'blur(6px)' }}
                 whileInView={{ opacity: 1, y: 0, rotate: rotation, filter: 'blur(0px)' }}
                 viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={{ rotate: 0, y: -3 }}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ rotate: 0, y: -4 }}
                 onClick={() => onSelectMemory(item)}
-                className={`w-full bg-[#FFFDF8] rounded-3xl p-5 sm:p-7 border border-[#0B6075]/12 shadow-[0_20px_50px_rgba(7,63,77,0.12)] cursor-pointer group relative flex flex-col ${alignmentClass}`}
+                className={`w-full bg-[#FFFDF8] rounded-3xl p-5 sm:p-7 border border-[#0B6075]/15 shadow-[0_20px_50px_rgba(7,63,77,0.14)] cursor-pointer group relative flex flex-col ${alignmentClass}`}
               >
-                {/* Handwritten Heart Sticker on kalai-blue-dress */}
+                {/* Micro-Surprise on kalai-blue-dress: Tiny handwritten sticker */}
                 {isBlueDress && (
                   <div className="absolute -top-3 right-6 z-20">
                     <button
@@ -131,7 +115,7 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
                         e.stopPropagation();
                         setFavoriteSecretOpen(true);
                       }}
-                      className="px-3 py-1 rounded-full bg-[#FAF6ED] border border-[#0B6075]/25 text-[#0B6075] shadow-xs hover:scale-105 active:scale-95 transition-all flex items-center gap-1 text-xs font-handwriting"
+                      className="px-3.5 py-1 rounded-full bg-[#FAF6ED] border border-[#0B6075]/25 text-[#0B6075] shadow-sm hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 text-xs font-handwriting cursor-pointer"
                       title="Read quiet thought"
                     >
                       <Heart className="w-3.5 h-3.5 fill-[#8E3B46] text-[#8E3B46]" />
@@ -140,8 +124,8 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
                   </div>
                 )}
 
-                {/* Photograph Display with Pristine Color */}
-                <div className="w-full aspect-[3/4] max-h-[520px] rounded-2xl overflow-hidden bg-[#FAF6ED] border border-[#0B6075]/10 mb-3.5 relative shadow-xs">
+                {/* Photograph Display */}
+                <div className="w-full aspect-[3/4] max-h-[520px] rounded-2xl overflow-hidden bg-[#FAF6ED] border border-[#0B6075]/10 mb-4 relative shadow-xs">
                   <img
                     src={item.image}
                     alt={item.title}
@@ -151,7 +135,20 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
                   />
                 </div>
 
-                {/* Photo Caption */}
+                {/* Photo Meta & Caption */}
+                <div className="flex items-center justify-between px-1 mb-1">
+                  <span className="text-[10px] font-sans tracking-[0.2em] uppercase text-[#147C8A]/70 font-semibold">
+                    {item.date || 'Memory'}
+                  </span>
+                  <span className="text-xs font-serif italic text-[#147C8A]/60">
+                    Tap to open
+                  </span>
+                </div>
+
+                <h3 className="text-xl sm:text-2xl font-serif text-[#0B6075] font-light px-1 mb-1 text-left">
+                  {item.title}
+                </h3>
+
                 {item.caption && (
                   <p className="font-handwriting text-xl sm:text-2xl text-[#147C8A] px-1 text-left">
                     "{item.caption}"
@@ -160,7 +157,7 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
               </motion.div>
 
               {/* Tucked Interactive Folded Note */}
-              {idx === 2 && birthdayContent.hiddenNotes[0] && (
+              {idx === 1 && birthdayContent.hiddenNotes[0] && (
                 <div className="w-full flex justify-center -my-3">
                   <FoldedNote
                     teaser={birthdayContent.hiddenNotes[0].teaser}
@@ -218,10 +215,18 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
             />
           </div>
 
-          <div className="px-1 text-left">
-            <p className="font-handwriting text-2xl text-[#0B6075]">
-              "{presentPhoto.caption || 'The same girl. A whole different chapter.'}"
-            </p>
+          <div className="flex items-center justify-between px-1">
+            <div className="flex flex-col text-left">
+              <span className="text-[10px] font-sans tracking-[0.22em] uppercase text-[#147C8A]/70 font-semibold">
+                PRESENT DAY
+              </span>
+              <p className="font-handwriting text-2xl text-[#0B6075] mt-0.5">
+                "{presentPhoto.caption || 'The same girl. A whole different chapter.'}"
+              </p>
+            </div>
+            <span className="text-xs font-serif italic text-[#147C8A]/60">
+              Tap to open
+            </span>
           </div>
         </motion.div>
       </div>
@@ -229,7 +234,7 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
       {/* Secret Micro-Note Modal */}
       <AnimatePresence>
         {favoriteSecretOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#073F4D]/75 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#073F4D]/85">
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 14 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

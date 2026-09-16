@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Volume2, VolumeX, Music } from 'lucide-react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { birthdayContent } from '../data/birthdayContent';
 
 interface MusicControllerProps {
@@ -16,7 +16,8 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
     if (!audioRef.current) {
       const audio = new Audio(birthdayContent.music.source);
       audio.loop = true;
-      audio.preload = 'auto';
+      audio.preload = autoStart ? 'auto' : 'none';
+      audio.muted = true; // Primed for iOS Safari
 
       audio.addEventListener('play', () => {
         setIsPlaying(true);
@@ -40,6 +41,7 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
 
     const triggerPlay = () => {
       if (audioRef.current) {
+        audioRef.current.muted = false;
         audioRef.current
           .play()
           .then(() => {
@@ -52,9 +54,35 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
       }
     };
 
-    window.addEventListener('play-birthday-music', triggerPlay);
+    let fadeInterval: number | null = null;
+    const handleFadeMusic = (e: CustomEvent<{ targetVolume?: number; durationMs?: number }>) => {
+      if (!audioRef.current) return;
+      const targetVol = e.detail?.targetVolume !== undefined ? Math.max(0, Math.min(1, e.detail.targetVolume)) : 0.08;
+      const duration = e.detail?.durationMs || 2500;
+      const steps = 25;
+      const stepTime = duration / steps;
+      const startVol = audioRef.current.volume;
+      const volDelta = (targetVol - startVol) / steps;
+      let currentStep = 0;
 
-    const interactionEvents = ['click', 'touchstart', 'pointerdown', 'keydown'];
+      if (fadeInterval) clearInterval(fadeInterval);
+      fadeInterval = window.setInterval(() => {
+        currentStep++;
+        if (audioRef.current) {
+          const nextVol = Math.max(0, Math.min(1, startVol + volDelta * currentStep));
+          audioRef.current.volume = nextVol;
+        }
+        if (currentStep >= steps) {
+          if (fadeInterval) clearInterval(fadeInterval);
+          if (audioRef.current) audioRef.current.volume = targetVol;
+        }
+      }, stepTime);
+    };
+
+    window.addEventListener('play-birthday-music', triggerPlay);
+    window.addEventListener('fade-birthday-music', handleFadeMusic as EventListener);
+
+    const interactionEvents = ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown'];
     const handleFirstInteraction = () => {
       triggerPlay();
       interactionEvents.forEach((ev) => {
@@ -71,7 +99,9 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
     }
 
     return () => {
+      if (fadeInterval) clearInterval(fadeInterval);
       window.removeEventListener('play-birthday-music', triggerPlay);
+      window.removeEventListener('fade-birthday-music', handleFadeMusic as EventListener);
       interactionEvents.forEach((ev) => {
         window.removeEventListener(ev, handleFirstInteraction);
       });
@@ -102,34 +132,23 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
       <button
         onClick={togglePlay}
         aria-label={isPlaying ? 'Pause background music' : 'Play background music'}
-        className="group flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#FFFDF8]/95 backdrop-blur-md border border-[#0B6075]/20 shadow-[0_8px_24px_rgba(7,63,77,0.2)] hover:shadow-[0_12px_28px_rgba(7,63,77,0.28)] hover:border-[#0B6075]/35 transition-all duration-300 text-[#0B6075]"
+        className="w-10 h-10 rounded-full bg-[#FFFDF8] border border-[#0B6075]/25 shadow-[0_6px_20px_rgba(7,63,77,0.18)] hover:shadow-[0_8px_24px_rgba(7,63,77,0.25)] hover:border-[#0B6075]/40 transition-all duration-300 text-[#0B6075] flex items-center justify-center cursor-pointer"
+        title={isPlaying ? 'Pause background music' : 'Play background music'}
       >
         <span
-          className={`flex items-center justify-center w-6 h-6 rounded-full bg-[#DDF3E9] text-[#0B6075] transition-transform duration-300 ${
+          className={`flex items-center justify-center w-8 h-8 rounded-full bg-[#DDF3E9] text-[#0B6075] transition-transform duration-300 ${
             isPlaying ? 'rotate-[360deg]' : ''
           }`}
           style={{ transitionDuration: isPlaying ? '8s' : '0.3s' }}
         >
           {isPlaying ? (
-            <Volume2 className="w-3.5 h-3.5" />
+            <Volume2 className="w-4 h-4 text-[#0B6075]" />
           ) : hasError ? (
-            <VolumeX className="w-3.5 h-3.5 text-[#A64B56]" />
+            <VolumeX className="w-4 h-4 text-[#A64B56]" />
           ) : (
-            <Music className="w-3.5 h-3.5" />
+            <VolumeX className="w-4 h-4 text-[#0B6075]/70" />
           )}
         </span>
-
-        <span className="text-xs font-medium tracking-wider uppercase text-[#0B6075] font-sans">
-          {isPlaying ? `♪ ${birthdayContent.music.title.toUpperCase()}` : 'PLAY MUSIC'}
-        </span>
-
-        {isPlaying && (
-          <span className="flex items-center gap-0.5 ml-0.5" aria-hidden="true">
-            <span className="w-0.5 h-2.5 bg-[#0B6075] rounded-full animate-pulse" />
-            <span className="w-0.5 h-3.5 bg-[#0B6075] rounded-full animate-pulse delay-150" />
-            <span className="w-0.5 h-2 bg-[#0B6075] rounded-full animate-pulse delay-300" />
-          </span>
-        )}
       </button>
     </div>
   );

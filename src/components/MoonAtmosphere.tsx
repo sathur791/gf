@@ -22,28 +22,40 @@ export const MoonAtmosphere: React.FC<MoonAtmosphereProps> = () => {
       <div className="absolute top-[6%] right-[5%] w-[40rem] h-[40rem] rounded-full bg-radial from-[#8ED4D6]/18 via-[#B8E7E5]/10 to-transparent blur-[120px]" />
       <div className="absolute top-[40%] left-[-10%] w-[36rem] h-[36rem] rounded-full bg-radial from-[#0B6075]/12 via-[#DDF3E9]/8 to-transparent blur-[100px]" />
 
-      {/* Atmospheric Moon Container with Parallax */}
+      {/* Atmospheric Moon Container with Parallax (no hard edges or defined container borders) */}
       <motion.div
         style={{
           y: moonY,
           scale: moonScale,
           opacity: moonOpacity,
+          willChange: 'transform, opacity',
+          transform: 'translate3d(0, 0, 0)',
         }}
-        className="fixed top-8 right-2 sm:right-8 md:right-14 w-48 sm:w-64 md:w-80 aspect-square pointer-events-none select-none transition-all duration-700"
+        className="fixed top-8 right-2 sm:right-8 md:right-14 w-48 sm:w-64 md:w-80 aspect-square pointer-events-none select-none"
       >
-        {/* Atmospheric Ambient Glow Behind Moon */}
-        <div className="absolute inset-[-15%] rounded-full bg-radial from-[#8ED4D6]/25 via-[#0B6075]/15 to-transparent blur-3xl pointer-events-none" />
+        {/* Oversized (~350%) Radial Glow Layer behind Moon Disc:
+            Fades from moon's core moonlight into ambient sky teal/cyan (#8ED4D6 / #147C8A / #0B6075) */}
+        <div
+          className="absolute -inset-[125%] pointer-events-none rounded-full"
+          style={{
+            background:
+              'radial-gradient(circle at center, rgba(255, 253, 248, 0.45) 0%, rgba(255, 245, 225, 0.3) 18%, rgba(142, 212, 214, 0.22) 40%, rgba(20, 124, 138, 0.14) 62%, rgba(11, 96, 117, 0.08) 82%, transparent 100%)',
+            mixBlendMode: 'screen',
+            filter: 'blur(32px)',
+          }}
+        />
 
-        {/* The Transparent Natural Moon fully merged into background */}
+        {/* The Transparent Natural Moon optically merged into sky gradient */}
         <div className="relative w-full h-full flex items-center justify-center">
           <img
             src={birthdayContent.moon.image}
             alt="Muzumathi"
             decoding="async"
-            className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(255,253,248,0.45)] brightness-105"
+            className="w-full h-full object-contain filter drop-shadow-[0_0_45px_rgba(255,253,248,0.55)] brightness-105"
             style={{
-              maskImage: 'radial-gradient(circle at center, black 65%, rgba(0,0,0,0.6) 80%, transparent 100%)',
-              WebkitMaskImage: 'radial-gradient(circle at center, black 65%, rgba(0,0,0,0.6) 80%, transparent 100%)',
+              maskImage: 'radial-gradient(circle at center, black 65%, rgba(0,0,0,0.55) 80%, transparent 100%)',
+              WebkitMaskImage: 'radial-gradient(circle at center, black 65%, rgba(0,0,0,0.55) 80%, transparent 100%)',
+              mixBlendMode: 'screen',
             }}
           />
         </div>

@@ -14,12 +14,12 @@ export const Envelope: React.FC = () => {
     <section className="w-full py-12 px-6 flex flex-col items-center justify-center relative">
       <div className="w-full max-w-lg flex flex-col items-center">
         {/* Envelope Container */}
-        <div className="w-full flex flex-col items-center relative perspective-1000">
+        <div className="w-full flex flex-col items-center relative" style={{ perspective: '1200px' }}>
           <motion.div
-            className="w-full max-w-md relative flex flex-col items-center cursor-pointer select-none"
+            className="w-full max-w-md relative flex flex-col items-center cursor-pointer select-none rounded-2xl"
             onClick={toggleEnvelope}
-            whileHover={{ y: isOpen ? 0 : -2 }}
-            transition={{ duration: 0.25 }}
+            whileHover={!isOpen ? { y: -6, boxShadow: '0 28px 60px rgba(7,63,77,0.22)' } : {}}
+            transition={{ type: 'spring', stiffness: 200, damping: 18 }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
@@ -56,7 +56,7 @@ export const Envelope: React.FC = () => {
                   rotateX: isOpen ? 180 : 0,
                   zIndex: isOpen ? 5 : 20,
                 }}
-                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ type: 'spring', stiffness: 120, damping: 14, mass: 0.9 }}
                 style={{ transformStyle: 'preserve-3d' }}
               >
                 <svg
@@ -72,16 +72,46 @@ export const Envelope: React.FC = () => {
                   />
                 </svg>
 
-                {/* Wax Seal on Flap Tip */}
-                {!isOpen && (
-                  <motion.div
-                    className="w-12 h-12 rounded-full bg-[#8E3B46] text-[#FFFDF8] flex items-center justify-center font-serif text-lg font-medium absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-30 shadow-md border border-white/20"
-                    whileHover={{ scale: 1.08 }}
-                    transition={{ type: 'spring', stiffness: 400 }}
-                  >
-                    {birthdayContent.envelope.sealText}
-                  </motion.div>
-                )}
+                {/* Wax Seal on Flap Tip with Break Animation */}
+                <AnimatePresence>
+                  {!isOpen ? (
+                    <motion.div
+                      key="wax-seal"
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{
+                        scale: [1, 1.15, 0.8],
+                        opacity: [1, 0.8, 0],
+                        filter: 'blur(3px)',
+                      }}
+                      transition={{ duration: 0.35 }}
+                      className="w-12 h-12 rounded-full bg-[#8E3B46] text-[#FFFDF8] flex items-center justify-center font-serif text-lg font-medium absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 z-30 shadow-md border border-white/25 cursor-pointer"
+                      whileHover={{ scale: 1.08 }}
+                    >
+                      {birthdayContent.envelope.sealText}
+                    </motion.div>
+                  ) : (
+                    /* Delicate cracked wax remnants parting */
+                    <motion.div
+                      key="wax-cracked"
+                      initial={{ opacity: 0.9, scale: 1 }}
+                      animate={{ opacity: 0, scale: 1.25 }}
+                      transition={{ duration: 0.5 }}
+                      className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 pointer-events-none z-30 flex items-center gap-1"
+                    >
+                      <motion.div
+                        animate={{ x: -14, rotate: -20, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="w-6 h-12 bg-[#8E3B46] rounded-l-full shadow-sm"
+                      />
+                      <motion.div
+                        animate={{ x: 14, rotate: 20, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="w-6 h-12 bg-[#8E3B46] rounded-r-full shadow-sm"
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
 
               {/* Top Spacing */}
@@ -112,17 +142,18 @@ export const Envelope: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Letter Rising Out of Envelope */}
+          {/* Letter Rising & Unfolding in 3D */}
           <AnimatePresence>
             {isOpen && (
               <motion.div
-                initial={{ opacity: 0, y: -20, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.96 }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full max-w-lg mt-6 rounded-3xl p-6 sm:p-9 bg-[#FFFDF8] border border-[#0B6075]/15 shadow-[0_20px_50px_rgba(7,63,77,0.15)] relative z-30"
+                initial={{ opacity: 0, y: -35, scale: 0.9, rotateX: -35 }}
+                animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+                exit={{ opacity: 0, y: -20, scale: 0.94, rotateX: -20 }}
+                transition={{ type: 'spring', stiffness: 90, damping: 16, mass: 1 }}
+                style={{ transformOrigin: 'top center', transformStyle: 'preserve-3d' }}
+                className="w-full max-w-lg mt-6 rounded-3xl p-6 sm:p-9 bg-[#FFFDF8] border border-[#0B6075]/15 shadow-[0_24px_55px_rgba(7,63,77,0.16)] relative z-30"
               >
-                <div className="p-5 sm:p-8 bg-[#FAF6ED]/70 rounded-2xl border border-[#0B6075]/10">
+                <div className="p-5 sm:p-8 bg-[#FAF6ED]/80 rounded-2xl border border-[#0B6075]/10 shadow-xs">
                   {/* Letter Salutation */}
                   <p className="font-serif text-xl text-[#0B6075] mb-4 font-medium">
                     {birthdayContent.envelope.salutation}

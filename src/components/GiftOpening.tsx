@@ -9,10 +9,9 @@ interface GiftOpeningProps {
 
 export const GiftOpening: React.FC<GiftOpeningProps> = ({ onComplete }) => {
   useEffect(() => {
-    // 1.0 second luxury low-latency choreography
     const timer = setTimeout(() => {
       onComplete();
-    }, 1000);
+    }, 2000); // give the moment room to breathe
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -23,11 +22,8 @@ export const GiftOpening: React.FC<GiftOpeningProps> = ({ onComplete }) => {
       {/* ============================================================ */}
       <motion.div
         initial={{ opacity: 0, scale: 0.3 }}
-        animate={{
-          opacity: [0, 0.7, 1, 0.4],
-          scale: [0.3, 1.2, 2.2, 3.5],
-        }}
-        transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ opacity: [0, 0.8, 0.3], scale: [0.3, 2, 3.5] }}
+        transition={{ duration: 1.1, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
         className="absolute w-[46rem] h-[46rem] rounded-full bg-radial from-[#FFFDF8] via-[#8ED4D6]/70 to-transparent blur-3xl pointer-events-none"
       />
 
@@ -36,7 +32,7 @@ export const GiftOpening: React.FC<GiftOpeningProps> = ({ onComplete }) => {
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: [0, 1, 0], scale: [0.5, 1.8, 2.4] }}
-          transition={{ duration: 0.9, ease: 'easeOut' }}
+          transition={{ duration: 1.0, delay: 0.7, ease: 'easeOut' }}
           className="flex items-center gap-6 text-[#FFFDF8]"
         >
           <Sparkles className="w-8 h-8 text-amber-200" />
@@ -52,12 +48,8 @@ export const GiftOpening: React.FC<GiftOpeningProps> = ({ onComplete }) => {
         {/* Rising Paper Letter from inside */}
         <motion.div
           initial={{ y: 20, opacity: 0, scale: 0.92 }}
-          animate={{
-            y: [20, 10, -35, -55],
-            opacity: [0, 0.4, 1, 0.95],
-            scale: [0.92, 0.98, 1.05, 1.12],
-          }}
-          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          animate={{ y: [20, -60], opacity: [0, 1], scale: [0.92, 1.1] }}
+          transition={{ duration: 0.9, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="w-60 sm:w-72 bg-[#FFFDF8] rounded-2xl border border-[#B8E7E5]/40 shadow-[0_20px_50px_rgba(5,44,54,0.4)] p-5 text-center z-20 mb-[-80px]"
         >
           <p className="text-[10px] font-sans tracking-[0.3em] uppercase text-[#147C8A] font-semibold mb-1">
@@ -76,14 +68,14 @@ export const GiftOpening: React.FC<GiftOpeningProps> = ({ onComplete }) => {
             y: [10, 0, 5, 15],
             opacity: [0, 1, 1, 0],
           }}
-          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 2.0, times: [0, 0.2, 0.75, 1], ease: [0.16, 1, 0.3, 1] }}
           className="relative w-72 sm:w-80 h-44 bg-[#FAF6ED] rounded-2xl border border-[#0B6075]/20 shadow-[0_24px_60px_rgba(5,44,54,0.45)] flex items-center justify-center overflow-hidden z-10"
         >
           {/* Envelope Flap Unfolding */}
           <motion.div
             initial={{ rotateX: 0 }}
-            animate={{ rotateX: [0, 0, 180, 180] }}
-            transition={{ duration: 1.0, times: [0, 0.25, 0.7, 1], ease: 'easeInOut' }}
+            animate={{ rotateX: [0, 180] }}
+            transition={{ duration: 0.7, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
             style={{ transformOrigin: 'top center' }}
             className="absolute top-0 inset-x-0 h-22 bg-[#FFFDF8] border-b border-[#0B6075]/15 shadow-sm"
           />
@@ -91,12 +83,8 @@ export const GiftOpening: React.FC<GiftOpeningProps> = ({ onComplete }) => {
           {/* 3D Wax Seal Breaking */}
           <motion.div
             initial={{ scale: 1, rotate: 0, opacity: 1 }}
-            animate={{
-              scale: [1, 1, 1.3, 0],
-              rotate: [0, 0, 15, 35],
-              opacity: [1, 1, 0.8, 0],
-            }}
-            transition={{ duration: 0.8, times: [0, 0.3, 0.6, 1] }}
+            animate={{ scale: [1, 1.25, 0], rotate: [0, -8, 25], opacity: [1, 1, 0] }}
+            transition={{ duration: 0.5, times: [0, 0.4, 1], delay: 0 }}
             className="w-13 h-13 rounded-full bg-gradient-to-br from-[#B85460] via-[#943B45] to-[#742831] text-[#FFFDF8] flex items-center justify-center font-serif text-lg font-medium shadow-lg z-30 border border-white/30"
           >
             {birthdayContent.envelope.sealText}
@@ -108,7 +96,7 @@ export const GiftOpening: React.FC<GiftOpeningProps> = ({ onComplete }) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 0, 0, 0.85, 0] }}
-        transition={{ duration: 1.0, times: [0, 0.6, 0.75, 0.9, 1] }}
+        transition={{ duration: 2.0, times: [0, 0.7, 0.85, 0.95, 1] }}
         className="absolute inset-0 bg-[#EAF7F0] pointer-events-none z-40"
       />
     </div>

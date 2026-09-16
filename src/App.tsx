@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CountdownGate } from './components/CountdownGate';
 import { OpeningScene } from './components/OpeningScene';
@@ -41,6 +41,20 @@ export const App: React.FC = () => {
 
   // Scene flow within birthday world
   const [appState, setAppState] = useState<AppFlowState>(getInitialAppState);
+
+  // Safety net: if the tab is left open across the target moment,
+  // re-check once a second even before CountdownGate's own timer fires.
+  useEffect(() => {
+    if (isBirthdayUnlocked) return;
+    const intervalId = window.setInterval(() => {
+      if (calculateCountdown().isUnlocked) {
+        window.clearInterval(intervalId);
+        setIsBirthdayUnlocked(true);
+        setAppState('intro');
+      }
+    }, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [isBirthdayUnlocked]);
 
   const isCover =
     !isBirthdayUnlocked ||
