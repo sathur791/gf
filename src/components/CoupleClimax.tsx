@@ -36,7 +36,7 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
     <section
       onMouseMove={() => setShowReplayHint(true)}
       onTouchStart={() => setShowReplayHint(true)}
-      className="w-full min-h-screen py-36 sm:py-48 px-6 flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#083B47]/90 via-[#052831] to-[#031B22]"
+      className="w-full min-h-screen py-36 sm:py-48 px-6 flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#2D1822]/95 via-[#1F1018] to-[#140810]"
     >
       <StarField count={45} className="opacity-80" />
 
@@ -51,7 +51,7 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
         className="absolute inset-0 pointer-events-none z-10"
         style={{
           background:
-            'radial-gradient(ellipse at center, transparent 30%, rgba(3, 27, 34, 0.45) 70%, rgba(2, 16, 21, 0.8) 100%)',
+            'radial-gradient(ellipse at center, transparent 30%, rgba(20, 8, 16, 0.45) 70%, rgba(14, 5, 11, 0.85) 100%)',
         }}
       />
 
@@ -66,12 +66,12 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
           transition={{ duration: 1.3, ease: EASE_OUT_EXPO }}
           className="w-full max-w-xl sm:max-w-2xl relative mb-12 flex flex-col items-center select-none"
         >
-          {/* Deep Radiant Moonlit Halo */}
-          <div className="absolute inset-0 bg-radial from-[#8ED4D6]/25 via-[#0B6075]/15 to-transparent rounded-[2.5rem] blur-3xl scale-110 -z-10 pointer-events-none" />
+          {/* Deep Radiant Warm Gold & Blush Halo */}
+          <div className="absolute inset-0 bg-radial from-[#D4AF37]/25 via-[#963842]/15 to-transparent rounded-[2.5rem] blur-3xl scale-110 -z-10 pointer-events-none" />
 
           {/* Luxury Film Frame with subtle warmth and vignette */}
-          <div className="w-full p-2.5 sm:p-3.5 rounded-[2rem] sm:rounded-[2.5rem] bg-[#FFFDF8]/20 border border-[#FFFDF8]/35 shadow-[0_36px_90px_rgba(0,0,0,0.65)] backdrop-blur-xs">
-            <div className="w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-[#031B22] relative border border-white/20">
+          <div className="w-full p-2.5 sm:p-3.5 rounded-[2rem] sm:rounded-[2.5rem] bg-[#FFFDF8]/20 border border-[#D4AF37]/40 shadow-[0_36px_90px_rgba(0,0,0,0.65)] backdrop-blur-xs">
+            <div className="w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-[#140810] relative border border-[#D4AF37]/30">
               <motion.img
                 src={final.couplePhoto}
                 alt="Sathur and Kalai"
@@ -97,7 +97,7 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.85, delay: 0.4 }}
-            className="font-serif italic text-xl sm:text-2xl text-[#DDF3E9] font-light drop-shadow-sm"
+            className="font-serif italic text-xl sm:text-2xl text-[#F8DCD4] font-light drop-shadow-sm"
           >
             "{final.line1}"
           </motion.p>
@@ -108,7 +108,7 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
             whileInView={{ opacity: 0.9 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.85, delay: 1.8 }}
-            className="font-serif italic text-lg sm:text-xl text-[#B8E7E5] font-light"
+            className="font-serif italic text-lg sm:text-xl text-[#F6E2B3] font-light"
           >
             {final.line2}
           </motion.p>
@@ -119,7 +119,7 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.95, delay: 3.2 }}
-            className="font-handwriting text-4xl sm:text-5xl md:text-6xl text-[#FFFDF8] pt-1 pb-2 drop-shadow-[0_2px_22px_rgba(255,253,248,0.6)]"
+            className="font-handwriting text-4xl sm:text-5xl md:text-6xl text-[#FFFDF8] pt-1 pb-2 drop-shadow-[0_2px_22px_rgba(246,226,179,0.5)]"
           >
             "{final.line3}"
           </motion.h2>
@@ -143,7 +143,7 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
             transition={{ duration: 1.2, delay: 6.4 }}
             className="pt-4 text-center flex flex-col items-center"
           >
-            <span className="text-xs font-serif italic text-[#8ED4D6] mb-1 tracking-wide">
+            <span className="text-xs font-serif italic text-[#D4AF37] mb-1 tracking-wide">
               {final.signaturePrefix}
             </span>
             <span className="font-handwriting text-3xl sm:text-4xl text-[#FFFDF8] drop-shadow-sm">
@@ -154,19 +154,19 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
 
         {/* ============================================================ */}
         {/* HOLDING THE FINAL FRAME: NO INTRUSIVE APP BUTTONS            */}
-        {/* A very faint, quiet option appears only if user hovers/moves  */}
+        {/* A quiet option appears on hover or touch                     */}
         {/* ============================================================ */}
         <motion.div
-          animate={{ opacity: showReplayHint ? 0.7 : 0 }}
+          animate={{ opacity: showReplayHint ? 0.9 : 0.4 }}
           transition={{ duration: 0.5 }}
           className="pt-10 transition-opacity"
         >
           <button
             onClick={handleReplay}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-serif italic text-white/50 hover:text-white/80 hover:bg-white/5 transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-serif tracking-widest uppercase text-[#F6E2B3] hover:text-[#FFFDF8] bg-[#FFFDF8]/10 hover:bg-[#FFFDF8]/20 border border-[#D4AF37]/35 shadow-md backdrop-blur-sm transition-all cursor-pointer"
             aria-label="Experience again"
           >
-            <RotateCcw className="w-3 h-3 opacity-60" />
+            <RotateCcw className="w-3.5 h-3.5 text-[#D4AF37]" />
             <span>{final.replayText}</span>
           </button>
         </motion.div>

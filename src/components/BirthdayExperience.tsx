@@ -13,6 +13,7 @@ import { MemoryOverlay } from './MemoryOverlay';
 import { StationeryDecorations } from './StationeryDecorations';
 import { MoonAtmosphere } from './MoonAtmosphere';
 import { FloatingBalloons } from './FloatingBalloons';
+import { FloatingHearts } from './FloatingHearts';
 import { WhisperText } from './WhisperText';
 import { ScrollProgress } from './ScrollProgress';
 import type { MemoryItem } from '../data/birthdayContent';
@@ -39,6 +40,9 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
     >
       {/* Scroll progress indicator */}
       <ScrollProgress />
+
+      {/* Romantic Floating Hearts */}
+      <FloatingHearts count={10} />
 
       {/* Cinematic Parallax Moon Atmosphere ("Muzumathi") */}
       <MoonAtmosphere />

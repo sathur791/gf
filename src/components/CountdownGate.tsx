@@ -9,7 +9,6 @@ import {
 } from '../utils/countdownTime';
 import { Volume2, VolumeX, Sparkles, Moon, Clock } from 'lucide-react';
 import { StarField } from './StarField';
-import { setupAudioClarity, type EnhancedAudioNodeGraph } from '../utils/audioClarity';
 
 interface CountdownGateProps {
   onUnlock: () => void;
@@ -24,7 +23,6 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
 
   // Audio & Live Lyrics state (Plays seamlessly in the background)
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const clarityRef = useRef<EnhancedAudioNodeGraph | null>(null);
   const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const activeLineRef = useRef<HTMLDivElement | null>(null);
@@ -47,22 +45,8 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
 
     audioRef.current = audio;
 
-    const activateClarity = () => {
-      try {
-        if (!clarityRef.current && audioRef.current) {
-          clarityRef.current = setupAudioClarity(audioRef.current, 0.95);
-        }
-        if (clarityRef.current?.audioContext && clarityRef.current.audioContext.state === 'suspended') {
-          clarityRef.current.audioContext.resume().catch(() => {});
-        }
-      } catch {
-        // Fallback to direct native audio
-      }
-    };
-
     const unlockAndPlay = () => {
       if (!audioRef.current) return;
-      activateClarity();
       audioRef.current.muted = false;
       audioRef.current.volume = 0.95;
       const p = audioRef.current.play();
@@ -78,13 +62,10 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       initialPlay
         .then(() => {
           setIsPlayingMusic(true);
-          activateClarity();
         })
         .catch(() => {
-          // Autoplay policy prevented unmuted sound on cold load
-          // Start playing muted so timeupdate runs & lyrics sync in real-time
-          audio.muted = true;
-          audio.play().catch(() => {});
+          // Browser requires user gesture before unmuted audio can play.
+          // Keep audio paused at 0 so lyrics do NOT play silently!
           setIsPlayingMusic(false);
         });
     }
@@ -121,28 +102,16 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       audio.pause();
       audio.src = '';
       audioRef.current = null;
-      if (clarityRef.current) {
-        clarityRef.current.destroy();
-        clarityRef.current = null;
-      }
     };
   }, [countdown.music.source, isTransitioning]);
 
   // Subtle audio mute/unmute toggle
   const toggleMusic = useCallback(() => {
     if (!audioRef.current) return;
-    if (isPlayingMusic && !audioRef.current.muted) {
+    if (isPlayingMusic && !audioRef.current.muted && !audioRef.current.paused) {
       audioRef.current.pause();
       setIsPlayingMusic(false);
     } else {
-      try {
-        if (!clarityRef.current && audioRef.current) {
-          clarityRef.current = setupAudioClarity(audioRef.current, 0.95);
-        }
-        if (clarityRef.current?.audioContext.state === 'suspended') {
-          clarityRef.current.audioContext.resume().catch(() => {});
-        }
-      } catch {}
       audioRef.current.muted = false;
       audioRef.current.volume = 0.95;
       audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(() => {});
@@ -422,6 +391,24 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           <p className="font-serif italic text-sm text-[#B8E7E5]/75 max-w-sm">
             "The moon is waiting. The stars are waiting. And I am waiting for you."
           </p>
+
+          {/* Prominent Music Play Inviter if browser held back unmuted autoplay */}
+          {!isPlayingMusic && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-5"
+            >
+              <button
+                onClick={toggleMusic}
+                className="group inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-[#123E45]/85 hover:bg-[#0B6075] border border-[#8ED4D6]/50 text-xs sm:text-sm font-sans tracking-wide text-[#FFFDF8] backdrop-blur-md shadow-[0_4px_24px_rgba(14,116,144,0.35)] cursor-pointer transition-all hover:scale-105 active:scale-95"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#8ED4D6] animate-ping" />
+                <Volume2 className="w-4 h-4 text-[#8ED4D6]" />
+                <span>Tap anywhere to play song ♪</span>
+              </button>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* ------------------------------------------------------------ */}

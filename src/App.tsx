@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CountdownGate } from './components/CountdownGate';
-import { OpeningScene } from './components/OpeningScene';
+import { IlluminatedIntro } from './components/IlluminatedIntro';
 import { SecretKey } from './components/SecretKey';
 import { GiftOpening } from './components/GiftOpening';
 import { BirthdayExperience } from './components/BirthdayExperience';
@@ -14,8 +14,6 @@ type AppFlowState = 'intro' | 'key' | 'opening' | 'experience';
 const getInitialUnlockState = (): boolean => {
   // DEVELOPMENT PREVIEW MODE:
   // In development only (import.meta.env.DEV), allow ?preview=birthday or ?preview=countdown
-  // In production builds, import.meta.env.DEV is replaced with false at compile time by Vite,
-  // making this branch unreachable and dead-code eliminated.
   if (import.meta.env.DEV && typeof window !== 'undefined') {
     const preview = new URLSearchParams(window.location.search).get('preview');
     if (preview === 'birthday') return true;
@@ -75,8 +73,8 @@ export const App: React.FC = () => {
     <div
       className={`min-h-screen w-full relative transition-colors duration-1000 overflow-x-hidden font-sans ${
         isCover
-          ? 'bg-[#0B6075] text-[#FFFDF8]'
-          : 'bg-gradient-to-b from-[#0B6075] via-[#147C8A] via-25% via-[#8ED4D6]/25 via-50% via-[#DDF3E9]/30 via-75% to-[#073F4D] text-[#123E45]'
+          ? 'bg-[#1C0E15] text-[#FFFDF8]'
+          : 'bg-[#FAF7F0] text-[#2D1822]'
       }`}
     >
       {/* 
@@ -111,7 +109,7 @@ export const App: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 1.05 }}
-              transition={{ duration: 1 }}
+              transition={{ duration: 0.8 }}
               className="w-full"
             >
               <CountdownGate
@@ -122,18 +120,18 @@ export const App: React.FC = () => {
               />
             </motion.div>
           ) : (
-            /* PHASE 2: BIRTHDAY WORLD & 14-STEP GIFT EXPERIENCE */
+            /* PHASE 2: BIRTHDAY WORLD & LOVE LETTER EXPERIENCE */
             <React.Fragment key="birthday-flow">
               {appState === 'intro' && (
                 <motion.div
                   key="intro"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
+                  exit={{ opacity: 0, scale: 1.04 }}
                   transition={{ duration: 0.5 }}
                   className="w-full"
                 >
-                  <OpeningScene onOpen={() => setAppState('key')} />
+                  <IlluminatedIntro onOpen={() => setAppState('key')} />
                 </motion.div>
               )}
 
@@ -146,9 +144,9 @@ export const App: React.FC = () => {
                   transition={{ duration: 0.4 }}
                   className="w-full"
                 >
-                  <OpeningScene onOpen={() => {}} />
+                  <IlluminatedIntro onOpen={() => {}} />
                   <SecretKey
-                    onUnlockSuccess={() => setAppState('opening')}
+                    onUnlockSuccess={() => setAppState('experience')}
                     onBack={() => setAppState('intro')}
                   />
                 </motion.div>

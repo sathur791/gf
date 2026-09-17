@@ -1,6 +1,27 @@
 @layer base {
   :root {
-    /* Exact Color System */
+    /* Romantic Love Letter Palette (Blush, Ivory & Warm Gold) */
+    --color-blush-50: #FFF9F7;
+    --color-blush-100: #FCEEE9;
+    --color-blush-200: #F8DCD4;
+    --color-blush-300: #F0C4B8;
+    --color-blush-400: #E29E92;
+
+    --color-ivory: #FFFDF8;
+    --color-ivory-warm: #FAF7F0;
+    --color-ivory-cream: #F5EFEB;
+
+    --color-gold: #D4AF37;
+    --color-gold-light: #F6E2B3;
+    --color-gold-soft: #E8CA85;
+    --color-gold-deep: #B38E2A;
+
+    --color-wine: #2D1822;
+    --color-wine-dark: #1F1018;
+    --color-wine-mid: #4A2E3B;
+    --color-wine-light: #704455;
+
+    /* Exact Ocean & Teal Legacy Harmony System */
     --color-ocean-dark: #0B6075;
     --color-ocean-mid: #147C8A;
     --color-ocean-light: #1D8994;
@@ -14,24 +35,25 @@
     --color-cream-pure: #FFFDF8;
     --color-cream-warm: #FAF6ED;
 
-    --color-text-deep: #123E45;
-    --color-text-muted: #2A646E;
+    --color-text-deep: #2D1822;
+    --color-text-muted: #704455;
 
     /* Paper & Card Tokens */
-    --card-bg: rgba(255, 253, 248, 0.94);
+    --card-bg: rgba(255, 253, 248, 0.96);
     --card-bg-solid: #FFFDF8;
-    --card-border: rgba(11, 96, 117, 0.14);
-    --card-border-hover: rgba(20, 124, 138, 0.3);
+    --card-border: rgba(212, 175, 55, 0.2);
+    --card-border-hover: rgba(212, 175, 55, 0.45);
 
     /* Accents */
-    --wax-seal: #A64B56;
-    --wax-seal-hover: #963F4A;
+    --wax-seal: #963842;
+    --wax-seal-hover: #7D2B34;
+    --gold-foil: linear-gradient(135deg, #F9E7B9 0%, #D4AF37 50%, #B38E2A 100%);
 
     /* Shadows & Atmosphere */
-    --shadow-paper: 0 16px 40px -8px rgba(11, 96, 117, 0.14), 0 4px 12px -2px rgba(18, 62, 69, 0.08);
-    --shadow-lift: 0 24px 50px -10px rgba(11, 96, 117, 0.22), 0 8px 20px -4px rgba(20, 124, 138, 0.15);
-    --glow-aqua: 0 0 32px rgba(142, 212, 214, 0.32);
-    --glow-moon: 0 0 45px rgba(255, 253, 248, 0.45);
+    --shadow-paper: 0 16px 40px -8px rgba(45, 24, 34, 0.12), 0 4px 14px -2px rgba(45, 24, 34, 0.06);
+    --shadow-lift: 0 24px 50px -10px rgba(45, 24, 34, 0.18), 0 8px 24px -4px rgba(212, 175, 55, 0.12);
+    --glow-gold: 0 0 32px rgba(212, 175, 55, 0.35);
+    --glow-blush: 0 0 40px rgba(248, 220, 212, 0.4);
   }
 
   body {
@@ -347,18 +369,80 @@
   perspective: 1000px;
 }
 
-/* Custom Scrollbar in Mint-Blue */
+/* Custom Scrollbar in Warm Gold & Blush */
 ::-webkit-scrollbar {
   width: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(11, 95, 115, 0.1);
+  background: rgba(248, 220, 212, 0.2);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #75C9D0 0%, #2A7B6B 100%);
+  background: linear-gradient(180deg, #E5C07B 0%, #D4AF37 100%);
   border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #F6E2B3 0%, #B38E2A 100%);
+}
+
+/* ============================================================ */
+/* GPU-ACCELERATED FLOATING HEARTS & AMBIENT LOVE LETTER MOTIONS */
+/* ============================================================ */
+@keyframes floatHeartSway {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.85);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate3d(18px, -45vh, 0) rotate(12deg) scale(1.05);
+    opacity: 0.85;
+  }
+  85% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(-14px, -105vh, 0) rotate(-16deg) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.animate-float-heart {
+  will-change: transform, opacity;
+  animation: floatHeartSway var(--heart-duration, 14s) ease-in-out infinite;
+  animation-delay: var(--heart-delay, 0s);
+}
+
+/* Gilded Gold Shimmer on Text / Borders */
+@keyframes goldShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.gold-shimmer-text {
+  background: linear-gradient(90deg, #D4AF37 0%, #FFFDF8 45%, #E5C07B 55%, #D4AF37 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: goldShimmer 7s linear infinite;
+}
+
+/* Subtle Deckled Paper Edge */
+.deckled-paper {
+  background-color: #FFFDF8;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 
+    0 1px 3px rgba(45, 24, 34, 0.05),
+    0 16px 36px -8px rgba(45, 24, 34, 0.12),
+    inset 0 0 40px rgba(248, 220, 212, 0.25);
 }
 
 ::-webkit-scrollbar-thumb:hover {

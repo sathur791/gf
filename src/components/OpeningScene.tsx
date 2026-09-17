@@ -56,8 +56,6 @@ export const OpeningScene: React.FC<OpeningSceneProps> = ({ onOpen }) => {
     };
   }, [handleOpen]);
 
-  const titleLetters = 'KALAIVANI'.split('');
-
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center relative px-3 sm:px-6 py-6 sm:py-10 select-none overflow-hidden bg-[#052831]">
       {/* ============================================================ */}
@@ -241,32 +239,13 @@ export const OpeningScene: React.FC<OpeningSceneProps> = ({ onOpen }) => {
           </div>
         </div>
 
-        {/* ================= STAGE 4: HANDWRITTEN TITLE INK-BLEED "KALAIVANI" ================= */}
-        <div className="mt-4 flex flex-col items-center">
-          <div className="flex items-center justify-center tracking-[0.25em] sm:tracking-[0.3em] font-script text-3xl sm:text-4xl text-[#FFFDF8] drop-shadow-[0_2px_12px_rgba(142,212,214,0.35)] pl-1">
-            {titleLetters.map((char, idx) => (
-              <motion.span
-                key={idx}
-                initial={{ opacity: 0, filter: 'blur(6px)', y: 6 }}
-                animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: 1.3 + idx * 0.04,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="inline-block"
-              >
-                {char}
-              </motion.span>
-            ))}
-          </div>
-
-          {/* Quiet Whisper caption beneath the title */}
+        {/* Quiet Whisper caption beneath the photo */}
+        <div className="mt-5 flex flex-col items-center">
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.85 }}
-            transition={{ duration: 0.8, delay: 1.8 }}
-            className="mt-1.5 font-sans-clean text-xs sm:text-sm text-[#DDF3E9]/80 tracking-widest uppercase text-center"
+            transition={{ duration: 0.8, delay: 1.2 }}
+            className="font-sans-clean text-xs sm:text-sm text-[#DDF3E9]/80 tracking-widest uppercase text-center"
           >
             touch anywhere or scroll to enter
           </motion.p>
