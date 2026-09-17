@@ -9,7 +9,7 @@ import {
 } from '../utils/countdownTime';
 import { Volume2, VolumeX, Sparkles, Moon, Clock } from 'lucide-react';
 import { StarField } from './StarField';
-import { setupAudioClarity } from '../utils/audioClarity';
+import { setupAudioClarity, type EnhancedAudioNodeGraph } from '../utils/audioClarity';
 
 interface CountdownGateProps {
   onUnlock: () => void;
@@ -24,6 +24,7 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
 
   // Audio & Live Lyrics state (Plays seamlessly in the background)
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const clarityRef = useRef<EnhancedAudioNodeGraph | null>(null);
   const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const activeLineRef = useRef<HTMLDivElement | null>(null);
@@ -36,11 +37,6 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     audio.volume = 0.95;
     audio.preload = 'auto';
 
-    // Initialize Web Audio clarity enhancement (EQ presence, anti-rumble, dynamic compression)
-    setupAudioClarity(audio, 0.95);
-
-    audio.muted = false;
-
     audio.addEventListener('play', () => setIsPlayingMusic(true));
     audio.addEventListener('pause', () => setIsPlayingMusic(false));
     audio.addEventListener('timeupdate', () => {
@@ -51,19 +47,49 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
 
     audioRef.current = audio;
 
-    // Trigger audio immediately or on first interaction (iOS / Chrome policy fallback)
-    const unlockAudio = () => {
-      if (audioRef.current) {
-        audioRef.current.muted = false;
-        if (audioRef.current.paused) {
-          audioRef.current
-            .play()
-            .then(() => setIsPlayingMusic(true))
-            .catch(() => {});
+    const activateClarity = () => {
+      try {
+        if (!clarityRef.current && audioRef.current) {
+          clarityRef.current = setupAudioClarity(audioRef.current, 0.95);
         }
+        if (clarityRef.current?.audioContext && clarityRef.current.audioContext.state === 'suspended') {
+          clarityRef.current.audioContext.resume().catch(() => {});
+        }
+      } catch {
+        // Fallback to direct native audio
       }
     };
 
+    const unlockAndPlay = () => {
+      if (!audioRef.current) return;
+      activateClarity();
+      audioRef.current.muted = false;
+      audioRef.current.volume = 0.95;
+      const p = audioRef.current.play();
+      if (p !== undefined) {
+        p.then(() => setIsPlayingMusic(true)).catch(() => {});
+      }
+    };
+
+    // 1. Attempt unmuted automatic playback first
+    audio.muted = false;
+    const initialPlay = audio.play();
+    if (initialPlay !== undefined) {
+      initialPlay
+        .then(() => {
+          setIsPlayingMusic(true);
+          activateClarity();
+        })
+        .catch(() => {
+          // Autoplay policy prevented unmuted sound on cold load
+          // Start playing muted so timeupdate runs & lyrics sync in real-time
+          audio.muted = true;
+          audio.play().catch(() => {});
+          setIsPlayingMusic(false);
+        });
+    }
+
+    // 2. Attach unlock handlers to ANY user interaction anywhere on screen
     const interactionEvents = [
       'pointerdown',
       'touchstart',
@@ -74,47 +100,51 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       'wheel',
     ];
 
-    const handleFirstGesture = () => {
-      unlockAudio();
+    const onFirstGesture = () => {
+      unlockAndPlay();
       interactionEvents.forEach((ev) => {
-        window.removeEventListener(ev, handleFirstGesture);
-        document.removeEventListener(ev, handleFirstGesture);
+        window.removeEventListener(ev, onFirstGesture);
+        document.removeEventListener(ev, onFirstGesture);
       });
     };
 
     interactionEvents.forEach((ev) => {
-      window.addEventListener(ev, handleFirstGesture, { once: true, passive: true });
-      document.addEventListener(ev, handleFirstGesture, { once: true, passive: true });
+      window.addEventListener(ev, onFirstGesture, { once: true, passive: true });
+      document.addEventListener(ev, onFirstGesture, { once: true, passive: true });
     });
-
-    // Attempt immediate automatic playback
-    audio
-      .play()
-      .then(() => {
-        setIsPlayingMusic(true);
-      })
-      .catch(() => {
-        // Browser requires gesture — handleFirstGesture will activate on first touch/scroll
-      });
 
     return () => {
       interactionEvents.forEach((ev) => {
-        window.removeEventListener(ev, handleFirstGesture);
-        document.removeEventListener(ev, handleFirstGesture);
+        window.removeEventListener(ev, onFirstGesture);
+        document.removeEventListener(ev, onFirstGesture);
       });
       audio.pause();
       audio.src = '';
       audioRef.current = null;
+      if (clarityRef.current) {
+        clarityRef.current.destroy();
+        clarityRef.current = null;
+      }
     };
   }, [countdown.music.source, isTransitioning]);
 
   // Subtle audio mute/unmute toggle
   const toggleMusic = useCallback(() => {
     if (!audioRef.current) return;
-    audioRef.current.muted = false;
-    if (isPlayingMusic) {
+    if (isPlayingMusic && !audioRef.current.muted) {
       audioRef.current.pause();
+      setIsPlayingMusic(false);
     } else {
+      try {
+        if (!clarityRef.current && audioRef.current) {
+          clarityRef.current = setupAudioClarity(audioRef.current, 0.95);
+        }
+        if (clarityRef.current?.audioContext.state === 'suspended') {
+          clarityRef.current.audioContext.resume().catch(() => {});
+        }
+      } catch {}
+      audioRef.current.muted = false;
+      audioRef.current.volume = 0.95;
       audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(() => {});
     }
   }, [isPlayingMusic]);
@@ -262,10 +292,10 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       </motion.div>
 
       {/* Discreet Sound Button + Ambient Tap Invite */}
-      <div className="absolute top-4 left-4 z-30 flex items-center gap-2.5">
+      <div className="absolute top-4 left-4 z-30 flex items-center gap-2">
         <button
           onClick={toggleMusic}
-          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#B8E7E5]/90 hover:text-white transition-all border border-white/20 shadow-sm flex items-center justify-center cursor-pointer"
+          className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-[#B8E7E5] hover:text-white transition-all border border-white/20 shadow-md flex items-center justify-center cursor-pointer backdrop-blur-xs"
           aria-label={isPlayingMusic ? 'Mute background song' : 'Play background song'}
           title={isPlayingMusic ? 'Mute sound' : 'Play sound'}
         >
@@ -276,16 +306,18 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           )}
         </button>
 
-        {/* Subtle auto-play affordance if browser initially held audio */}
+        {/* Subtle auto-play affordance if browser initially held audio - visible on ALL screens */}
         {!isPlayingMusic && (
           <motion.button
-            initial={{ opacity: 0, x: -6 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.95, x: -4 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.96 }}
             onClick={toggleMusic}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] font-sans tracking-wide text-[#FFFDF8] hover:bg-white/20 transition-all cursor-pointer backdrop-blur-xs"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#123E45]/85 hover:bg-[#123E45] border border-[#8ED4D6]/40 text-[11px] font-sans tracking-wide text-[#FFFDF8] shadow-md cursor-pointer backdrop-blur-md transition-all"
           >
-            <span className="text-[#8ED4D6]">♪</span>
-            <span>Tap to play song</span>
+            <span className="text-[#8ED4D6] animate-pulse">♪</span>
+            <span>Tap for song</span>
           </motion.button>
         )}
       </div>
@@ -401,18 +433,6 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="w-full lg:w-1/2 max-w-md sm:max-w-lg flex flex-col justify-center relative z-10"
         >
-          {/* Tasteful Minimal Music Soundtrack Indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="flex items-center justify-center lg:justify-start gap-2.5 mb-3 px-2"
-          >
-            <span className="text-xs text-[#8ED4D6]">♪</span>
-            <span className="text-[10px] sm:text-[11px] font-sans tracking-[0.28em] uppercase text-[#B8E7E5]/80 font-medium">
-              {countdown.music.title} • SOUNDTRACK
-            </span>
-          </motion.div>
 
           {/* Atmospheric Layered Glow behind Lyrics */}
           <div className="absolute inset-0 -inset-x-6 bg-radial from-[#8ED4D6]/15 via-[#0B6075]/10 to-transparent blur-3xl pointer-events-none -z-10" />
