@@ -35,88 +35,89 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     audio.volume = 0.95;
     audio.preload = 'auto';
 
-    audio.addEventListener('play', () => setIsPlayingMusic(true));
-    audio.addEventListener('pause', () => setIsPlayingMusic(false));
-    audio.addEventListener('timeupdate', () => {
-      if (!isTransitioning) {
-        setCurrentTime(audio.currentTime);
-      }
-    });
+    const handlePlay = () => setIsPlayingMusic(true);
+    const handlePause = () => setIsPlayingMusic(false);
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
+
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
 
     audioRef.current = audio;
 
-    const unlockAndPlay = () => {
+    // Helper: Unlock Web Audio API context for iOS Safari / modern WebKit
+    const unlockWebAudio = () => {
+      try {
+        const AudioContextClass =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (AudioContextClass) {
+          const ctx = new AudioContextClass();
+          if (ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+          }
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    const tryPlayAudio = () => {
       if (!audioRef.current) return;
+      unlockWebAudio();
       audioRef.current.muted = false;
       audioRef.current.volume = 0.95;
-      if (audioRef.current.currentTime < 4) {
-        audioRef.current.currentTime = 0;
-      }
-      const p = audioRef.current.play();
-      if (p !== undefined) {
-        p.then(() => setIsPlayingMusic(true)).catch(() => {});
+      const promise = audioRef.current.play();
+      if (promise !== undefined) {
+        promise
+          .then(() => {
+            setIsPlayingMusic(true);
+            removeGestureListeners();
+          })
+          .catch((err) => {
+            console.log('Autoplay waiting for user gesture:', err);
+          });
       }
     };
 
     // 1. Attempt unmuted automatic playback immediately upon mounting
-    audio.muted = false;
-    audio.volume = 0.95;
-    const initialPlay = audio.play();
-    if (initialPlay !== undefined) {
-      initialPlay
-        .then(() => {
-          setIsPlayingMusic(true);
-        })
-        .catch(() => {
-          // If browser strictly blocks unmuted autoplay on cold load,
-          // start muted immediately so the audio engine is actively spinning
-          audio.muted = true;
-          audio.play().catch(() => {});
-        });
-    }
+    tryPlayAudio();
 
-    // 2. Attach unlock handlers to ANY user interaction anywhere on screen
-    // (touches, clicks, mouse moves, scrolls, key presses)
-    const interactionEvents = [
-      'pointerdown',
-      'touchstart',
-      'touchend',
-      'click',
-      'mousemove',
-      'pointermove',
-      'scroll',
-      'wheel',
-      'keydown',
-    ];
+    // 2. Attach capture-phase unlock handlers to ANY genuine user interaction anywhere on screen
+    const gestureEvents = ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'];
 
-    const onFirstGesture = () => {
-      unlockAndPlay();
-      interactionEvents.forEach((ev) => {
-        window.removeEventListener(ev, onFirstGesture);
-        document.removeEventListener(ev, onFirstGesture);
+    const onGesture = () => {
+      tryPlayAudio();
+    };
+
+    const removeGestureListeners = () => {
+      gestureEvents.forEach((ev) => {
+        window.removeEventListener(ev, onGesture, true);
+        document.removeEventListener(ev, onGesture, true);
       });
     };
 
-    interactionEvents.forEach((ev) => {
-      window.addEventListener(ev, onFirstGesture, { once: true, passive: true });
-      document.addEventListener(ev, onFirstGesture, { once: true, passive: true });
+    gestureEvents.forEach((ev) => {
+      window.addEventListener(ev, onGesture, { capture: true, passive: true });
+      document.addEventListener(ev, onGesture, { capture: true, passive: true });
     });
 
-    // Also respond to custom play-countdown-music event if dispatched externally
-    const onCustomPlay = () => unlockAndPlay();
+    const onCustomPlay = () => tryPlayAudio();
     window.addEventListener('play-countdown-music', onCustomPlay);
 
     return () => {
-      interactionEvents.forEach((ev) => {
-        window.removeEventListener(ev, onFirstGesture);
-        document.removeEventListener(ev, onFirstGesture);
-      });
+      removeGestureListeners();
       window.removeEventListener('play-countdown-music', onCustomPlay);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.pause();
       audio.src = '';
       audioRef.current = null;
     };
-  }, [countdown.music.source, isTransitioning]);
+  }, [countdown.music.source]);
 
   // Secret keystroke unlock (typing "2210", "kalai", or "open" instantly unlocks inside)
   useEffect(() => {
@@ -318,10 +319,10 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           className={`w-9 h-9 rounded-full transition-all border shadow-md flex items-center justify-center cursor-pointer backdrop-blur-md ${
             isPlayingMusic
               ? 'bg-[#123E45]/80 hover:bg-[#123E45] text-[#FFE8B2] border-[#8ED4D6]/40 shadow-[0_0_12px_rgba(212,175,55,0.25)]'
-              : 'bg-white/10 hover:bg-white/20 text-[#B8E7E5]/70 border-white/20'
+              : 'bg-white/10 hover:bg-white/20 text-[#B8E7E5]/70 border-white/20 animate-pulse'
           }`}
           aria-label={isPlayingMusic ? 'Mute background song' : 'Play background song'}
-          title={isPlayingMusic ? 'Mute soundtrack' : 'Unmute soundtrack'}
+          title={isPlayingMusic ? 'Mute soundtrack' : 'Play soundtrack'}
         >
           {isPlayingMusic ? (
             <Volume2 className="w-4 h-4 text-[#FFE8B2] animate-pulse" />
@@ -329,6 +330,20 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
             <VolumeX className="w-4 h-4 text-[#B8E7E5]/70" />
           )}
         </button>
+
+        {!isPlayingMusic && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.95, x: -4 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={toggleMusic}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#123E45]/85 hover:bg-[#123E45] border border-[#8ED4D6]/40 text-[11px] font-sans tracking-wide text-[#FFFDF8] shadow-md cursor-pointer backdrop-blur-md transition-all"
+          >
+            <span className="text-[#8ED4D6] animate-pulse">♪</span>
+            <span>Tap to play song</span>
+          </motion.button>
+        )}
       </div>
 
       {/* ============================================================ */}
