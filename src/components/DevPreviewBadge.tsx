@@ -16,8 +16,14 @@ export const DevPreviewBadge: React.FC<DevPreviewBadgeProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  // Only rendered in development
-  if (!import.meta.env.DEV) {
+  // Rendered in development or when preview query is provided
+  const isAllowed =
+    import.meta.env.DEV ||
+    (typeof window !== 'undefined' &&
+      (new URLSearchParams(window.location.search).has('preview') ||
+        new URLSearchParams(window.location.search).has('dev')));
+
+  if (!isAllowed) {
     return null;
   }
 

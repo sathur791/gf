@@ -12,22 +12,27 @@ import { calculateCountdown } from './utils/countdownTime';
 type AppFlowState = 'intro' | 'key' | 'opening' | 'experience';
 
 const getInitialUnlockState = (): boolean => {
-  // DEVELOPMENT PREVIEW MODE:
-  // In development only (import.meta.env.DEV), allow ?preview=birthday or ?preview=countdown
-  if (import.meta.env.DEV && typeof window !== 'undefined') {
+  if (typeof window !== 'undefined') {
     const preview = new URLSearchParams(window.location.search).get('preview');
-    if (preview === 'birthday') return true;
+    if (preview === 'birthday' || preview === 'inside' || preview === 'experience' || preview === 'true' || preview === '1') {
+      return true;
+    }
     if (preview === 'countdown') return false;
   }
-  // Production relies strictly on the real IST birthday timestamp
+  // Production default relies on the real IST birthday timestamp
   return calculateCountdown().isUnlocked;
 };
 
 const getInitialAppState = (): AppFlowState => {
-  if (import.meta.env.DEV && typeof window !== 'undefined') {
-    const step = new URLSearchParams(window.location.search).get('step');
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const step = params.get('step');
     if (step === 'intro' || step === 'key' || step === 'opening' || step === 'experience') {
       return step;
+    }
+    const preview = params.get('preview');
+    if (preview === 'inside' || preview === 'experience') {
+      return 'experience';
     }
   }
   return 'intro';
@@ -61,13 +66,19 @@ export const App: React.FC = () => {
     appState === 'opening';
 
   const devMode: 'birthday' | 'countdown' | 'real' = (() => {
-    if (import.meta.env.DEV && typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
       const preview = new URLSearchParams(window.location.search).get('preview');
-      if (preview === 'birthday') return 'birthday';
+      if (preview === 'birthday' || preview === 'inside' || preview === 'experience') return 'birthday';
       if (preview === 'countdown') return 'countdown';
     }
     return 'real';
   })();
+
+  const showPreviewToolbar =
+    import.meta.env.DEV ||
+    (typeof window !== 'undefined' &&
+      (new URLSearchParams(window.location.search).has('preview') ||
+        new URLSearchParams(window.location.search).has('dev')));
 
   return (
     <div
@@ -87,11 +98,10 @@ export const App: React.FC = () => {
       )}
 
       {/* 
-        DEVELOPMENT PREVIEW BADGE:
-        Guarded strictly by import.meta.env.DEV.
-        This entire block is stripped and excluded from production builds.
+        PREVIEW TOOLBAR:
+        Available in DEV and whenever ?preview or ?dev is present in URL
       */}
-      {import.meta.env.DEV && (
+      {showPreviewToolbar && (
         <DevPreviewBadge
           currentMode={devMode}
           appState={appState}
@@ -115,7 +125,7 @@ export const App: React.FC = () => {
               <CountdownGate
                 onUnlock={() => {
                   setIsBirthdayUnlocked(true);
-                  setAppState('intro');
+                  setAppState('experience');
                 }}
               />
             </motion.div>

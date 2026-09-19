@@ -118,6 +118,20 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     };
   }, [countdown.music.source, isTransitioning]);
 
+  // Secret keystroke unlock (typing "2210", "kalai", or "open" instantly unlocks inside)
+  useEffect(() => {
+    let typed = '';
+    const handleKeyDown = (e: KeyboardEvent) => {
+      typed += e.key.toLowerCase();
+      if (typed.length > 10) typed = typed.slice(-10);
+      if (typed.includes('2210') || typed.includes('kalai') || typed.includes('open')) {
+        onUnlock();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onUnlock]);
+
   // Subtle audio mute/unmute toggle
   const toggleMusic = useCallback((e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -252,7 +266,7 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[46rem] h-[46rem] rounded-full bg-[#8ED4D6]/15 blur-[140px] pointer-events-none" />
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[52rem] h-[28rem] rounded-full bg-[#B8E7E5]/10 blur-[150px] pointer-events-none" />
 
-      {/* Atmospheric Seamless Blended Moon in the distance */}
+      {/* Atmospheric Seamless Blended Moon in the distance - Tap to enter inside */}
       <motion.div
         initial={{ opacity: 0, scale: 0.92, y: 15 }}
         animate={{
@@ -260,8 +274,15 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           scale: isTransitioning ? [1, 1.25, 1.4] : 1,
           y: 0,
         }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         transition={{ duration: isTransitioning ? 2.2 : 2.5, ease: 'easeOut' }}
-        className="absolute top-4 sm:top-8 right-3 sm:right-10 w-24 h-24 sm:w-36 sm:h-36 pointer-events-none select-none z-10"
+        onClick={(e) => {
+          e.stopPropagation();
+          onUnlock();
+        }}
+        className="absolute top-4 sm:top-8 right-3 sm:right-10 w-24 h-24 sm:w-36 sm:h-36 select-none z-20 cursor-pointer group"
+        title="Tap the moon to preview inside"
       >
         {/* Soft spherical moonlight aura that merges seamlessly into the ocean sky */}
         <div
@@ -411,7 +432,25 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
             "The moon is waiting. The stars are waiting. And I am waiting for you."
           </p>
 
-
+          {/* Elegant Preview Inside Button */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
+            className="mt-6"
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onUnlock();
+              }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[11px] font-sans tracking-[0.2em] uppercase text-[#B8E7E5] hover:text-[#FFFDF8] border border-[#8ED4D6]/35 hover:border-[#8ED4D6]/65 shadow-sm transition-all cursor-pointer backdrop-blur-md hover:scale-105 active:scale-95"
+              title="Preview the birthday gift inside"
+            >
+              <Sparkles className="w-3 h-3 text-[#FFE8B2]" />
+              <span>Preview Inside</span>
+            </button>
+          </motion.div>
         </motion.div>
 
         {/* ------------------------------------------------------------ */}
