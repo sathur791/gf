@@ -14,6 +14,7 @@ import { StationeryDecorations } from './StationeryDecorations';
 import { MoonAtmosphere } from './MoonAtmosphere';
 import { FloatingBalloons } from './FloatingBalloons';
 import { FloatingHearts } from './FloatingHearts';
+import { StarField } from './StarField';
 import { WhisperText } from './WhisperText';
 import { ScrollProgress } from './ScrollProgress';
 import type { MemoryItem } from '../data/birthdayContent';
@@ -40,6 +41,9 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
     >
       {/* Scroll progress indicator */}
       <ScrollProgress />
+
+      {/* Atmospheric StarField in the ocean sky */}
+      <StarField count={45} />
 
       {/* Romantic Floating Hearts */}
       <FloatingHearts count={10} />

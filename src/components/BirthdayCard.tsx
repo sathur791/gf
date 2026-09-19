@@ -14,11 +14,11 @@ export const BirthdayCard: React.FC = () => {
         viewport={{ once: true, margin: '-40px' }}
         transition={{ duration: 0.9, ease: EASE_OUT_EXPO }}
         whileHover={{ y: -4, transition: { duration: 0.35 } }}
-        className="w-full max-w-lg bg-[#FFFDF8] rounded-3xl p-8 sm:p-14 text-center relative overflow-hidden border border-[#D4AF37]/35 shadow-[0_24px_60px_rgba(45,24,34,0.12)] deckled-paper"
+        className="w-full max-w-lg bg-[#FFFDF8] rounded-3xl p-8 sm:p-14 text-center relative overflow-hidden border border-[#0B6075]/15 shadow-[0_24px_60px_rgba(7,63,77,0.18)] animate-card-glow shimmer-surface"
       >
-        {/* Soft Organic Blush & Gold Glow */}
-        <div className="absolute top-0 right-0 w-44 h-44 bg-radial from-[#F6E2B3]/30 to-transparent rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-40 h-40 bg-radial from-[#F8DCD4]/35 to-transparent rounded-full blur-xl pointer-events-none" />
+        {/* Soft Organic Ocean & Gold Radiance */}
+        <div className="absolute top-0 right-0 w-44 h-44 bg-radial from-[#8ED4D6]/25 to-transparent rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-radial from-[#DDF3E9]/35 to-transparent rounded-full blur-xl pointer-events-none" />
 
         {/* Ambient floating gold sparkle accents */}
         {[
@@ -28,7 +28,7 @@ export const BirthdayCard: React.FC = () => {
         ].map((pos, i) => (
           <motion.div
             key={i}
-            className="absolute w-1.5 h-1.5 rounded-full bg-[#D4AF37] pointer-events-none"
+            className="absolute w-1.5 h-1.5 rounded-full bg-[#8ED4D6] pointer-events-none"
             style={pos}
             animate={{
               opacity: [0.2, 0.7, 0.2],
@@ -45,7 +45,7 @@ export const BirthdayCard: React.FC = () => {
         ))}
 
         {/* KALAIVANI — letter stagger reveal */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#2D1822] font-light tracking-[0.24em] uppercase mb-3 flex justify-center flex-wrap">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#0B6075] font-light tracking-[0.24em] uppercase mb-3 flex justify-center flex-wrap">
           {nameLetters.map((char, idx) => (
             <motion.span
               key={idx}
@@ -60,13 +60,13 @@ export const BirthdayCard: React.FC = () => {
           ))}
         </h1>
 
-        {/* Delicate gold divider */}
+        {/* Delicate gold & ocean divider */}
         <motion.div
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.8, ease: EASE_OUT_EXPO }}
-          className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent mx-auto mb-4 origin-center"
+          className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#8ED4D6] to-transparent mx-auto mb-4 origin-center"
         />
 
         {/* A little world of ours */}
@@ -75,7 +75,7 @@ export const BirthdayCard: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ duration: 0.7, delay: 0.9, ease: EASE_OUT_EXPO }}
-          className="font-handwriting text-2xl sm:text-3xl text-[#704455] mb-3"
+          className="font-handwriting text-2xl sm:text-3xl text-[#123E45]/90 mb-3"
         >
           {birthdayContent.hero.heading}
         </motion.p>
@@ -86,7 +86,7 @@ export const BirthdayCard: React.FC = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ duration: 0.8, delay: 1.1 }}
-          className="font-serif italic text-xs sm:text-sm text-[#963842]/85 leading-relaxed max-w-sm mx-auto"
+          className="font-serif italic text-xs sm:text-sm text-[#147C8A]/90 leading-relaxed max-w-sm mx-auto"
         >
           &ldquo;{birthdayContent.hero.quote}&rdquo;
         </motion.p>

@@ -84,8 +84,8 @@ export const App: React.FC = () => {
     <div
       className={`min-h-screen w-full relative transition-colors duration-1000 overflow-x-hidden font-sans ${
         isCover
-          ? 'bg-[#1C0E15] text-[#FFFDF8]'
-          : 'bg-[#FAF7F0] text-[#2D1822]'
+          ? 'bg-[#0B6075] text-[#FFFDF8]'
+          : 'bg-gradient-to-b from-[#0B6075] via-[#147C8A] via-25% via-[#8ED4D6]/25 via-50% via-[#DDF3E9]/30 via-75% to-[#073F4D] text-[#123E45]'
       }`}
     >
       {/* 

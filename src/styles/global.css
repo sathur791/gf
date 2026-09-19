@@ -35,25 +35,26 @@
     --color-cream-pure: #FFFDF8;
     --color-cream-warm: #FAF6ED;
 
-    --color-text-deep: #2D1822;
-    --color-text-muted: #704455;
+    --color-text-deep: #123E45;
+    --color-text-muted: #2A646E;
 
     /* Paper & Card Tokens */
     --card-bg: rgba(255, 253, 248, 0.96);
     --card-bg-solid: #FFFDF8;
-    --card-border: rgba(212, 175, 55, 0.2);
-    --card-border-hover: rgba(212, 175, 55, 0.45);
+    --card-border: rgba(11, 96, 117, 0.14);
+    --card-border-hover: rgba(20, 124, 138, 0.3);
 
     /* Accents */
-    --wax-seal: #963842;
-    --wax-seal-hover: #7D2B34;
+    --wax-seal: #8E3B46;
+    --wax-seal-hover: #742E38;
     --gold-foil: linear-gradient(135deg, #F9E7B9 0%, #D4AF37 50%, #B38E2A 100%);
 
     /* Shadows & Atmosphere */
-    --shadow-paper: 0 16px 40px -8px rgba(45, 24, 34, 0.12), 0 4px 14px -2px rgba(45, 24, 34, 0.06);
-    --shadow-lift: 0 24px 50px -10px rgba(45, 24, 34, 0.18), 0 8px 24px -4px rgba(212, 175, 55, 0.12);
+    --shadow-paper: 0 16px 40px -8px rgba(11, 96, 117, 0.14), 0 4px 12px -2px rgba(18, 62, 69, 0.08);
+    --shadow-lift: 0 24px 50px -10px rgba(11, 96, 117, 0.22), 0 8px 20px -4px rgba(20, 124, 138, 0.15);
+    --glow-aqua: 0 0 32px rgba(142, 212, 214, 0.32);
+    --glow-moon: 0 0 45px rgba(255, 253, 248, 0.45);
     --glow-gold: 0 0 32px rgba(212, 175, 55, 0.35);
-    --glow-blush: 0 0 40px rgba(248, 220, 212, 0.4);
   }
 
   body {
