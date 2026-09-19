@@ -267,7 +267,7 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[46rem] h-[46rem] rounded-full bg-[#8ED4D6]/15 blur-[140px] pointer-events-none" />
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[52rem] h-[28rem] rounded-full bg-[#B8E7E5]/10 blur-[150px] pointer-events-none" />
 
-      {/* Atmospheric Seamless Blended Moon in the distance - Tap to enter inside */}
+      {/* Atmospheric Seamless Blended Moon in the distance */}
       <motion.div
         initial={{ opacity: 0, scale: 0.92, y: 15 }}
         animate={{
@@ -275,15 +275,8 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           scale: isTransitioning ? [1, 1.25, 1.4] : 1,
           y: 0,
         }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
         transition={{ duration: isTransitioning ? 2.2 : 2.5, ease: 'easeOut' }}
-        onClick={(e) => {
-          e.stopPropagation();
-          onUnlock();
-        }}
-        className="absolute top-4 sm:top-8 right-3 sm:right-10 w-24 h-24 sm:w-36 sm:h-36 select-none z-20 cursor-pointer group"
-        title="Tap the moon to preview inside"
+        className="absolute top-4 sm:top-8 right-3 sm:right-10 w-24 h-24 sm:w-36 sm:h-36 select-none z-20 pointer-events-none"
       >
         {/* Soft spherical moonlight aura that merges seamlessly into the ocean sky */}
         <div
@@ -446,26 +439,6 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           <p className="font-serif italic text-sm text-[#B8E7E5]/75 max-w-sm">
             "The moon is waiting. The stars are waiting. And I am waiting for you."
           </p>
-
-          {/* Elegant Preview Inside Button */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="mt-6"
-          >
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onUnlock();
-              }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[11px] font-sans tracking-[0.2em] uppercase text-[#B8E7E5] hover:text-[#FFFDF8] border border-[#8ED4D6]/35 hover:border-[#8ED4D6]/65 shadow-sm transition-all cursor-pointer backdrop-blur-md hover:scale-105 active:scale-95"
-              title="Preview the birthday gift inside"
-            >
-              <Sparkles className="w-3 h-3 text-[#FFE8B2]" />
-              <span>Preview Inside</span>
-            </button>
-          </motion.div>
         </motion.div>
 
         {/* ------------------------------------------------------------ */}

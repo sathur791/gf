@@ -6,7 +6,6 @@ import { SecretKey } from './components/SecretKey';
 import { GiftOpening } from './components/GiftOpening';
 import { BirthdayExperience } from './components/BirthdayExperience';
 import { MusicController } from './components/MusicController';
-import { DevPreviewBadge } from './components/DevPreviewBadge';
 import { calculateCountdown } from './utils/countdownTime';
 
 type AppFlowState = 'intro' | 'key' | 'opening' | 'experience';
@@ -65,20 +64,6 @@ export const App: React.FC = () => {
     appState === 'key' ||
     appState === 'opening';
 
-  const devMode: 'birthday' | 'countdown' | 'real' = (() => {
-    if (typeof window !== 'undefined') {
-      const preview = new URLSearchParams(window.location.search).get('preview');
-      if (preview === 'birthday' || preview === 'inside' || preview === 'experience') return 'birthday';
-      if (preview === 'countdown') return 'countdown';
-    }
-    return 'real';
-  })();
-
-  const showPreviewToolbar =
-    import.meta.env.DEV ||
-    (typeof window !== 'undefined' &&
-      (new URLSearchParams(window.location.search).has('preview') ||
-        new URLSearchParams(window.location.search).has('dev')));
 
   return (
     <div
@@ -95,19 +80,6 @@ export const App: React.FC = () => {
       */}
       {isBirthdayUnlocked && (
         <MusicController autoStart={appState === 'experience'} />
-      )}
-
-      {/* 
-        PREVIEW TOOLBAR:
-        Available in DEV and whenever ?preview or ?dev is present in URL
-      */}
-      {showPreviewToolbar && (
-        <DevPreviewBadge
-          currentMode={devMode}
-          appState={appState}
-          isUnlocked={isBirthdayUnlocked}
-          onSelectState={(nextState) => setAppState(nextState)}
-        />
       )}
 
       <main className="relative z-10 w-full min-h-screen flex flex-col items-center">
