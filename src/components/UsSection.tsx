@@ -85,7 +85,7 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
 
               <div className="flex items-center justify-between px-2 pb-0.5">
                 <span className="text-[10px] font-sans tracking-[0.22em] uppercase text-[#D4AF37] font-semibold">
-                  01 • {p1.date || 'Our Forever'}
+                  {p1.date || 'Our Forever'}
                 </span>
                 <span className="text-xs font-serif italic text-[#704455]/75">
                   Tap to open
@@ -166,7 +166,7 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
 
               <div className="flex items-center justify-between px-1">
                 <span className="text-[10px] font-sans tracking-[0.2em] uppercase text-[#D4AF37] font-semibold">
-                  02 • {p2.date || 'Our Nights'}
+                  {p2.date || 'Our Nights'}
                 </span>
                 <span className="text-xs font-serif italic text-[#704455]/75">
                   Tap to open
@@ -237,7 +237,7 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
 
               <div className="flex items-center justify-between px-1 mb-1">
                 <span className="text-[10px] font-sans tracking-[0.2em] uppercase text-[#D4AF37] font-semibold">
-                  0{index + 3} • {item.date || 'Memory'}
+                  {item.date || 'Memory'}
                 </span>
                 <span className="text-xs font-serif italic text-[#704455]/75">
                   Tap to open
