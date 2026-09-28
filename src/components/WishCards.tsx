@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { birthdayContent, type WishCardItem } from '../data/birthdayContent';
-import { ChevronDown } from 'lucide-react';
 
 export const WishCards: React.FC = () => {
   const { wishes } = birthdayContent;
@@ -12,53 +11,45 @@ export const WishCards: React.FC = () => {
   };
 
   return (
-    <section className="w-full py-20 sm:py-28 px-6 flex flex-col items-center relative">
-      <div className="w-full max-w-lg text-center mb-12">
+    <section className="w-full py-28 sm:py-36 px-6 flex flex-col items-center relative select-none">
+      <div className="w-full max-w-lg text-center mb-16 space-y-2">
+        <motion.p
+          initial={{ opacity: 0, y: 6 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          className="text-xs font-sans tracking-[0.28em] uppercase text-[#DDF3E9] font-medium"
+        >
+          for your years ahead
+        </motion.p>
+
         <motion.h2
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.7 }}
-          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#0B6075] font-light tracking-wide mb-2"
+          transition={{ duration: 0.8 }}
+          className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#FFFDF8] font-light tracking-wide"
         >
           {wishes.title}
         </motion.h2>
+
+        <p className="font-handwriting text-xl text-[#B8E7E5] opacity-80 pt-1">
+          tap to unfold
+        </p>
       </div>
 
-      {/* Cards Grid - Batched Single-Observer Stagger */}
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-50px' }}
-        variants={{
-          hidden: { opacity: 0 },
-          visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.12 },
-          },
-        }}
-        className="w-full max-w-md flex flex-col gap-4"
-      >
+      {/* Tactile Paper Cards Stack */}
+      <div className="w-full max-w-md flex flex-col gap-5 relative z-10">
         {wishes.cards.map((wish: WishCardItem) => {
           const isExpanded = expandedId === wish.id;
 
           return (
             <motion.div
               key={wish.id}
-              variants={{
-                hidden: { opacity: 0, y: 16 },
-                visible: {
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-                },
-              }}
               layout
-              animate={{
-                opacity: expandedId && !isExpanded ? 0.65 : 1,
-                scale: expandedId && !isExpanded ? 0.98 : 1,
-              }}
-              transition={{ duration: 0.3 }}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => toggleCard(wish.id)}
               role="button"
               tabIndex={0}
@@ -67,49 +58,42 @@ export const WishCards: React.FC = () => {
                   toggleCard(wish.id);
                 }
               }}
-              className={`bg-[#FFFDF8] p-5 sm:p-6 rounded-2xl border border-[#0B6075]/15 cursor-pointer select-none transition-all duration-300 ${
+              className={`rounded-2xl p-5 sm:p-6 transition-all duration-300 cursor-pointer border relative overflow-hidden ${
                 isExpanded
-                  ? 'shadow-[0_20px_50px_rgba(7,63,77,0.16)] ring-1 ring-[#8ED4D6]/50 bg-[#FFFDF8]'
-                  : 'shadow-[0_10px_25px_rgba(7,63,77,0.08)] hover:border-[#147C8A]/30'
+                  ? 'bg-[#FAF6ED] border-[#8ED4D6] shadow-[0_20px_50px_rgba(3,27,34,0.35)] ring-1 ring-[#8ED4D6]/40'
+                  : 'bg-[#FFFDF8]/90 border-[#0B6075]/15 hover:bg-[#FFFDF8] shadow-[0_10px_30px_rgba(3,27,34,0.15)]'
               }`}
               aria-expanded={isExpanded}
-              aria-label={`Wish: ${wish.category}`}
+              aria-label={wish.category}
             >
+              {/* Paper Fold Crease Line */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <motion.span
-                    animate={isExpanded ? { scale: [1, 1.18, 1] } : { scale: 1 }}
-                    transition={{ duration: 0.5, ease: 'easeInOut' }}
-                    className="w-8 h-8 rounded-full bg-[#DDF3E9] text-[#0B6075] flex items-center justify-center text-sm font-bold shadow-xs"
-                  >
+                <div className="flex items-center gap-3.5">
+                  <span className="w-9 h-9 rounded-full bg-[#DDF3E9] text-[#0B6075] flex items-center justify-center text-sm font-serif font-bold shadow-xs">
                     {wish.symbol}
-                  </motion.span>
-                  <h3 className="text-xs sm:text-sm font-sans tracking-[0.16em] uppercase font-bold text-[#0B6075]">
+                  </span>
+                  <h3 className="text-xs sm:text-sm font-sans tracking-[0.2em] uppercase font-semibold text-[#0B6075]">
                     {wish.category}
                   </h3>
                 </div>
 
-                <div className="text-[#147C8A] flex items-center gap-1.5">
-                  <ChevronDown
-                    className={`w-4 h-4 transition-transform duration-300 ${
-                      isExpanded ? 'rotate-180 text-[#0B6075]' : ''
-                    }`}
-                  />
-                </div>
+                <span className="font-handwriting text-lg text-[#147C8A]">
+                  {isExpanded ? 'close' : 'open'}
+                </span>
               </div>
 
-              {/* Origami Paper Foldout expansion */}
+              {/* Unfolded Keepsake Note */}
               <AnimatePresence>
                 {isExpanded && (
                   <motion.div
-                    initial={{ opacity: 0, height: 0, rotateX: -12 }}
-                    animate={{ opacity: 1, height: 'auto', rotateX: 0 }}
-                    exit={{ opacity: 0, height: 0, rotateX: -12 }}
-                    transition={{ type: 'spring', stiffness: 200, damping: 22 }}
-                    className="overflow-hidden border-t border-[#0B6075]/10 pt-4 mt-4"
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden border-t border-[#0B6075]/10 pt-4"
                   >
-                    <p className="font-serif text-base sm:text-lg leading-relaxed text-[#123E45]/90 font-light">
-                      {wish.message}
+                    <p className="font-serif italic text-base sm:text-lg text-[#123E45]/90 leading-relaxed font-light">
+                      &ldquo;{wish.message}&rdquo;
                     </p>
                   </motion.div>
                 )}
@@ -117,7 +101,9 @@ export const WishCards: React.FC = () => {
             </motion.div>
           );
         })}
-      </motion.div>
+      </div>
     </section>
   );
 };
+
+export default WishCards;

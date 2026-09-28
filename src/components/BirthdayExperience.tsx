@@ -12,8 +12,6 @@ import { CoupleClimax } from './CoupleClimax';
 import { MemoryOverlay } from './MemoryOverlay';
 import { StationeryDecorations } from './StationeryDecorations';
 import { MoonAtmosphere } from './MoonAtmosphere';
-import { FloatingBalloons } from './FloatingBalloons';
-import { FloatingHearts } from './FloatingHearts';
 import { StarField } from './StarField';
 import { WhisperText } from './WhisperText';
 import { ScrollProgress } from './ScrollProgress';
@@ -43,27 +41,21 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
       <ScrollProgress />
 
       {/* Atmospheric StarField in the ocean sky */}
-      <StarField count={45} />
-
-      {/* Romantic Floating Hearts */}
-      <FloatingHearts count={10} />
+      <StarField count={40} />
 
       {/* Cinematic Parallax Moon Atmosphere ("Muzumathi") */}
       <MoonAtmosphere />
 
-      {/* Subtle Floating Interactive Balloons */}
-      <FloatingBalloons />
-
-      {/* Background drifting stationery botanical decorations */}
+      {/* Background drifting stationery botanical watermarks */}
       <StationeryDecorations />
 
-      {/* 01. Centerpiece Birthday Card */}
+      {/* 01. Centerpiece Dedication */}
       <BirthdayCard />
 
       {/* 02. Interactive Envelope & Letter Reveal */}
       <Envelope />
 
-      {/* 03. Childhood Memories Sequence */}
+      {/* 03. Childhood Memories Film */}
       <ChildhoodStory onSelectMemory={(mem) => setSelectedMemory(mem)} />
 
       {/* Whisper Moment */}
@@ -72,25 +64,25 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
       {/* 04. Personal Romantic Questions */}
       <MemoryQuestion />
 
-      {/* 05. NEW "KALAI" Section (A little collection of you.) */}
+      {/* 05. "KALAI" Portrait Exhibition (A little collection of you.) */}
       <KalaiSection onSelectMemory={(mem) => setSelectedMemory(mem)} />
 
       {/* Whisper Moment */}
       <WhisperText text="look closely..." subtext="our story begins here" />
 
-      {/* 06. NEW "US" Section (And then... there was us.) */}
+      {/* 06. "US" Section (The turning point: And then... there was us.) */}
       <UsSection onSelectMemory={(mem) => setSelectedMemory(mem)} />
 
-      {/* 07. Birthday Wish Cards */}
+      {/* 07. Tactile Wish Cards */}
       <WishCards />
 
       {/* 08. Interactive Botanical Bouquet */}
       <BouquetInteraction />
 
-      {/* 09. Unfolding Love Letter */}
+      {/* 09. Unfolding Parchment Love Letter */}
       <LoveLetter />
 
-      {/* 10. Climax Reveal: Couple Photograph & Birthday Greeting */}
+      {/* 10. Climax Reveal: Final Film Frame & Couple Photograph */}
       <CoupleClimax onReplay={handleSmoothReplay} />
 
       {/* Fullscreen Photo Lightbox Modal */}
@@ -101,3 +93,5 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
     </div>
   );
 };
+
+export default BirthdayExperience;

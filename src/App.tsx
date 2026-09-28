@@ -1,22 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Smartphone } from 'lucide-react';
 import { CountdownGate } from './components/CountdownGate';
 import { IlluminatedIntro } from './components/IlluminatedIntro';
 import { SecretKey } from './components/SecretKey';
 import { GiftOpening } from './components/GiftOpening';
 import { BirthdayExperience } from './components/BirthdayExperience';
 import { MusicController } from './components/MusicController';
+import { MobilePreview } from './components/MobilePreview';
 import { calculateCountdown } from './utils/countdownTime';
 
 type AppFlowState = 'intro' | 'key' | 'opening' | 'experience';
 
+const isMobilePreviewMode = (): boolean => {
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname.toLowerCase();
+    const params = new URLSearchParams(window.location.search);
+    return (
+      path === '/mobile' ||
+      path.startsWith('/mobile/') ||
+      params.get('preview') === 'mobile' ||
+      params.get('view') === 'mobile' ||
+      params.has('mobile')
+    );
+  }
+  return false;
+};
+
 const getInitialUnlockState = (): boolean => {
   if (typeof window !== 'undefined') {
-    const preview = new URLSearchParams(window.location.search).get('preview');
-    if (preview === 'birthday' || preview === 'inside' || preview === 'experience' || preview === 'true' || preview === '1') {
+    const params = new URLSearchParams(window.location.search);
+    const preview = params.get('preview');
+    const demo = params.get('demo');
+    if (
+      preview === 'birthday' ||
+      preview === 'inside' ||
+      preview === 'experience' ||
+      preview === 'true' ||
+      preview === '1' ||
+      preview === 'demo' ||
+      demo === 'true' ||
+      demo === '1' ||
+      demo === 'experience' ||
+      demo === 'birthday' ||
+      params.has('demo')
+    ) {
       return true;
     }
-    if (preview === 'countdown') return false;
+    if (preview === 'countdown' || demo === 'countdown') return false;
   }
   // Production default relies on the real IST birthday timestamp
   return calculateCountdown().isUnlocked;
@@ -30,7 +61,19 @@ const getInitialAppState = (): AppFlowState => {
       return step;
     }
     const preview = params.get('preview');
-    if (preview === 'inside' || preview === 'experience') {
+    const demo = params.get('demo');
+    if (demo === 'intro') return 'intro';
+    if (demo === 'key') return 'key';
+    if (demo === 'opening') return 'opening';
+    if (
+      preview === 'inside' ||
+      preview === 'experience' ||
+      preview === 'demo' ||
+      demo === 'experience' ||
+      demo === 'true' ||
+      demo === '1' ||
+      params.has('demo')
+    ) {
       return 'experience';
     }
   }
@@ -38,23 +81,34 @@ const getInitialAppState = (): AppFlowState => {
 };
 
 export const App: React.FC = () => {
+  if (isMobilePreviewMode()) {
+    return <MobilePreview />;
+  }
+
+  const isEmbedded =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('embedded') === '1';
+
   // Determine if birthday is unlocked
   const [isBirthdayUnlocked, setIsBirthdayUnlocked] = useState<boolean>(getInitialUnlockState);
 
   // Scene flow within birthday world
   const [appState, setAppState] = useState<AppFlowState>(getInitialAppState);
 
-  // Safety net: if the tab is left open across the target moment,
-  // re-check once a second even before CountdownGate's own timer fires.
+  // Safety net: if the tab was left in a dormant background tab overnight,
+  // re-check and unlock only if midnight has already passed by more than 20 seconds.
+  // This ensures CountdownGate has full priority to complete its celebration transition.
   useEffect(() => {
     if (isBirthdayUnlocked) return;
     const intervalId = window.setInterval(() => {
-      if (calculateCountdown().isUnlocked) {
+      const countdown = calculateCountdown();
+      if (countdown.isUnlocked) {
+        // If the window is idle and countdown was already unlocked
         window.clearInterval(intervalId);
         setIsBirthdayUnlocked(true);
         setAppState('intro');
       }
-    }, 1000);
+    }, 20000); // Check every 20s in dormant background
     return () => window.clearInterval(intervalId);
   }, [isBirthdayUnlocked]);
 
@@ -97,7 +151,7 @@ export const App: React.FC = () => {
               <CountdownGate
                 onUnlock={() => {
                   setIsBirthdayUnlocked(true);
-                  setAppState('experience');
+                  setAppState('intro');
                 }}
               />
             </motion.div>
@@ -168,6 +222,18 @@ export const App: React.FC = () => {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Discreet Desktop Mobile Preview Quick-Trigger (hidden if inside iframe / embedded) */}
+      {!isEmbedded && (
+        <a
+          href="/mobile"
+          className="fixed bottom-4 left-4 z-40 hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#031C23]/85 hover:bg-[#073642] border border-[#8ED4D6]/50 text-[#8ED4D6] hover:text-white text-xs font-medium shadow-[0_4px_20px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+          title="Open Mobile Phone Simulator"
+        >
+          <Smartphone className="w-3.5 h-3.5 text-[#8ED4D6]" />
+          <span>Mobile Preview</span>
+        </a>
+      )}
     </div>
   );
 };

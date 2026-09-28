@@ -97,12 +97,12 @@ const MemoryCardContent: React.FC<{ memory: MemoryItem; onClose: () => void }> =
 
         {/* Back Button */}
         <div className="mt-6 pt-4 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-6 py-2.5 rounded-full text-xs font-sans tracking-[0.16em] uppercase font-semibold text-[#0B6075] bg-[#DDF3E9] hover:bg-[#B8E7E5] transition-colors"
-          >
-            BACK TO THE GIFT
-          </button>
+            <button
+              onClick={onClose}
+              className="px-6 py-2.5 rounded-full text-xs font-sans tracking-[0.16em] uppercase font-semibold text-[#0B6075] bg-[#DDF3E9] hover:bg-[#B8E7E5] transition-colors"
+            >
+              Keep looking
+            </button>
         </div>
       </div>
     </motion.div>

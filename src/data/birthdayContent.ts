@@ -1,3 +1,6 @@
+import { type SongItem, type LyricLine, mainTeraSong } from './mainTeraLyrics';
+export type { SongItem, LyricLine };
+
 export interface MemoryItem {
   id: string;
   image: string;
@@ -73,42 +76,42 @@ export const birthdayContent = {
         {
           start: 42.3,
           end: 46.5,
-          text: "Unnaley Vaazhgiren",
+          text: "உன்னாலே வாழ்கிறேன்",
         },
         {
           start: 46.5,
           end: 50.5,
-          text: "Thannaley Aadinen",
+          text: "தன்னாலே ஆடினேன்",
         },
         {
           start: 50.5,
           end: 53.6,
-          text: "Un kannaley saagiren",
+          text: "உன் கண்ணாலே சாகிறேன்",
         },
         {
           start: 53.6,
           end: 58.2,
-          text: "Uyireyy. Uyireyyy",
+          text: "உயிரே, உயிரே",
         },
         {
           start: 58.2,
           end: 65.3,
-          text: "Vaanam thoorum\nPoo Mazhai\nAdhil Aadava\nYen thaenirai",
+          text: "வானம் தூறும் பூமழை\nஅதில் ஆடவா என் தேநிறை",
         },
         {
           start: 65.3,
           end: 74.9,
-          text: "Paavai paarkum paarvaiyil\nIrandhaenn, Pirandhaen",
+          text: "பாவை பார்க்கும் பார்வையில்\nஇறந்தேன், பிறந்தேன்",
         },
         {
           start: 74.9,
           end: 81.3,
-          text: "Rathinamo Muthinamo\nOn Kanney Mundhivarum\nMandhiramo Sangeethamo\nOn Solley Paadi Varum\nNee",
+          text: "ரத்தினமோ முத்தினமோ,\nஉன் கண்ணே முந்திவரும்\nமந்திரமோ சங்கீதமோ,\nஉன் சொல்லே பாடி வரும்",
         },
         {
           start: 81.3,
           end: 93.0,
-          text: "Sandhirnao Suriyano\nYen Nenjam Thindaadum (andha)\nAadhiyanin Katalaiyum\nOn ichai Vendraadum",
+          text: "நீ சந்திரனோ சூரியனோ,\nஎன் நெஞ்சம் திண்டாடும்\nஅந்த ஆதியனின் கட்டளையும்\nஉன் இச்ச வென்றாடும்",
         },
         {
           start: 93.0,
@@ -118,37 +121,37 @@ export const birthdayContent = {
         {
           start: 113.2,
           end: 121.6,
-          text: "Naaldhoram yean\nKaadhorom on\nKoral Ketkanum\nYesa Paadanum",
+          text: "நாள்தோறும் என் காதோரோம்\nஒன் கொரல் கேட்கணும், இசை பாடணும்",
         },
         {
           start: 121.6,
           end: 129.6,
-          text: "Idazhodu naam\nIdazh yearkanum\nIravodu naam Iravaaganum",
+          text: "இதழோடு நாம் இதழ் ஏற்கணும்\nஇரவோடு நாம் இரவாகணும்",
         },
         {
           start: 129.6,
           end: 148.0,
-          text: "Yean mogamellam\nKoti theera on\nNatchai paarva Yenna kolla\nThindaaduren\nKondaadurenn\nUnnala thaan",
+          text: "என் மோகம் எல்லாம் கொட்டி தீர\nஉன் நச்ச பார்வ என்ன கொல்ல\nதிண்டாடுறேன், கொண்டாடுறேன்\nஉன்னாலத்தான்",
         },
         {
           start: 148.0,
           end: 156.2,
-          text: "Rathinamo Muthinamo\nOn Kanney Mundhivarum\nMandhiramo Sangeethamo\nOn Solley Paadi Varum\nNee",
+          text: "ரத்தினமோ முத்தினமோ,\nஒன் கண்ணே முந்திவரும்\nமந்திரமோ சங்கீதமோ,\nஒன் சொல்லே பாடி வரும்",
         },
         {
           start: 156.2,
           end: 165.0,
-          text: "Sandhirnao Suriyano\nYen Nenjo Thindaadum\nAadhiyanin Katalaiyum\nOn ichai Vendraadum",
+          text: "நீ சந்திரனோ சூரியனோ,\nஎன் நெஞ்சம் திண்டாடும்\nஅந்த ஆதியனின் கட்டளையும்\nஒன் இச்ச வென்றாடும்",
         },
         {
           start: 165.0,
           end: 173.0,
-          text: "Rathinamo Muthinamo\nOn Kanney Mundhivarum\nMandhiramo Sageethamo\nOn Solley Paadi Varum\nNee",
+          text: "ரத்தினமோ முத்தினமோ,\nஒன் கண்ணே முந்திவரும்\nமந்திரமோ சங்கீதமோ,\nஒன் சொல்லே பாடி வரும்",
         },
         {
           start: 173.0,
           end: 182.0,
-          text: "Sandhirnao Suriyano\nYen Nenjo Thindaadum\nAadhiyanin Katalaiyum\nOn ichai Vendraadum.",
+          text: "நீ சந்திரனோ சூரியனோ,\nஎன் நெஞ்சம் திண்டாடும்\nஅந்த ஆதியனின் கட்டளையும்\nஒன் இச்ச வென்றாடும்",
         },
         {
           start: 182.0,
@@ -599,6 +602,8 @@ export const birthdayContent = {
       "More us."
     ],
     couplePhoto: "/images/couple-final.png",
+    couplePhotoBg: "/images/couple-final-bg.png",
+    couplePhotoCutout: "/images/couple-final-cutout.png",
     signaturePrefix: "Always yours.",
     signatureName: "Sathur",
     replayText: "Watch again"
@@ -609,3 +614,16 @@ export const birthdayContent = {
     source: "/music/Muzumathi-MassTamilan.dev.mp3"
   }
 };
+
+export const rathinamoSong: SongItem = {
+  id: 'rathinamo',
+  title: 'Rathinamo',
+  source: '/music/Rathinamo.mp3',
+  lyrics: birthdayContent.countdown.lyricsData.lines,
+};
+
+export const countdownPlaylist: SongItem[] = [
+  rathinamoSong,
+  mainTeraSong,
+];
+

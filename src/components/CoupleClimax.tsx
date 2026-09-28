@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { birthdayContent } from '../data/birthdayContent';
-import { RotateCcw } from 'lucide-react';
 import { StarField } from './StarField';
 import { EASE_OUT_EXPO } from '../utils/motionPresets';
 
@@ -10,166 +9,261 @@ interface CoupleClimaxProps {
 }
 
 export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
-  const { final } = birthdayContent;
-  const [showReplayHint, setShowReplayHint] = useState(false);
+  const { final, moon } = birthdayContent;
+  const [isUniverseMode, setIsUniverseMode] = useState(false);
+  const [hasAutoTriggered, setHasAutoTriggered] = useState(false);
 
-  // Maintain rich, clear background music under the climax scene
+  // Automatic cinematic transition into celestial realm as the emotional story builds
   useEffect(() => {
-    window.dispatchEvent(
-      new CustomEvent('fade-birthday-music', {
-        detail: { targetVolume: 0.85, durationMs: 1500 },
-      })
-    );
-  }, []);
+    if (hasAutoTriggered) return;
+    const timer = setTimeout(() => {
+      setIsUniverseMode(true);
+      setHasAutoTriggered(true);
+    }, 4200);
 
-  const handleReplay = () => {
-    // Restore music volume back to 100% on replay
-    window.dispatchEvent(
-      new CustomEvent('fade-birthday-music', {
-        detail: { targetVolume: 1.0, durationMs: 800 },
-      })
-    );
-    onReplay();
+    return () => clearTimeout(timer);
+  }, [hasAutoTriggered]);
+
+  const toggleUniverseMode = () => {
+    setIsUniverseMode((prev) => !prev);
   };
 
   return (
-    <section
-      onMouseMove={() => setShowReplayHint(true)}
-      onTouchStart={() => setShowReplayHint(true)}
-      className="w-full min-h-screen py-36 sm:py-48 px-6 flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-b from-[#2D1822]/95 via-[#1F1018] to-[#140810]"
-    >
-      <StarField count={45} className="opacity-80" />
+    <section className="w-full min-h-screen py-36 sm:py-48 px-6 flex flex-col items-center justify-center relative select-none overflow-hidden bg-gradient-to-b from-[#073642] via-[#042028] to-[#021318]">
+      <StarField count={35} className="opacity-75" />
+
+      {/* Atmospheric Moon at Climax */}
+      <div className="absolute top-10 right-6 sm:right-16 w-28 h-28 sm:w-40 sm:h-40 pointer-events-none opacity-85 select-none">
+        <div
+          className="absolute -inset-6 rounded-full pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(circle at center, rgba(255, 253, 248, 0.4) 0%, rgba(142, 212, 214, 0.18) 50%, transparent 80%)',
+            filter: 'blur(20px)',
+          }}
+        />
+        <img
+          src={moon.image}
+          alt="Moon"
+          className="w-full h-full object-contain filter brightness-110 contrast-105"
+          style={{
+            mixBlendMode: 'screen',
+            maskImage: 'radial-gradient(circle at center, black 65%, transparent 95%)',
+            WebkitMaskImage: 'radial-gradient(circle at center, black 65%, transparent 95%)',
+          }}
+        />
+      </div>
 
       {/* ============================================================ */}
-      {/* DYNAMIC VIGNETTE OVERLAY THAT TIGHTENS OVER TIME             */}
+      {/* FINAL FRAME: THE ULTIMATE COUPLE TRANSITION                  */}
       {/* ============================================================ */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 4, delay: 2.5, ease: 'easeInOut' }}
-        className="absolute inset-0 pointer-events-none z-10"
-        style={{
-          background:
-            'radial-gradient(ellipse at center, transparent 30%, rgba(20, 8, 16, 0.45) 70%, rgba(14, 5, 11, 0.85) 100%)',
-        }}
-      />
-
-      {/* ============================================================ */}
-      {/* FINAL COUPLE PHOTOGRAPH: KEN BURNS SLOW ZOOM OUT             */}
-      {/* ============================================================ */}
-      <div className="w-full max-w-2xl flex flex-col items-center text-center relative z-20 pt-20 sm:pt-28">
+      <div className="w-full max-w-2xl flex flex-col items-center text-center relative z-20 pt-16 sm:pt-24">
         <motion.div
-          initial={{ opacity: 0, scale: 0.97, filter: 'blur(12px)' }}
+          initial={{ opacity: 0, scale: 0.97, filter: 'blur(14px)' }}
           whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
           viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 1.3, ease: EASE_OUT_EXPO }}
-          className="w-full max-w-xl sm:max-w-2xl relative mb-12 flex flex-col items-center select-none"
+          transition={{ duration: 1.4, ease: EASE_OUT_EXPO }}
+          onClick={toggleUniverseMode}
+          className="w-full max-w-xl sm:max-w-2xl relative mb-12 sm:mb-16 flex flex-col items-center select-none cursor-pointer group"
+          title="Tap photo"
         >
-          {/* Deep Radiant Warm Gold & Blush Halo */}
-          <div className="absolute inset-0 bg-radial from-[#D4AF37]/25 via-[#963842]/15 to-transparent rounded-[2.5rem] blur-3xl scale-110 -z-10 pointer-events-none" />
+          {/* Deep warm gold & starlight halo */}
+          <motion.div
+            animate={{
+              scale: isUniverseMode ? [1.1, 1.18, 1.1] : 1.05,
+              opacity: isUniverseMode ? [0.35, 0.55, 0.35] : 0.25,
+            }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute inset-0 bg-radial from-[#8ED4D6]/30 via-[#FFE39E]/20 to-transparent rounded-[2.5rem] blur-3xl -z-10 pointer-events-none"
+          />
 
-          {/* Luxury Film Frame with subtle warmth and vignette */}
-          <div className="w-full p-2.5 sm:p-3.5 rounded-[2rem] sm:rounded-[2.5rem] bg-[#FFFDF8]/20 border border-[#D4AF37]/40 shadow-[0_36px_90px_rgba(0,0,0,0.65)] backdrop-blur-xs">
-            <div className="w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-[#140810] relative border border-[#D4AF37]/30">
+          {/* Film Frame Outer Border */}
+          <div className="w-full p-3 sm:p-4 rounded-[2rem] sm:rounded-[2.5rem] bg-[#FFFDF8]/25 border border-[#8ED4D6]/35 shadow-[0_36px_90px_rgba(0,0,0,0.65)] backdrop-blur-xs transition-colors duration-1000">
+            {/* Aspect 16:9 Landscape Frame for horizontal pictures */}
+            <div className="w-full aspect-[16/9] rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-[#021318] relative border border-[#8ED4D6]/20">
+              {/* -------------------------------------------------------- */}
+              {/* LAYER 1: BASE REAL MEMORY PHOTO (With Room Background)   */}
+              {/* -------------------------------------------------------- */}
               <motion.img
-                src={final.couplePhoto}
-                alt="Sathur and Kalai"
+                src={final.couplePhotoBg || final.couplePhoto}
+                alt="Sathur and Kalai Memory"
                 decoding="async"
                 loading="lazy"
-                initial={{ scale: 1.05 }}
-                whileInView={{ scale: 1.0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 6, ease: 'easeOut' }}
-                className="w-full h-full object-cover object-center photo-enhanced"
+                animate={{
+                  opacity: isUniverseMode ? 0 : 1,
+                  scale: isUniverseMode ? 1.05 : 1.0,
+                  filter: isUniverseMode ? 'blur(8px)' : 'blur(0px)',
+                }}
+                transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
               />
+
+              {/* -------------------------------------------------------- */}
+              {/* LAYER 2: CELESTIAL NIGHT SKY REALM                       */}
+              {/* -------------------------------------------------------- */}
+              <motion.div
+                animate={{
+                  opacity: isUniverseMode ? 1 : 0,
+                }}
+                transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 w-full h-full bg-gradient-to-b from-[#031C23] via-[#073642] to-[#0A4755] pointer-events-none overflow-hidden"
+              >
+                {/* Embedded Stars */}
+                <StarField count={25} />
+                {/* Soft moonlit water caustic glow */}
+                <div className="absolute inset-0 bg-radial from-[#8ED4D6]/25 via-[#DDF3E9]/10 to-transparent blur-2xl" />
+                {/* Distant moon disc inside the universe picture */}
+                <div className="absolute top-4 right-8 w-16 h-16 rounded-full bg-radial from-white/60 via-[#8ED4D6]/20 to-transparent blur-sm" />
+              </motion.div>
+
+              {/* -------------------------------------------------------- */}
+              {/* LAYER 3: FOREGROUND COUPLE CUTOUT (Sathur & Kalai)       */}
+              {/* -------------------------------------------------------- */}
+              <motion.div
+                animate={{
+                  opacity: isUniverseMode ? 1 : 0,
+                  scale: isUniverseMode ? 1.02 : 0.98,
+                  y: isUniverseMode ? [0, -4, 0] : 0,
+                }}
+                transition={{
+                  opacity: { duration: 1.4, ease: [0.16, 1, 0.3, 1] },
+                  scale: { duration: 1.4, ease: [0.16, 1, 0.3, 1] },
+                  y: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
+                }}
+                className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none"
+              >
+                <img
+                  src={final.couplePhotoCutout || final.couplePhoto}
+                  alt="Sathur and Kalai Celestial"
+                  decoding="async"
+                  loading="lazy"
+                  className="w-full h-full object-contain filter drop-shadow-[0_0_32px_rgba(255,253,248,0.7)]"
+                />
+              </motion.div>
+
+              {/* -------------------------------------------------------- */}
+              {/* OPTICAL LIGHT FLARE SWEEP ON TRANSITION                  */}
+              {/* -------------------------------------------------------- */}
+              <AnimatePresence>
+                {isUniverseMode && (
+                  <motion.div
+                    key="lens-flare"
+                    initial={{ x: '-100%', opacity: 0.8 }}
+                    animate={{ x: '200%', opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.2, ease: 'easeInOut' }}
+                    className="absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 pointer-events-none z-30"
+                  />
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </motion.div>
 
         {/* ============================================================ */}
-        {/* STREAMLINED 4-5 LINE CLIMAX: SEQUENCED EMOTIONAL CADENCE     */}
+        {/* SEQUENCED EMOTIONAL CADENCE: FINAL FILM LINES                */}
         {/* ============================================================ */}
-        <div className="w-full max-w-lg flex flex-col items-center text-center space-y-4 sm:space-y-5 mb-12 px-4">
-          {/* Line 1: "Maybe this is my favourite picture." (0.4s) */}
+        <div className="w-full max-w-lg flex flex-col items-center text-center space-y-5 mb-14 px-4">
+          {/* Beat 1: "Maybe this is my favourite picture." */}
           <motion.p
             initial={{ opacity: 0, y: 8 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.85, delay: 0.4 }}
-            className="font-serif italic text-xl sm:text-2xl text-[#F8DCD4] font-light drop-shadow-sm"
+            className="font-serif italic text-xl sm:text-2xl text-[#FFFDF8] font-light drop-shadow-sm"
           >
-            "{final.line1}"
+            &ldquo;{final.line1}&rdquo;
           </motion.p>
 
-          {/* Line 2: "Not because it's perfect." (1.8s) */}
+          {/* Beat 2: "Not because it's perfect." */}
           <motion.p
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 0.9 }}
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.85, delay: 1.8 }}
-            className="font-serif italic text-lg sm:text-xl text-[#F6E2B3] font-light"
+            transition={{ duration: 0.85, delay: 1.6 }}
+            className="font-serif italic text-base sm:text-lg text-[#DDF3E9] font-light"
           >
             {final.line2}
           </motion.p>
 
-          {/* Line 3: "But because it's us." (3.2s) */}
-          <motion.h2
+          {/* Beat 3: "But because it's us." */}
+          <motion.p
             initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.95, delay: 3.2 }}
-            className="font-handwriting text-4xl sm:text-5xl md:text-6xl text-[#FFFDF8] pt-1 pb-2 drop-shadow-[0_2px_22px_rgba(246,226,179,0.5)]"
+            transition={{ duration: 0.95, delay: 2.8 }}
+            className="font-handwriting text-3xl sm:text-4xl text-[#FFFDF8]"
           >
-            "{final.line3}"
-          </motion.h2>
-
-          {/* Line 4: "I'd choose more days with you." (4.8s, held breath) */}
-          <motion.p
-            initial={{ opacity: 0, y: 6 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 1.0, delay: 4.8 }}
-            className="font-handwriting text-2xl sm:text-3xl text-[#FFFDF8] pb-2 drop-shadow-sm"
-          >
-            "{final.futurePromise}"
+            &ldquo;{final.line3}&rdquo;
           </motion.p>
 
-          {/* Line 5: Closing signature (6.4s, landing with quiet finality) */}
+          {/* Beat 4: Future Choice */}
+          <div className="pt-6 space-y-2">
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 0.85 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.85, delay: 4.0 }}
+              className="font-serif italic text-base sm:text-lg text-[#B8E7E5] font-light"
+            >
+              I don't know what every tomorrow will look like.
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 0.95 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.85, delay: 5.2 }}
+              className="font-serif text-lg sm:text-xl text-[#FFFDF8] font-light"
+            >
+              I only know who I hope is standing beside me.
+            </motion.p>
+          </div>
+
+          {/* Beat 5: 4-Line Emotional Rhythm */}
+          <div className="pt-6 space-y-1">
+            {final.rhythm.map((line, idx) => (
+              <motion.p
+                key={idx}
+                initial={{ opacity: 0, y: 6 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: 6.4 + idx * 0.4 }}
+                className="font-serif text-base sm:text-lg text-[#DDF3E9]/90 font-light"
+              >
+                {line}
+              </motion.p>
+            ))}
+          </div>
+
+          {/* Final Quiet Signature */}
           <motion.div
-            initial={{ opacity: 0, y: 6 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 1.2, delay: 6.4 }}
-            className="pt-4 text-center flex flex-col items-center"
+            transition={{ duration: 0.9, delay: 8.2 }}
+            className="pt-10 flex flex-col items-center"
           >
-            <span className="text-xs font-serif italic text-[#D4AF37] mb-1 tracking-wide">
+            <span className="text-xs font-serif italic text-[#8ED4D6] mb-1 tracking-wider">
               {final.signaturePrefix}
             </span>
-            <span className="font-handwriting text-3xl sm:text-4xl text-[#FFFDF8] drop-shadow-sm">
+            <span className="font-handwriting text-3xl sm:text-5xl text-[#FFFDF8]">
               {final.signatureName}
             </span>
           </motion.div>
         </div>
 
-        {/* ============================================================ */}
-        {/* HOLDING THE FINAL FRAME: NO INTRUSIVE APP BUTTONS            */}
-        {/* A quiet option appears on hover or touch                     */}
-        {/* ============================================================ */}
-        <motion.div
-          animate={{ opacity: showReplayHint ? 0.9 : 0.4 }}
-          transition={{ duration: 0.5 }}
-          className="pt-10 transition-opacity"
+        {/* Quiet Replay Action */}
+        <motion.button
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.7 }}
+          whileHover={{ opacity: 1, scale: 1.02 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 9.0 }}
+          onClick={onReplay}
+          className="mt-6 text-xs font-sans tracking-[0.24em] uppercase text-[#8ED4D6] hover:text-[#FFFDF8] cursor-pointer transition-colors py-2 px-4 rounded-full border border-[#8ED4D6]/30"
         >
-          <button
-            onClick={handleReplay}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-serif tracking-widest uppercase text-[#F6E2B3] hover:text-[#FFFDF8] bg-[#FFFDF8]/10 hover:bg-[#FFFDF8]/20 border border-[#D4AF37]/35 shadow-md backdrop-blur-sm transition-all cursor-pointer"
-            aria-label="Experience again"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>{final.replayText}</span>
-          </button>
-        </motion.div>
+          {final.replayText || 'Watch again'}
+        </motion.button>
       </div>
     </section>
   );

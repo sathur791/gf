@@ -6,82 +6,87 @@ export const LoveLetter: React.FC = () => {
   const { letter } = birthdayContent;
 
   return (
-    <section className="w-full py-28 sm:py-36 px-6 flex flex-col items-center relative">
+    <section className="w-full py-32 sm:py-44 px-6 flex flex-col items-center relative select-none">
       <div className="w-full max-w-xl flex flex-col items-center">
-        {/* Transition Prelude: Poetic & Natural */}
-        <div className="text-center mb-12 sm:mb-16 space-y-2">
+        {/* Intimate Prelude (Natural Emotional Writing, No Giant Titles) */}
+        <div className="text-center mb-14 sm:mb-20 space-y-2">
           <motion.p
             initial={{ opacity: 0, y: 8 }}
             whileInView={{ opacity: 0.9, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            className="font-serif italic text-lg sm:text-xl text-[#704455]"
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="font-serif italic text-lg sm:text-xl text-[#B8E7E5]"
           >
-            {letter.introLine1}
+            There are some things I don't always know how to say...
           </motion.p>
           <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 0.95 }}
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 0.95, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="font-handwriting text-3xl sm:text-4xl text-[#963842]"
+            transition={{ duration: 0.85, delay: 0.3 }}
+            className="font-handwriting text-3xl sm:text-4xl text-[#FFFDF8]"
           >
-            {letter.introLine2}
+            so I'm leaving them here.
           </motion.p>
         </div>
 
-        {/* Large Cream Paper Letter Sheet */}
+        {/* Large Textured Parchment Letter Sheet */}
         <motion.div
           initial={{ opacity: 0, y: 25, scale: 0.98 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true, margin: '-70px' }}
-          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full bg-[#FFFDF8] rounded-3xl p-7 sm:p-12 relative overflow-hidden border border-[#D4AF37]/35 shadow-[0_24px_70px_rgba(45,24,34,0.14)] deckled-paper"
+          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full bg-[#FFFDF8] rounded-3xl p-7 sm:p-14 relative overflow-hidden border border-[#0B6075]/15 shadow-[0_28px_75px_rgba(3,27,34,0.35)]"
         >
-          <div className="p-6 sm:p-10 bg-[#FAF7F0]/85 rounded-2xl border border-[#D4AF37]/20">
-            {/* Delicate Header: "for the things I never say enough..." */}
-            <p className="font-handwriting text-xl sm:text-2xl text-[#963842] mb-5">
-              {letter.heading}
-            </p>
+          {/* Subtle parchment interior with faint fold crease */}
+          <div className="p-6 sm:p-10 bg-[#FAF6ED] rounded-2xl border border-[#0B6075]/10 relative shadow-inner">
+            {/* Soft Botanical Leaf Watermark in Corner */}
+            <svg
+              className="absolute top-4 right-4 w-16 h-16 text-[#0B6075]/10 pointer-events-none"
+              viewBox="0 0 64 64"
+              fill="currentColor"
+            >
+              <path d="M32 4C20 18 12 34 16 52C28 50 44 42 52 28C56 16 44 6 32 4Z" />
+            </svg>
 
-            {/* Salutation */}
+            {/* Handwritten Salutation */}
             <motion.p
               initial={{ opacity: 0, y: 8 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.6 }}
-              className="font-serif text-2xl sm:text-3xl text-[#2D1822] font-medium mb-5"
+              transition={{ duration: 0.7 }}
+              className="font-serif text-2xl sm:text-3xl text-[#0B6075] font-normal mb-6"
             >
               {letter.salutation}
             </motion.p>
 
-            {/* Paragraphs with authentic human voice */}
-            <div className="space-y-5 text-base sm:text-lg font-serif font-light leading-relaxed text-[#2D1822]/90">
+            {/* Heartfelt Paragraphs with Authentic Voice */}
+            <div className="space-y-6 text-base sm:text-lg font-serif font-light leading-relaxed text-[#123E45]/90">
               {letter.paragraphs.map((para: string, idx: number) => (
                 <motion.p
                   key={idx}
                   initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-50px' }}
-                  transition={{ duration: 0.7, delay: idx * 0.12 }}
+                  transition={{ duration: 0.75, delay: idx * 0.12 }}
                 >
                   {para}
                 </motion.p>
               ))}
             </div>
 
-            {/* Handwritten Signature: Always yours. Sathur */}
+            {/* Handwritten Sign-off */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.7, delay: 0.35 }}
-              className="mt-10 pt-5 border-t border-[#D4AF37]/25 flex flex-col items-end"
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="mt-12 pt-6 border-t border-[#0B6075]/12 flex flex-col items-end"
             >
-              <span className="text-xs font-serif italic text-[#704455] mb-1">
+              <span className="text-xs font-serif italic text-[#147C8A]/80 mb-1">
                 {letter.signaturePrefix}
               </span>
-              <span className="font-handwriting text-3xl sm:text-4xl text-[#963842]">
+              <span className="font-handwriting text-3xl sm:text-4xl text-[#0B6075]">
                 {letter.signatureName}
               </span>
             </motion.div>
