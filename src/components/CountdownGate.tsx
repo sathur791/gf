@@ -44,7 +44,7 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     setIsTransitioning(true);
     fadeOutAudio();
     if (unlockTimeoutRef.current) clearTimeout(unlockTimeoutRef.current);
-    // Comfortable 9.5-second pause to read "HAPPY BIRTHDAY KALAIVANI"
+    // Comfortable 9.5-second pause to read "HAPPY BIRTHDAY KALAI"
     unlockTimeoutRef.current = window.setTimeout(() => {
       onUnlock();
     }, 9500);
@@ -55,6 +55,13 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       if (unlockTimeoutRef.current) clearTimeout(unlockTimeoutRef.current);
     };
   }, []);
+
+  // If already reached target date/time when mounted (e.g. opened at 10-10-26 00:00)
+  useEffect(() => {
+    if (state.isUnlocked && !isTransitioning) {
+      triggerMidnightTransition();
+    }
+  }, [state.isUnlocked, isTransitioning, triggerMidnightTransition]);
 
   // Secret keystroke unlock (typing "2210", "kalai", or "open" instantly unlocks)
   useEffect(() => {
@@ -456,14 +463,14 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
                 IT'S TIME
               </motion.span>
 
-              {/* The prominent birthday greeting with Kalaivani's name */}
+              {/* The prominent birthday greeting with Kalai's name */}
               <motion.h2
                 initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 className="text-3xl sm:text-5xl md:text-6xl font-serif text-[#0B6075] font-light tracking-[0.14em] uppercase mb-4 leading-tight drop-shadow-sm text-center"
               >
-                HAPPY BIRTHDAY KALAIVANI
+                HAPPY BIRTHDAY KALAI
               </motion.h2>
 
               <motion.div

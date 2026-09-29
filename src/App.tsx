@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Smartphone } from 'lucide-react';
 import { CountdownGate } from './components/CountdownGate';
@@ -8,7 +8,6 @@ import { GiftOpening } from './components/GiftOpening';
 import { BirthdayExperience } from './components/BirthdayExperience';
 import { MusicController } from './components/MusicController';
 import { MobilePreview } from './components/MobilePreview';
-import { calculateCountdown } from './utils/countdownTime';
 
 type AppFlowState = 'intro' | 'key' | 'opening' | 'experience';
 
@@ -48,9 +47,15 @@ const getInitialUnlockState = (): boolean => {
       return true;
     }
     if (preview === 'countdown' || demo === 'countdown') return false;
+
+    try {
+      if (sessionStorage.getItem('kalai_entered') === 'true') {
+        return true;
+      }
+    } catch {}
   }
-  // Production default relies on the real IST birthday timestamp
-  return calculateCountdown().isUnlocked;
+  // Let CountdownGate handle the countdown and the celebratory "HAPPY BIRTHDAY KALAI" midnight reveal
+  return false;
 };
 
 const getInitialAppState = (): AppFlowState => {
@@ -95,22 +100,7 @@ export const App: React.FC = () => {
   // Scene flow within birthday world
   const [appState, setAppState] = useState<AppFlowState>(getInitialAppState);
 
-  // Safety net: if the tab was left in a dormant background tab overnight,
-  // re-check and unlock only if midnight has already passed by more than 20 seconds.
-  // This ensures CountdownGate has full priority to complete its celebration transition.
-  useEffect(() => {
-    if (isBirthdayUnlocked) return;
-    const intervalId = window.setInterval(() => {
-      const countdown = calculateCountdown();
-      if (countdown.isUnlocked) {
-        // If the window is idle and countdown was already unlocked
-        window.clearInterval(intervalId);
-        setIsBirthdayUnlocked(true);
-        setAppState('intro');
-      }
-    }, 20000); // Check every 20s in dormant background
-    return () => window.clearInterval(intervalId);
-  }, [isBirthdayUnlocked]);
+
 
   const isCover =
     !isBirthdayUnlocked ||
@@ -150,6 +140,9 @@ export const App: React.FC = () => {
             >
               <CountdownGate
                 onUnlock={() => {
+                  try {
+                    sessionStorage.setItem('kalai_entered', 'true');
+                  } catch {}
                   setIsBirthdayUnlocked(true);
                   setAppState('intro');
                 }}
