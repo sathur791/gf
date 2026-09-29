@@ -28,9 +28,33 @@ export const setDevTestTargetMs = (targetMs: number | null) => {
   }
 };
 
+declare global {
+  interface Window {
+    __kalaiTestTargetMs?: number;
+  }
+}
+
 export const getTargetTimestamp = (): number => {
-  if (import.meta.env.DEV && devTestTargetMs !== null) {
+  if (devTestTargetMs !== null) {
     return devTestTargetMs;
+  }
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const test = params.get('test') || params.get('countdown');
+    if (test === '10s' || test === '10') {
+      if (!window.__kalaiTestTargetMs) {
+        window.__kalaiTestTargetMs = Date.now() + 10000;
+      }
+      return window.__kalaiTestTargetMs;
+    }
+    if (
+      test === '0s' ||
+      test === 'midnight' ||
+      params.get('preview') === 'midnight' ||
+      params.get('preview') === 'reveal'
+    ) {
+      return Date.now() - 1000;
+    }
   }
   return TARGET_BIRTHDAY_IST;
 };

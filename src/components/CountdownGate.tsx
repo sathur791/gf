@@ -69,7 +69,13 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     const handleKeyDown = (e: KeyboardEvent) => {
       typed += e.key.toLowerCase();
       if (typed.length > 10) typed = typed.slice(-10);
-      if (typed.includes('2210') || typed.includes('kalai') || typed.includes('open')) {
+      if (
+        typed.includes('2210') ||
+        typed.includes('kalai') ||
+        typed.includes('open') ||
+        typed.includes('midnight') ||
+        typed.includes('reveal')
+      ) {
         triggerMidnightTransition();
       }
     };

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Smartphone } from 'lucide-react';
 import { CountdownGate } from './components/CountdownGate';
 import { IlluminatedIntro } from './components/IlluminatedIntro';
 import { SecretKey } from './components/SecretKey';
@@ -89,10 +88,6 @@ export const App: React.FC = () => {
   if (isMobilePreviewMode()) {
     return <MobilePreview />;
   }
-
-  const isEmbedded =
-    typeof window !== 'undefined' &&
-    new URLSearchParams(window.location.search).get('embedded') === '1';
 
   // Determine if birthday is unlocked
   const [isBirthdayUnlocked, setIsBirthdayUnlocked] = useState<boolean>(getInitialUnlockState);
@@ -216,17 +211,7 @@ export const App: React.FC = () => {
         </AnimatePresence>
       </main>
 
-      {/* Discreet Desktop Mobile Preview Quick-Trigger (hidden if inside iframe / embedded) */}
-      {!isEmbedded && (
-        <a
-          href="/mobile"
-          className="fixed bottom-4 left-4 z-40 hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#031C23]/85 hover:bg-[#073642] border border-[#8ED4D6]/50 text-[#8ED4D6] hover:text-white text-xs font-medium shadow-[0_4px_20px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all hover:scale-105 active:scale-95"
-          title="Open Mobile Phone Simulator"
-        >
-          <Smartphone className="w-3.5 h-3.5 text-[#8ED4D6]" />
-          <span>Mobile Preview</span>
-        </a>
-      )}
+
     </div>
   );
 };

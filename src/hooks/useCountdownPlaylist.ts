@@ -56,9 +56,23 @@ const unlockAudioContext = () => {
   }
 };
 
-const getInitialSongIndex = (playlistLength: number): number => {
-  if (typeof window === 'undefined' || playlistLength <= 1) return 0;
+const getInitialSongIndex = (playlist: SongItem[]): number => {
+  if (typeof window === 'undefined' || playlist.length <= 1) return 0;
   try {
+    const params = new URLSearchParams(window.location.search);
+    const songParam = params.get('song');
+    if (songParam) {
+      const lower = songParam.toLowerCase();
+      if (lower.includes('tera') || lower === '2' || lower.includes('mein') || lower.includes('main')) {
+        const found = playlist.findIndex((s) => s.id === 'main-tera');
+        if (found !== -1) return found;
+      }
+      if (lower.includes('rathinamo') || lower === '1') {
+        const found = playlist.findIndex((s) => s.id === 'rathinamo');
+        if (found !== -1) return found;
+      }
+    }
+
     const saved = localStorage.getItem('kalai_countdown_song_idx');
     if (saved === null) {
       // 1st time opened: play Rathinamo (index 0)
@@ -66,9 +80,9 @@ const getInitialSongIndex = (playlistLength: number): number => {
       return 0;
     }
     const currentIdx = parseInt(saved, 10);
-    const validIdx = isNaN(currentIdx) ? 0 : currentIdx % playlistLength;
+    const validIdx = isNaN(currentIdx) ? 0 : currentIdx % playlist.length;
     // Prepare next visit to alternate to the other song
-    localStorage.setItem('kalai_countdown_song_idx', String((validIdx + 1) % playlistLength));
+    localStorage.setItem('kalai_countdown_song_idx', String((validIdx + 1) % playlist.length));
     return validIdx;
   } catch {
     return 0;
@@ -80,7 +94,7 @@ export const useCountdownPlaylist = ({
   enabled = true,
 }: UseCountdownPlaylistProps): UseCountdownPlaylistReturn => {
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(() =>
-    getInitialSongIndex(playlist.length)
+    getInitialSongIndex(playlist)
   );
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -226,6 +240,19 @@ export const useCountdownPlaylist = ({
       });
     };
   }, [enabled, getOrCreateAudio, safePlay]);
+
+  // Keyboard shortcut: Press 's' to cycle songs easily
+  useEffect(() => {
+    if (!enabled) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key.toLowerCase() === 's') {
+        advanceToNextSong();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [enabled, advanceToNextSong]);
 
   // Toggle play/pause
   const togglePlay = useCallback(
