@@ -36,7 +36,7 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
   };
 
   return (
-    <section className="w-full min-h-screen py-36 sm:py-48 px-6 flex flex-col items-center justify-center relative select-none overflow-hidden bg-gradient-to-b from-[#073642] via-[#042028] to-[#021318]">
+    <section id="climax" className="w-full min-h-screen py-36 sm:py-48 px-6 flex flex-col items-center justify-center relative select-none overflow-hidden bg-gradient-to-b from-[#073642] via-[#042028] to-[#021318]">
       <StarField count={45} className="opacity-80" />
 
       {/* Atmospheric Moon at Climax */}
