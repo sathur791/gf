@@ -297,7 +297,7 @@ export const CoupleClimax: React.FC<CoupleClimaxProps> = ({ onReplay }) => {
               className="group inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#E5C07B] to-[#B38E2A] text-[#072F3A] font-sans text-xs tracking-[0.2em] uppercase font-bold shadow-[0_6px_25px_rgba(212,175,55,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer border border-[#FFF6D6]/60"
             >
               <Heart className="w-4 h-4 fill-current text-[#A02C48] group-hover:scale-125 transition-transform" />
-              <span>Celebrate Sathur & Kalai</span>
+              <span>Celebrate Kalaivani</span>
               <Sparkles className="w-3.5 h-3.5 text-[#072F3A]" />
             </button>
           </motion.div>
