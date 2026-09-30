@@ -6,6 +6,7 @@ import { MemoryQuestion } from './MemoryQuestion';
 import { KalaiSection } from './KalaiSection';
 import { UsSection } from './UsSection';
 import { WishCards } from './WishCards';
+import { FloatingBalloons } from './FloatingBalloons';
 import { BouquetInteraction } from './BouquetInteraction';
 import { LoveLetter } from './LoveLetter';
 import { CoupleClimax } from './CoupleClimax';
@@ -15,7 +16,9 @@ import { MoonAtmosphere } from './MoonAtmosphere';
 import { StarField } from './StarField';
 import { WhisperText } from './WhisperText';
 import { ScrollProgress } from './ScrollProgress';
-import type { MemoryItem } from '../data/birthdayContent';
+import { FoldedNote } from './FoldedNote';
+import { FloatingHearts } from './FloatingHearts';
+import { birthdayContent, type MemoryItem } from '../data/birthdayContent';
 
 interface BirthdayExperienceProps {
   onReplay: () => void;
@@ -24,6 +27,7 @@ interface BirthdayExperienceProps {
 export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay }) => {
   const [selectedMemory, setSelectedMemory] = useState<MemoryItem | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { hiddenNotes } = birthdayContent;
 
   const handleSmoothReplay = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -41,7 +45,10 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
       <ScrollProgress />
 
       {/* Atmospheric StarField in the ocean sky */}
-      <StarField count={40} />
+      <StarField count={45} />
+
+      {/* Subtle floating ambient hearts drifting up occasionally */}
+      <FloatingHearts count={8} />
 
       {/* Cinematic Parallax Moon Atmosphere ("Muzumathi") */}
       <MoonAtmosphere />
@@ -58,6 +65,17 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
       {/* 03. Childhood Memories Film */}
       <ChildhoodStory onSelectMemory={(mem) => setSelectedMemory(mem)} />
 
+      {/* Folded Secret Note 1 */}
+      {hiddenNotes[0] && (
+        <div className="w-full flex justify-center py-4 relative z-20">
+          <FoldedNote
+            teaser={hiddenNotes[0].teaser}
+            title={hiddenNotes[0].title}
+            message={hiddenNotes[0].message}
+          />
+        </div>
+      )}
+
       {/* Whisper Moment */}
       <WhisperText text="there's more." subtext="a little collection of you" />
 
@@ -66,6 +84,17 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
 
       {/* 05. "KALAI" Portrait Exhibition (A little collection of you.) */}
       <KalaiSection onSelectMemory={(mem) => setSelectedMemory(mem)} />
+
+      {/* Folded Secret Note 2 */}
+      {hiddenNotes[1] && (
+        <div className="w-full flex justify-center py-4 relative z-20">
+          <FoldedNote
+            teaser={hiddenNotes[1].teaser}
+            title={hiddenNotes[1].title}
+            message={hiddenNotes[1].message}
+          />
+        </div>
+      )}
 
       {/* Whisper Moment */}
       <WhisperText text="look closely..." subtext="our story begins here" />
@@ -76,13 +105,27 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
       {/* 07. Tactile Wish Cards */}
       <WishCards />
 
-      {/* 08. Interactive Botanical Bouquet */}
+      {/* 08. Interactive Floating Balloon Thoughts */}
+      <FloatingBalloons />
+
+      {/* 09. Interactive Botanical Bouquet */}
       <BouquetInteraction />
 
-      {/* 09. Unfolding Parchment Love Letter */}
+      {/* Folded Secret Note 3 */}
+      {hiddenNotes[2] && (
+        <div className="w-full flex justify-center py-4 relative z-20">
+          <FoldedNote
+            teaser={hiddenNotes[2].teaser}
+            title={hiddenNotes[2].title}
+            message={hiddenNotes[2].message}
+          />
+        </div>
+      )}
+
+      {/* 10. Unfolding Parchment Love Letter */}
       <LoveLetter />
 
-      {/* 10. Climax Reveal: Final Film Frame & Couple Photograph */}
+      {/* 11. Climax Reveal: Final Film Frame & Couple Photograph */}
       <CoupleClimax onReplay={handleSmoothReplay} />
 
       {/* Fullscreen Photo Lightbox Modal */}

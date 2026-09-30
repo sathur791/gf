@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { birthdayContent, type BouquetItem } from '../data/birthdayContent';
+import { SparkleBurst } from './SparkleBurst';
+import { Heart, Sparkles } from 'lucide-react';
 
-// Rich botanical SVG illustrations with distinct visual identities (no emoji)
+// Rich botanical SVG illustrations with distinct visual identities
 const FlowerBotanicalArt: React.FC<{ id: string; isLarge?: boolean }> = ({ id, isLarge = false }) => {
   const sizeClass = isLarge ? 'w-24 h-24 sm:w-28 sm:h-28' : 'w-8 h-8 sm:w-10 sm:h-10';
 
@@ -60,17 +62,21 @@ const FlowerBotanicalArt: React.FC<{ id: string; isLarge?: boolean }> = ({ id, i
 export const BouquetInteraction: React.FC = () => {
   const { bouquet } = birthdayContent;
   const [selectedFlower, setSelectedFlower] = useState<BouquetItem | null>(null);
+  const [gatheredFlowerIds, setGatheredFlowerIds] = useState<Set<string>>(new Set());
 
   const handlePickFlower = (flower: BouquetItem) => {
     setSelectedFlower((current) => (current?.id === flower.id ? null : flower));
+    setGatheredFlowerIds((prev) => new Set(prev).add(flower.id));
   };
+
+  const allGathered = gatheredFlowerIds.size === bouquet.length;
 
   return (
     <section className="w-full py-32 sm:py-44 px-6 flex flex-col items-center relative select-none">
       {/* Soft Ambient Light Halo */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[44rem] h-[44rem] rounded-full bg-radial from-[#8ED4D6]/15 via-[#DDF3E9]/8 to-transparent blur-3xl pointer-events-none" />
 
-      {/* Section Header (Natural Emotional Writing, No "A DIGITAL BOUQUET") */}
+      {/* Section Header */}
       <div className="w-full max-w-lg text-center mb-16 sm:mb-20 relative z-10 space-y-2.5">
         <motion.p
           initial={{ opacity: 0, y: 6 }}
@@ -91,19 +97,17 @@ export const BouquetInteraction: React.FC = () => {
           A few flowers, for everything you are.
         </motion.h2>
 
-        <p className="font-handwriting text-xl sm:text-2xl text-[#B8E7E5] opacity-80 pt-1">
-          pick one to hold
+        <p className="font-handwriting text-xl sm:text-2xl text-[#B8E7E5] opacity-85 pt-1">
+          pick each bloom to hold its meaning
         </p>
       </div>
 
-      {/* ============================================================ */}
-      {/* PHYSICAL BOTANICAL PICKING STAGE                             */}
-      {/* ============================================================ */}
+      {/* Flower Selection Row */}
       <div className="w-full max-w-lg flex flex-col items-center relative z-10">
-        {/* Flower Selection Row */}
-        <div className="w-full flex justify-center items-end gap-3 sm:gap-6 py-6 mb-8">
+        <div className="w-full flex justify-center items-end gap-3 sm:gap-6 py-6 mb-4">
           {bouquet.map((flower) => {
             const isSelected = selectedFlower?.id === flower.id;
+            const isGathered = gatheredFlowerIds.has(flower.id);
 
             return (
               <motion.button
@@ -111,10 +115,10 @@ export const BouquetInteraction: React.FC = () => {
                 onClick={() => handlePickFlower(flower)}
                 animate={{
                   y: isSelected ? -16 : 0,
-                  scale: isSelected ? 1.12 : (selectedFlower ? 0.95 : 1),
+                  scale: isSelected ? 1.12 : selectedFlower ? 0.95 : 1,
                   opacity: selectedFlower && !isSelected ? 0.55 : 1,
                 }}
-                whileHover={{ y: isSelected ? -18 : -6, scale: isSelected ? 1.14 : 1.04 }}
+                whileHover={{ y: isSelected ? -18 : -6, scale: isSelected ? 1.14 : 1.05 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 className="relative flex flex-col items-center cursor-pointer group focus:outline-hidden"
                 aria-label={`Pick ${flower.flowerName}`}
@@ -123,30 +127,38 @@ export const BouquetInteraction: React.FC = () => {
                 {isSelected && (
                   <motion.div
                     layoutId="flower-glow-ring"
-                    className="absolute -inset-2 rounded-2xl bg-[#8ED4D6]/25 blur-md pointer-events-none"
+                    className="absolute -inset-2.5 rounded-3xl bg-[#8ED4D6]/30 blur-md pointer-events-none"
                     transition={{ type: 'spring', stiffness: 280, damping: 24 }}
                   />
                 )}
 
                 {/* Botanical Tile */}
                 <div
-                  className={`w-16 h-20 sm:w-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-2 transition-all border ${
+                  className={`w-16 h-22 sm:w-20 sm:h-26 rounded-2xl flex flex-col items-center justify-center p-2 transition-all border relative ${
                     isSelected
-                      ? 'bg-[#FFFDF8] border-[#8ED4D6] shadow-[0_12px_32px_rgba(142,212,214,0.4)]'
+                      ? 'bg-[#FFFDF8] border-[#8ED4D6] shadow-[0_12px_32px_rgba(142,212,214,0.45)] ring-2 ring-white/60'
+                      : isGathered
+                      ? 'bg-[#FFFDF8]/90 border-[#8ED4D6]/40 shadow-xs'
                       : 'bg-[#FFFDF8]/70 border-[#0B6075]/15 hover:bg-[#FFFDF8]'
                   }`}
                 >
                   <FlowerBotanicalArt id={flower.id} />
-                  <span className="text-[10px] sm:text-[11px] font-serif text-[#0B6075] mt-1 truncate max-w-[60px] text-center font-medium">
+                  <span className="text-[10px] sm:text-[11px] font-serif text-[#0B6075] mt-1.5 truncate max-w-[62px] text-center font-medium">
                     {flower.flowerName.split(' ')[0]}
                   </span>
+
+                  {isGathered && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#8ED4D6] text-[#031C23] text-[9px] flex items-center justify-center font-bold">
+                      ✓
+                    </span>
+                  )}
                 </div>
 
                 {/* Tiny drifting petal when picked */}
                 {isSelected && (
                   <motion.span
                     initial={{ opacity: 1, y: 0, scale: 0.8 }}
-                    animate={{ opacity: 0, y: -24, scale: 1.2, x: 8 }}
+                    animate={{ opacity: 0, y: -26, scale: 1.3, x: 8 }}
                     transition={{ duration: 1.2, ease: 'easeOut' }}
                     className="absolute -top-3 text-xs text-[#8ED4D6] pointer-events-none"
                   >
@@ -158,10 +170,24 @@ export const BouquetInteraction: React.FC = () => {
           })}
         </div>
 
-        {/* ============================================================ */}
-        {/* BOTANICAL SPECIMEN NOTE: HANDWRITTEN DEDICATION              */}
-        {/* ============================================================ */}
-        <div className="w-full min-h-[180px] sm:min-h-[220px]">
+        {/* Gathering Status Ribbon */}
+        {gatheredFlowerIds.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 flex items-center gap-2 text-xs font-sans text-[#DDF3E9] bg-[#073F4D]/50 px-4 py-1.5 rounded-full border border-[#8ED4D6]/25 backdrop-blur-xs"
+          >
+            <Heart className="w-3.5 h-3.5 text-[#F4A7B9] fill-current" />
+            <span>
+              {allGathered
+                ? "You've gathered your complete bouquet for today and forever ♡"
+                : `${gatheredFlowerIds.size} of 4 blooms gathered in your hands`}
+            </span>
+          </motion.div>
+        )}
+
+        {/* Botanical Specimen Note */}
+        <div className="w-full min-h-[190px] sm:min-h-[220px]">
           <AnimatePresence mode="wait">
             {selectedFlower ? (
               <motion.div
@@ -172,6 +198,8 @@ export const BouquetInteraction: React.FC = () => {
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 className="w-full rounded-3xl p-6 sm:p-8 bg-[#FAF6ED] border border-[#0B6075]/15 shadow-[0_20px_55px_rgba(3,27,34,0.3)] relative overflow-hidden"
               >
+                <SparkleBurst count={12} className="opacity-40" />
+
                 {/* Botanical Watermark Accent */}
                 <div className="absolute top-2 right-2 opacity-15 pointer-events-none scale-150">
                   <FlowerBotanicalArt id={selectedFlower.id} isLarge />
@@ -191,7 +219,7 @@ export const BouquetInteraction: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="w-10 h-[1px] bg-[#8ED4D6]/50 my-1" />
+                  <div className="w-12 h-[1px] bg-[#8ED4D6]/50 my-1" />
 
                   <p className="font-serif italic text-base sm:text-lg text-[#123E45]/90 max-w-sm leading-relaxed">
                     &ldquo;{selectedFlower.message}&rdquo;
@@ -205,15 +233,15 @@ export const BouquetInteraction: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.4 }}
-                className="w-full rounded-3xl p-8 border border-dashed border-[#8ED4D6]/30 bg-[#FAF6ED]/5 backdrop-blur-xs flex flex-col items-center justify-center text-center space-y-2"
+                className="w-full rounded-3xl p-8 border border-dashed border-[#8ED4D6]/35 bg-[#FAF6ED]/5 backdrop-blur-xs flex flex-col items-center justify-center text-center space-y-2"
               >
                 <div className="w-8 h-8 rounded-full bg-[#FFFDF8]/10 border border-[#8ED4D6]/20 flex items-center justify-center text-xs text-[#8ED4D6]">
-                  ✦
+                  <Sparkles className="w-4 h-4 text-[#8ED4D6]" />
                 </div>
-                <p className="font-handwriting text-xl sm:text-2xl text-[#DDF3E9]/85">
+                <p className="font-handwriting text-xl sm:text-2xl text-[#DDF3E9]/90">
                   tap any flower above to see what it whispers for you
                 </p>
-                <p className="text-xs font-sans text-[#B8E7E5]/50 tracking-wider">
+                <p className="text-xs font-sans text-[#B8E7E5]/60 tracking-wider">
                   each bloom carries its own dedication
                 </p>
               </motion.div>

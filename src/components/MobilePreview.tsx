@@ -12,10 +12,19 @@ import {
   Music,
   Flower2,
   ArrowLeft,
+  Gift,
 } from 'lucide-react';
 
 type DeviceType = 'iphone16' | 'iphonese' | 'galaxy24';
-type SceneMode = 'countdown' | 'birthday' | 'key' | 'intro';
+type SceneMode =
+  | 'mein-tera'
+  | 'midnight'
+  | 'countdown-10s'
+  | 'countdown'
+  | 'intro'
+  | 'key'
+  | 'opening'
+  | 'birthday';
 
 interface DeviceSpec {
   name: string;
@@ -55,8 +64,8 @@ const DEVICE_SPECS: Record<DeviceType, DeviceSpec> = {
 
 export const MobilePreview: React.FC = () => {
   const [device, setDevice] = useState<DeviceType>('iphone16');
-  const [scene, setScene] = useState<SceneMode>('countdown');
-  const [scale, setScale] = useState<number>(0.9);
+  const [scene, setScene] = useState<SceneMode>('mein-tera');
+  const [scale, setScale] = useState<number>(0.85);
   const [copied, setCopied] = useState<boolean>(false);
   const [isRealMobile, setIsRealMobile] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
@@ -79,17 +88,57 @@ export const MobilePreview: React.FC = () => {
     const params = new URLSearchParams();
     params.set('embedded', '1');
 
-    if (targetScene === 'countdown') {
+    if (targetScene === 'mein-tera') {
       params.set('preview', 'countdown');
-    } else if (targetScene === 'birthday') {
-      params.set('preview', 'birthday');
-      params.set('step', 'experience');
-    } else if (targetScene === 'key') {
-      params.set('preview', 'birthday');
-      params.set('step', 'key');
+      params.set('song', 'main-tera');
+    } else if (targetScene === 'midnight') {
+      params.set('preview', 'midnight');
+    } else if (targetScene === 'countdown-10s') {
+      params.set('preview', 'countdown');
+      params.set('test', '10s');
+    } else if (targetScene === 'countdown') {
+      params.set('preview', 'countdown');
+      params.set('song', 'rathinamo');
     } else if (targetScene === 'intro') {
       params.set('preview', 'birthday');
       params.set('step', 'intro');
+    } else if (targetScene === 'key') {
+      params.set('preview', 'birthday');
+      params.set('step', 'key');
+    } else if (targetScene === 'opening') {
+      params.set('preview', 'birthday');
+      params.set('step', 'opening');
+    } else if (targetScene === 'birthday') {
+      params.set('preview', 'birthday');
+      params.set('step', 'experience');
+    }
+    return `${origin}/?${params.toString()}`;
+  };
+
+  const getDirectFullscreenUrl = (targetScene: SceneMode) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const params = new URLSearchParams();
+
+    if (targetScene === 'mein-tera') {
+      params.set('song', 'main-tera');
+    } else if (targetScene === 'midnight') {
+      params.set('preview', 'midnight');
+    } else if (targetScene === 'countdown-10s') {
+      params.set('test', '10s');
+    } else if (targetScene === 'countdown') {
+      params.set('song', 'rathinamo');
+    } else if (targetScene === 'intro') {
+      params.set('preview', 'birthday');
+      params.set('step', 'intro');
+    } else if (targetScene === 'key') {
+      params.set('preview', 'birthday');
+      params.set('step', 'key');
+    } else if (targetScene === 'opening') {
+      params.set('preview', 'birthday');
+      params.set('step', 'opening');
+    } else if (targetScene === 'birthday') {
+      params.set('preview', 'birthday');
+      params.set('step', 'experience');
     }
     return `${origin}/?${params.toString()}`;
   };
@@ -140,50 +189,56 @@ export const MobilePreview: React.FC = () => {
   // 1. IF ACCESSED ON AN ACTUAL MOBILE DEVICE (No nested frame)
   // =========================================================================
   if (isRealMobile) {
+    const mobileTabs: { key: SceneMode; label: string }[] = [
+      { key: 'mein-tera', label: 'Mein Tera' },
+      { key: 'midnight', label: 'Midnight Reveal' },
+      { key: 'countdown-10s', label: '10s Countdown' },
+      { key: 'countdown', label: 'Rathinamo' },
+      { key: 'intro', label: 'Intro' },
+      { key: 'key', label: 'Key' },
+      { key: 'opening', label: 'Gift' },
+      { key: 'birthday', label: 'Experience' },
+    ];
+
     return (
       <div className="min-h-screen w-full flex flex-col bg-[#073642] text-[#FFFDF8]">
         {/* Floating Quick Switcher Banner for Mobile Testers */}
         <div className="sticky top-0 z-50 flex items-center justify-between px-3 py-2 bg-[#0B6075]/95 backdrop-blur-md border-b border-[#8ED4D6]/30 shadow-md">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             <Smartphone className="w-4 h-4 text-[#8ED4D6]" />
             <span className="text-xs font-semibold tracking-wide text-[#EAF7F0]">
-              Mobile Preview
+              Studio
             </span>
           </div>
 
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setScene('countdown')}
-              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                scene === 'countdown'
-                  ? 'bg-[#8ED4D6] text-[#073F4D] font-bold shadow'
-                  : 'bg-white/10 text-white/80 hover:bg-white/20'
-              }`}
-            >
-              Countdown
-            </button>
-            <button
-              onClick={() => setScene('birthday')}
-              className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                scene === 'birthday'
-                  ? 'bg-[#8ED4D6] text-[#073F4D] font-bold shadow'
-                  : 'bg-white/10 text-white/80 hover:bg-white/20'
-              }`}
-            >
-              Birthday
-            </button>
-            <button
-              onClick={handleExitPreview}
-              className="p-1 rounded-full text-[#8ED4D6] hover:bg-white/10"
-              title="Exit Preview Mode"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-1">
+            {mobileTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setScene(tab.key)}
+                className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                  scene === tab.key
+                    ? 'bg-[#8ED4D6] text-[#073F4D] font-bold shadow'
+                    : 'bg-white/10 text-white/80 hover:bg-white/20'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
+
+          <button
+            onClick={handleExitPreview}
+            className="p-1 rounded-full text-[#8ED4D6] hover:bg-white/10 shrink-0 ml-1"
+            title="Exit Preview Mode"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Embedded Fullscreen Mobile View */}
         <iframe
+          key={scene}
           src={getIframeUrl(scene)}
           title="Mobile Preview Experience"
           className="w-full flex-1 border-0"
@@ -346,8 +401,68 @@ export const MobilePreview: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-2">
               <button
+                onClick={() => setScene('mein-tera')}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col gap-1 ${
+                  scene === 'mein-tera'
+                    ? 'bg-[#147C8A]/40 border-[#8ED4D6] text-white shadow-md'
+                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Music className="w-4 h-4 text-[#8ED4D6]" />
+                  {scene === 'mein-tera' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  )}
+                </div>
+                <span className="text-xs font-semibold">Mein Tera</span>
+                <span className="text-[10px] text-white/50 leading-tight">
+                  Synced lyrics audio
+                </span>
+              </button>
+
+              <button
+                onClick={() => setScene('midnight')}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col gap-1 ${
+                  scene === 'midnight'
+                    ? 'bg-[#147C8A]/40 border-[#8ED4D6] text-white shadow-md'
+                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Sparkles className="w-4 h-4 text-[#8ED4D6]" />
+                  {scene === 'midnight' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  )}
+                </div>
+                <span className="text-xs font-semibold">Midnight Reveal</span>
+                <span className="text-[10px] text-white/50 leading-tight">
+                  HAPPY BIRTHDAY KALAI
+                </span>
+              </button>
+
+              <button
+                onClick={() => setScene('countdown-10s')}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col gap-1 ${
+                  scene === 'countdown-10s'
+                    ? 'bg-[#147C8A]/40 border-[#8ED4D6] text-white shadow-md'
+                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Clock className="w-4 h-4 text-[#8ED4D6]" />
+                  {scene === 'countdown-10s' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  )}
+                </div>
+                <span className="text-xs font-semibold">10s to Midnight</span>
+                <span className="text-[10px] text-white/50 leading-tight">
+                  Live timer countdown
+                </span>
+              </button>
+
+              <button
                 onClick={() => setScene('countdown')}
-                className={`p-3 rounded-xl border text-left transition-all flex flex-col gap-1 ${
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col gap-1 ${
                   scene === 'countdown'
                     ? 'bg-[#147C8A]/40 border-[#8ED4D6] text-white shadow-md'
                     : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
@@ -359,35 +474,35 @@ export const MobilePreview: React.FC = () => {
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                   )}
                 </div>
-                <span className="text-xs font-semibold">Countdown Gate</span>
+                <span className="text-xs font-semibold">Rathinamo Gate</span>
                 <span className="text-[10px] text-white/50 leading-tight">
-                  Tamil lyrics + alternating songs
+                  Tamil countdown track
                 </span>
               </button>
 
               <button
-                onClick={() => setScene('birthday')}
-                className={`p-3 rounded-xl border text-left transition-all flex flex-col gap-1 ${
-                  scene === 'birthday'
+                onClick={() => setScene('intro')}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col gap-1 ${
+                  scene === 'intro'
                     ? 'bg-[#147C8A]/40 border-[#8ED4D6] text-white shadow-md'
                     : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <Sparkles className="w-4 h-4 text-[#8ED4D6]" />
-                  {scene === 'birthday' && (
+                  <Flower2 className="w-4 h-4 text-[#8ED4D6]" />
+                  {scene === 'intro' && (
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                   )}
                 </div>
-                <span className="text-xs font-semibold">Birthday World</span>
+                <span className="text-xs font-semibold">Illuminated Intro</span>
                 <span className="text-[10px] text-white/50 leading-tight">
-                  Full 14 curated love sections
+                  Opening film invitation
                 </span>
               </button>
 
               <button
                 onClick={() => setScene('key')}
-                className={`p-3 rounded-xl border text-left transition-all flex flex-col gap-1 ${
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col gap-1 ${
                   scene === 'key'
                     ? 'bg-[#147C8A]/40 border-[#8ED4D6] text-white shadow-md'
                     : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
@@ -406,24 +521,57 @@ export const MobilePreview: React.FC = () => {
               </button>
 
               <button
-                onClick={() => setScene('intro')}
-                className={`p-3 rounded-xl border text-left transition-all flex flex-col gap-1 ${
-                  scene === 'intro'
+                onClick={() => setScene('opening')}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col gap-1 ${
+                  scene === 'opening'
                     ? 'bg-[#147C8A]/40 border-[#8ED4D6] text-white shadow-md'
                     : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <Flower2 className="w-4 h-4 text-[#8ED4D6]" />
-                  {scene === 'intro' && (
+                  <Gift className="w-4 h-4 text-[#8ED4D6]" />
+                  {scene === 'opening' && (
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                   )}
                 </div>
-                <span className="text-xs font-semibold">Illuminated Intro</span>
+                <span className="text-xs font-semibold">Gift Opening</span>
                 <span className="text-[10px] text-white/50 leading-tight">
-                  Opening film invitation
+                  Cinematic unwrapping
                 </span>
               </button>
+
+              <button
+                onClick={() => setScene('birthday')}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col gap-1 ${
+                  scene === 'birthday'
+                    ? 'bg-[#147C8A]/40 border-[#8ED4D6] text-white shadow-md'
+                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <Sparkles className="w-4 h-4 text-[#8ED4D6]" />
+                  {scene === 'birthday' && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  )}
+                </div>
+                <span className="text-xs font-semibold">Birthday World</span>
+                <span className="text-[10px] text-white/50 leading-tight">
+                  All 14 love chapters
+                </span>
+              </button>
+            </div>
+
+            {/* Direct Fullscreen Link Button */}
+            <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+              <a
+                href={getDirectFullscreenUrl(scene)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-[#8ED4D6] hover:text-white transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Open active scene in full tab</span>
+              </a>
             </div>
           </div>
 

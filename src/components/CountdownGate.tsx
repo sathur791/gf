@@ -63,6 +63,17 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     }
   }, [state.isUnlocked, isTransitioning, triggerMidnightTransition]);
 
+  // Immediate preview trigger for midnight/reveal test URLs
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const p = params.get('preview') || params.get('demo') || params.get('test');
+      if (p === 'midnight' || p === 'reveal' || p === '0s') {
+        triggerMidnightTransition();
+      }
+    }
+  }, [triggerMidnightTransition]);
+
   // Secret keystroke unlock (typing "2210", "kalai", or "open" instantly unlocks)
   useEffect(() => {
     let typed = '';

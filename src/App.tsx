@@ -17,7 +17,11 @@ const isMobilePreviewMode = (): boolean => {
     return (
       path === '/mobile' ||
       path.startsWith('/mobile/') ||
+      path === '/preview' ||
+      path.startsWith('/preview/') ||
       params.get('preview') === 'mobile' ||
+      params.get('preview') === 'all' ||
+      params.get('preview') === 'studio' ||
       params.get('view') === 'mobile' ||
       params.has('mobile')
     );
@@ -170,7 +174,7 @@ export const App: React.FC = () => {
                 >
                   <IlluminatedIntro onOpen={() => {}} />
                   <SecretKey
-                    onUnlockSuccess={() => setAppState('experience')}
+                    onUnlockSuccess={() => setAppState('opening')}
                     onBack={() => setAppState('intro')}
                   />
                 </motion.div>

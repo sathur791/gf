@@ -465,6 +465,16 @@ export const birthdayContent = {
         story: "A hand-drawn pen sketch on paper — the letter S curving softly around Kalai, crowned with a little heart. Simple, handmade, and eternal.",
         hiddenMessage: "Our story isn't just spoken; it's etched into each other's souls.",
         layoutType: "monogram"
+      },
+      {
+        id: "us-temple",
+        image: "/images/us-temple.jpg",
+        title: "Two Souls, One Quiet Prayer",
+        caption: "Standing beside you, my favorite prayer is already answered.",
+        date: "Our Temple Walk",
+        story: "Walking side by side among ancient stone pillars. In a world full of noise, standing right with you feels like complete and timeless peace.",
+        hiddenMessage: "Every temple, every prayer, every wish I ever make leads right back to you.",
+        layoutType: "portrait"
       }
     ] as MemoryItem[]
   },
