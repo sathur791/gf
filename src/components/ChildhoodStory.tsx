@@ -13,9 +13,9 @@ export const ChildhoodStory: React.FC<ChildhoodStoryProps> = ({ onSelectMemory }
   const photo3 = childhood.photos[2];
 
   return (
-    <section className="w-full py-28 sm:py-40 px-6 flex flex-col items-center relative select-none">
+    <section className="w-full py-20 sm:py-28 px-6 flex flex-col items-center relative select-none">
       {/* Narrative Opening */}
-      <div className="w-full max-w-xl flex flex-col items-center text-center mb-20 sm:mb-28">
+      <div className="w-full max-w-xl flex flex-col items-center text-center mb-14 sm:mb-18">
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 0.9, y: 0 }}
@@ -46,7 +46,7 @@ export const ChildhoodStory: React.FC<ChildhoodStoryProps> = ({ onSelectMemory }
       </div>
 
       {/* Recovered Memory Sequence */}
-      <div className="w-full max-w-md sm:max-w-lg flex flex-col items-center space-y-24 sm:space-y-36">
+      <div className="w-full max-w-md sm:max-w-lg flex flex-col items-center space-y-16 sm:space-y-22">
         {/* ========================================================== */}
         {/* PHOTO 1: childhood-01.jpg | "kutti karuvachi 😂"          */}
         {/* ========================================================== */}

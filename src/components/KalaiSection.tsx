@@ -19,9 +19,9 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
   ];
 
   return (
-    <section className="w-full py-32 sm:py-48 px-6 flex flex-col items-center relative select-none">
+    <section className="w-full py-20 sm:py-28 px-6 flex flex-col items-center relative select-none">
       {/* SECTION HEADER: "KALAI" — Portrait Exhibition Title */}
-      <div className="w-full max-w-xl text-center mb-28 sm:mb-40 relative z-10">
+      <div className="w-full max-w-xl text-center mb-16 sm:mb-24 relative z-10">
         <div className="flex justify-center items-center gap-3 mb-4 overflow-hidden">
           {'KALAI'.split('').map((char, index) => (
             <motion.span
@@ -60,7 +60,7 @@ export const KalaiSection: React.FC<KalaiSectionProps> = ({ onSelectMemory }) =>
       {/* PORTRAIT EXHIBITION: ONE PHOTOGRAPH DOMINATES AT A TIME      */}
       {/* Generous negative space letting each portrait breathe        */}
       {/* ============================================================ */}
-      <div className="w-full max-w-2xl flex flex-col items-center space-y-36 sm:space-y-48 relative z-10">
+      <div className="w-full max-w-2xl flex flex-col items-center space-y-20 sm:space-y-28 relative z-10">
         {kalai.photos.map((photo, idx) => {
           const isLandscape = photo.id === 'kalai-beach';
           const reflection = reflections[idx % reflections.length];

@@ -16,11 +16,11 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
   const pTemple = us.photos[4]; // us-temple.jpg
 
   return (
-    <section className="w-full py-32 sm:py-48 px-6 flex flex-col items-center relative select-none">
+    <section className="w-full py-20 sm:py-28 px-6 flex flex-col items-center relative select-none">
       {/* ============================================================ */}
       {/* PRELUDE: THE EMOTIONAL TURNING POINT (YOU -> US)             */}
       {/* ============================================================ */}
-      <div className="w-full max-w-xl text-center mb-28 sm:mb-40 relative z-10 space-y-3">
+      <div className="w-full max-w-xl text-center mb-16 sm:mb-24 relative z-10 space-y-3">
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 0.9, y: 0 }}
@@ -63,7 +63,7 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
       {/* ============================================================ */}
       {/* COUPLE PHOTOGRAPHS: CINEMATIC REVEALS                        */}
       {/* ============================================================ */}
-      <div className="w-full max-w-3xl flex flex-col items-center relative z-10 space-y-36 sm:space-y-48">
+      <div className="w-full max-w-3xl flex flex-col items-center relative z-10 space-y-20 sm:space-y-28">
         {/* ------------------------------------------------------------ */}
         {/* PHOTO 1: THE TURNING POINT HERO COUPLE REVEAL               */}
         {/* ------------------------------------------------------------ */}
