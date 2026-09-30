@@ -9,11 +9,10 @@ interface UsSectionProps {
 
 export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
   const { us } = birthdayContent;
-  const p1 = us.photos[0]; // us-real-couple.png
-  const p2 = us.photos[1]; // us-videocall-sleep.png
-  const pStars = us.photos[2]; // us-stars.png
-  const pSignature = us.photos[3]; // us-signature.jpg
-  const pTemple = us.photos[4]; // us-temple.jpg
+  const pVideo = us.photos.find((p) => p.id === 'us-videocall-sleep') || us.photos[0];
+  const pTemple = us.photos.find((p) => p.id === 'us-temple');
+  const pStars = us.photos.find((p) => p.id === 'us-stars');
+  const pSignature = us.photos.find((p) => p.id === 'us-signature');
 
   return (
     <section className="w-full py-20 sm:py-28 px-6 flex flex-col items-center relative select-none">
@@ -58,88 +57,46 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
           transition={{ duration: 0.8, delay: 0.65 }}
           className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#8ED4D6] to-transparent mx-auto mt-6 origin-center"
         />
+
+        {/* Narrative transition into Us */}
+        <div className="pt-8 space-y-3 max-w-lg mx-auto">
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.85, delay: 0.8 }}
+            className="font-handwriting text-3xl sm:text-4xl text-[#FFFDF8] tracking-wide drop-shadow-[0_2px_16px_rgba(255,253,248,0.5)]"
+          >
+            &ldquo;And then there was us.&rdquo;
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 0.92, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.85, delay: 1.1 }}
+            className="font-serif italic text-base sm:text-lg text-[#DDF3E9] font-light leading-relaxed"
+          >
+            &ldquo;{us.firstCoupleReflection}&rdquo;
+          </motion.p>
+        </div>
       </div>
 
       {/* ============================================================ */}
-      {/* COUPLE PHOTOGRAPHS: CINEMATIC REVEALS                        */}
+      {/* COUPLE MEMORIES: INTIMATE SHARED MOMENTS                     */}
       {/* ============================================================ */}
       <div className="w-full max-w-3xl flex flex-col items-center relative z-10 space-y-20 sm:space-y-28">
         {/* ------------------------------------------------------------ */}
-        {/* PHOTO 1: THE TURNING POINT HERO COUPLE REVEAL               */}
+        {/* PHOTO 1: LATE NIGHT VIDEO CALL MOMENT (Full Phone Screen)    */}
         {/* ------------------------------------------------------------ */}
-        {p1 && (
-          <div className="w-full flex flex-col items-center">
-            {/* Darkened surroundings with soft moonlight aura */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.97, filter: 'blur(12px)' }}
-              whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1] }}
-              onClick={() => onSelectMemory(p1)}
-              className="w-full max-w-2xl group cursor-pointer relative"
-            >
-              {/* Soft warm moonlight halo */}
-              <div className="absolute -inset-6 bg-radial from-[#8ED4D6]/25 via-[#DDF3E9]/10 to-transparent rounded-[2.5rem] blur-3xl pointer-events-none -z-10" />
-
-              {/* Large Cinematic Photograph Frame */}
-              <div className="w-full p-3 sm:p-4 rounded-[2rem] sm:rounded-[2.5rem] bg-[#FFFDF8]/95 border border-[#8ED4D6]/35 shadow-[0_32px_80px_rgba(3,27,34,0.45)] backdrop-blur-xs">
-                <div className="w-full aspect-[16/10] sm:aspect-[16/9] max-h-[560px] rounded-2xl sm:rounded-[1.75rem] overflow-hidden bg-[#FAF6ED] relative shadow-inner">
-                  <img
-                    src={p1.image}
-                    alt={p1.title}
-                    decoding="async"
-                    loading="lazy"
-                    className="w-full h-full object-cover object-center group-hover:scale-[1.015] transition-transform duration-700 ease-out"
-                  />
-                </div>
-
-                <div className="pt-3 pb-1 px-3 flex justify-between items-baseline">
-                  <span className="text-xs sm:text-sm font-serif italic text-[#147C8A]/90 tracking-wide">
-                    {p1.caption}
-                  </span>
-                  <span className="text-[11px] font-sans tracking-[0.2em] uppercase text-[#0B6075]/70 font-semibold">
-                    {p1.date || 'Our Forever'}
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Paced Emotional Cadence Under First Couple Photo */}
-            <div className="w-full max-w-lg text-center mt-12 space-y-4 px-4">
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.85, delay: 0.3 }}
-                className="font-handwriting text-3xl sm:text-5xl text-[#FFFDF8] tracking-wide drop-shadow-[0_2px_16px_rgba(255,253,248,0.5)]"
-              >
-                &ldquo;And then there was us.&rdquo;
-              </motion.p>
-
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                whileInView={{ opacity: 0.95, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.85, delay: 0.9 }}
-                className="font-serif italic text-base sm:text-lg text-[#DDF3E9] font-light leading-relaxed max-w-md mx-auto"
-              >
-                &ldquo;{us.firstCoupleReflection}&rdquo;
-              </motion.p>
-            </div>
-          </div>
-        )}
-
-        {/* ------------------------------------------------------------ */}
-        {/* PHOTO 2: LATE NIGHT VIDEO CALL MOMENT (Full Phone Screen)    */}
-        {/* ------------------------------------------------------------ */}
-        {p2 && (
+        {pVideo && (
           <div className="w-full flex flex-col items-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.97, filter: 'blur(10px)' }}
               whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-              onClick={() => onSelectMemory(p2)}
+              onClick={() => onSelectMemory(pVideo)}
               className="w-full max-w-sm sm:max-w-md group cursor-pointer relative"
             >
               {/* Soft screen glow */}
@@ -149,8 +106,8 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
                 {/* Phone Call Screen Frame — preserves the whole screenshot without cropping */}
                 <div className="w-full aspect-[9/16] max-h-[540px] rounded-2xl overflow-hidden bg-[#031C23] relative shadow-inner border border-[#8ED4D6]/20 flex items-center justify-center">
                   <img
-                    src={p2.image}
-                    alt={p2.title}
+                    src={pVideo.image}
+                    alt={pVideo.title}
                     decoding="async"
                     loading="lazy"
                     className="w-full h-full object-contain object-center group-hover:scale-[1.015] transition-transform duration-700 ease-out"
@@ -167,10 +124,10 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
 
                 <div className="pt-3 pb-1 px-3 flex justify-between items-baseline">
                   <p className="font-handwriting text-xl sm:text-2xl text-[#0B6075]">
-                    {p2.caption}
+                    {pVideo.caption}
                   </p>
                   <span className="text-[11px] font-serif italic text-[#147C8A]/70">
-                    {p2.date}
+                    {pVideo.date}
                   </span>
                 </div>
               </div>
@@ -201,7 +158,7 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
         )}
 
         {/* ------------------------------------------------------------ */}
-        {/* PHOTO 3: TEMPLE WALK MOMENT (Ghibli Artwork)                 */}
+        {/* PHOTO 2: TEMPLE WALK MOMENT (Ghibli Artwork)                 */}
         {/* ------------------------------------------------------------ */}
         {pTemple && (
           <div className="w-full flex flex-col items-center">

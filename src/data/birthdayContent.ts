@@ -427,16 +427,6 @@ export const birthdayContent = {
     subtitle: "Just us.",
     photos: [
       {
-        id: "us-real-couple",
-        image: "/images/us-real-couple.png",
-        title: "Just You and Me",
-        caption: "Cheek to cheek. Where everything feels right.",
-        date: "Our Forever",
-        story: "Held close, smiling together. No filters, no distance, just the gentle, honest truth of being right where we belong.",
-        hiddenMessage: "My favorite place in the entire world is right beside you.",
-        layoutType: "portrait"
-      },
-      {
         id: "us-videocall-sleep",
         image: "/images/us-videocall-sleep.png",
         title: "Late Night Call",
