@@ -15,7 +15,7 @@ export const UsSection: React.FC<UsSectionProps> = ({ onSelectMemory }) => {
   const pSignature = us.photos.find((p) => p.id === 'us-signature');
 
   return (
-    <section className="w-full py-20 sm:py-28 px-6 flex flex-col items-center relative select-none">
+    <section id="us" className="w-full py-20 sm:py-28 px-6 flex flex-col items-center relative select-none">
       {/* ============================================================ */}
       {/* PRELUDE: THE EMOTIONAL TURNING POINT (YOU -> US)             */}
       {/* ============================================================ */}
