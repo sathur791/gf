@@ -43,6 +43,17 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     if (isTransitioning) return;
     setIsTransitioning(true);
     fadeOutAudio();
+    const bg =
+      typeof document !== 'undefined'
+        ? (document.getElementById('countdown-bg-audio') as HTMLAudioElement | null)
+        : null;
+    if (bg) {
+      try {
+        bg.pause();
+        bg.currentTime = 0;
+        bg.src = '';
+      } catch {}
+    }
     if (unlockTimeoutRef.current) clearTimeout(unlockTimeoutRef.current);
     // Comfortable 9.5-second pause to read "HAPPY BIRTHDAY KALAI"
     unlockTimeoutRef.current = window.setTimeout(() => {
@@ -139,18 +150,19 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       {/* Deep Ocean Gradient Base */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#031C23] via-[#073642] to-[#0A4755] pointer-events-none" />
 
-      {/* Ambient warm glow from cover picture */}
+      {/* Ambient warm glow from cover picture (GPU accelerated) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-25">
         <img
           src="/images/cover.jpg"
           alt=""
-          className="w-full h-full object-cover filter blur-[95px] scale-125 transform"
+          className="w-full h-full object-cover filter sm:blur-[70px] blur-[24px] scale-125 transform"
+          style={{ transform: 'translate3d(0, 0, 0)' }}
         />
       </div>
 
-      <StarField count={40} />
+      <StarField count={36} />
 
-      {/* Subtle audio-reactive / ambient breathing caustics behind the scene */}
+      {/* Subtle audio-reactive / ambient breathing caustics behind the scene (GPU optimized) */}
       <motion.div
         animate={{
           scale: isPlaying ? [1, 1.05, 1] : 1,
@@ -161,9 +173,13 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
           repeat: Infinity,
           ease: 'easeInOut',
         }}
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[46rem] h-[46rem] rounded-full bg-[#8ED4D6] blur-[140px] pointer-events-none"
+        style={{ transform: 'translate3d(0, 0, 0)', willChange: 'transform, opacity' }}
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[46rem] h-[46rem] rounded-full bg-[#8ED4D6] sm:blur-[80px] blur-[28px] pointer-events-none"
       />
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[52rem] h-[28rem] rounded-full bg-[#B8E7E5]/10 blur-[150px] pointer-events-none" />
+      <div
+        style={{ transform: 'translate3d(0, 0, 0)' }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[52rem] h-[28rem] rounded-full bg-[#B8E7E5]/10 sm:blur-[90px] blur-[30px] pointer-events-none"
+      />
 
       {/* Atmospheric Seamless Blended Moon in the distance */}
       <motion.div
@@ -415,6 +431,23 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
                 </p>
               </div>
             )}
+
+            {/* Song Switcher Pill (Toggles between Rathinamo & Main Tera) */}
+            <div className="mt-3 flex items-center justify-center">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextSong();
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFDF8]/12 hover:bg-[#FFFDF8]/22 border border-[#8ED4D6]/35 text-[11px] font-sans tracking-wider uppercase text-[#DDF3E9] cursor-pointer transition-all active:scale-95 shadow-sm"
+                title="Switch song between Rathinamo and Main Tera"
+              >
+                <span className="text-[#8ED4D6]">♪</span>
+                <span>{currentSong.title}</span>
+                <span className="text-[10px] text-[#8ED4D6]/80 ml-1 font-semibold">⇄ Switch</span>
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>

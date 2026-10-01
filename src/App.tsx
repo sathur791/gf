@@ -99,6 +99,21 @@ export const App: React.FC = () => {
   // Scene flow within birthday world
   const [appState, setAppState] = useState<AppFlowState>(getInitialAppState);
 
+  // Guarantee that countdown songs (Rathinamo & Main Tera) stop completely when entering birthday world
+  React.useEffect(() => {
+    if (isBirthdayUnlocked) {
+      const countdownAudio = document.getElementById('countdown-bg-audio') as HTMLAudioElement | null;
+      if (countdownAudio) {
+        try {
+          countdownAudio.pause();
+          countdownAudio.currentTime = 0;
+          countdownAudio.src = '';
+          countdownAudio.remove();
+        } catch {}
+      }
+    }
+  }, [isBirthdayUnlocked]);
+
 
 
   const isCover =

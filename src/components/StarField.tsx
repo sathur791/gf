@@ -31,6 +31,8 @@ export const StarField: React.FC<StarFieldProps> = ({ count = 40, className = ''
             left: star.left,
             width: star.size,
             height: star.size,
+            willChange: 'transform, opacity',
+            transform: 'translate3d(0, 0, 0)',
           }}
           animate={{
             opacity: [star.opacity * 0.4, star.opacity, star.opacity * 0.3, star.opacity * 0.8, star.opacity * 0.4],

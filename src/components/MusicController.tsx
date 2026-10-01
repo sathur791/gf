@@ -15,6 +15,17 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
 
   // Initialize single persistent audio
   useEffect(() => {
+    // Forcefully stop and eliminate any countdown audio (Rathinamo / Main Tera) to prevent any overlap
+    const countdownAudio = typeof document !== 'undefined' ? (document.getElementById('countdown-bg-audio') as HTMLAudioElement | null) : null;
+    if (countdownAudio) {
+      try {
+        countdownAudio.pause();
+        countdownAudio.currentTime = 0;
+        countdownAudio.src = '';
+        countdownAudio.remove();
+      } catch {}
+    }
+
     if (!audioRef.current) {
       const audio = new Audio(birthdayContent.music.source);
       audio.loop = true;

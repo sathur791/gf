@@ -94,24 +94,27 @@
 /* UNIQUE ANIMATIONS & AMBIENT WATER CAUSTICS                   */
 /* ============================================================ */
 
-/* Water Caustic Light Waves */
+/* Water Caustic Light Waves (Hardware Accelerated 3D Transforms) */
 @keyframes waterCaustics {
   0% {
-    transform: scale(1) rotate(0deg);
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
     opacity: 0.25;
   }
   50% {
-    transform: scale(1.15) rotate(180deg);
+    transform: translate3d(0, 0, 0) scale(1.15) rotate(180deg);
     opacity: 0.45;
   }
   100% {
-    transform: scale(1) rotate(360deg);
+    transform: translate3d(0, 0, 0) scale(1) rotate(360deg);
     opacity: 0.25;
   }
 }
 
 .animate-caustics {
   animation: waterCaustics 24s ease-in-out infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 /* Liquid Float */

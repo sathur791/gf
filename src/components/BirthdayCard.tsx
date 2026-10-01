@@ -69,7 +69,7 @@ export const BirthdayCard: React.FC = () => {
           className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#8ED4D6] to-transparent mx-auto mb-4 origin-center"
         />
 
-        {/* A little world of ours */}
+        {/* A little world for you */}
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -215,7 +215,7 @@ export const birthdayContent = {
   // Post-open Keepsake (Soft personal dedication, no UI labels)
   hero: {
     quote: "For all the little moments that became us.",
-    heading: "A little world of ours.",
+    heading: "A little world for you.",
     subtitle: "Made especially for you."
   },
 

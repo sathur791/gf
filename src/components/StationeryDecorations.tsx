@@ -4,10 +4,19 @@ import { motion } from 'framer-motion';
 export const StationeryDecorations: React.FC = () => {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-      {/* Dynamic Water Caustic Light Source in Aqua-Mint */}
-      <div className="absolute top-[-10%] left-[-10%] w-[45rem] h-[45rem] rounded-full bg-radial from-[#BFE8EA]/45 via-[#75C9D0]/25 to-transparent blur-[90px] animate-caustics pointer-events-none" />
-      <div className="absolute top-[40%] right-[-15%] w-[40rem] h-[40rem] rounded-full bg-radial from-[#CFEBDD]/40 via-[#4EA8DE]/20 to-transparent blur-[100px] animate-caustics pointer-events-none" style={{ animationDuration: '32s' }} />
-      <div className="absolute bottom-[-10%] left-[20%] w-[48rem] h-[48rem] rounded-full bg-radial from-[#DFF3EE]/50 via-[#75C9D0]/20 to-transparent blur-[110px] pointer-events-none" />
+      {/* Dynamic Water Caustic Light Source in Aqua-Mint (Hardware Accelerated) */}
+      <div
+        style={{ transform: 'translate3d(0, 0, 0)', willChange: 'transform' }}
+        className="absolute top-[-10%] left-[-10%] w-[45rem] h-[45rem] rounded-full bg-radial from-[#BFE8EA]/45 via-[#75C9D0]/25 to-transparent sm:blur-[60px] blur-[24px] animate-caustics pointer-events-none"
+      />
+      <div
+        style={{ animationDuration: '32s', transform: 'translate3d(0, 0, 0)', willChange: 'transform' }}
+        className="absolute top-[40%] right-[-15%] w-[40rem] h-[40rem] rounded-full bg-radial from-[#CFEBDD]/40 via-[#4EA8DE]/20 to-transparent sm:blur-[70px] blur-[26px] animate-caustics pointer-events-none"
+      />
+      <div
+        style={{ transform: 'translate3d(0, 0, 0)' }}
+        className="absolute bottom-[-10%] left-[20%] w-[48rem] h-[48rem] rounded-full bg-radial from-[#DFF3EE]/50 via-[#75C9D0]/20 to-transparent sm:blur-[75px] blur-[28px] pointer-events-none"
+      />
 
       {/* Floating Sea-Glass Sparkle 1 */}
       <motion.div

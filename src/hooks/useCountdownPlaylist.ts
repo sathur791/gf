@@ -169,9 +169,27 @@ export const useCountdownPlaylist = ({
     });
   }, []);
 
+  const stopAudio = useCallback(() => {
+    const audio =
+      audioRef.current ||
+      (typeof document !== 'undefined'
+        ? (document.getElementById('countdown-bg-audio') as HTMLAudioElement | null)
+        : null);
+    if (audio) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    }
+    setIsPlaying(false);
+  }, []);
+
   // Setup single persistent Audio instance
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      stopAudio();
+      return;
+    }
 
     const audio = getOrCreateAudio();
 
@@ -221,8 +239,9 @@ export const useCountdownPlaylist = ({
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
+      stopAudio();
     };
-  }, [currentSong.source, currentSong.title, currentSongIndex, advanceToNextSong, enabled, getOrCreateAudio, safePlay]);
+  }, [currentSong.source, currentSong.title, currentSongIndex, advanceToNextSong, enabled, getOrCreateAudio, safePlay, stopAudio]);
 
   // Global mobile touch/click listeners to unlock audio immediately on first interaction
   useEffect(() => {
@@ -314,26 +333,20 @@ export const useCountdownPlaylist = ({
     }
   }, []);
 
-  // Smooth fade-out on unlock
+  // Smooth fade-out and complete pause on unlock
   const fadeOutAudio = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio || !isPlaying) return;
-    const fadeInterval = setInterval(() => {
-      try {
-        if (audio.volume > 0.08) {
-          audio.volume = Math.max(0, audio.volume - 0.08);
-        } else {
-          clearInterval(fadeInterval);
-          audio.pause();
-          setIsPlaying(false);
-        }
-      } catch {
-        clearInterval(fadeInterval);
-        audio.pause();
-        setIsPlaying(false);
-      }
-    }, 100);
-  }, [isPlaying]);
+    const audio =
+      audioRef.current ||
+      (typeof document !== 'undefined'
+        ? (document.getElementById('countdown-bg-audio') as HTMLAudioElement | null)
+        : null);
+    if (!audio) return;
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+    } catch {}
+    setIsPlaying(false);
+  }, []);
 
   // Synchronized lyric calculation
   const lyrics = currentSong.lyrics || [];
