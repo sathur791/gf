@@ -131,27 +131,7 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       onTouchStart={handleGlobalInteraction}
       className="min-h-screen w-full flex flex-col items-center justify-center relative px-4 sm:px-8 py-10 select-none overflow-x-hidden bg-[#073642] text-[#123E45]"
     >
-      {/* Mobile-Friendly Floating Music Affordance (Shown when audio is waiting for user tap) */}
-      <AnimatePresence>
-        {!isPlaying && (
-          <motion.button
-            initial={{ opacity: 0, y: -16, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -16, scale: 0.95 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              play();
-            }}
-            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-[#123E45]/92 hover:bg-[#123E45] border border-[#8ED4D6]/60 shadow-[0_6px_28px_rgba(142,212,214,0.45)] text-xs font-sans tracking-wide text-[#FFFDF8] backdrop-blur-md cursor-pointer active:scale-95 transition-all"
-            aria-label="Tap to play music"
-          >
-            <span className="text-[#8ED4D6] animate-pulse">♪</span>
-            <span className="font-medium">Tap to play music</span>
-            <span className="text-[#8ED4D6] text-xs">✦</span>
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {/* Atmospheric Night & Moon Glow Base */}
 
       {/* ============================================================ */}
       {/* 1. ATMOSPHERIC NIGHT & MOON GLOW                             */}

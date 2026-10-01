@@ -108,15 +108,27 @@ export const useCountdownPlaylist = ({
 
   const getOrCreateAudio = useCallback(() => {
     let audio = audioRef.current;
-    const song = playlistRef.current[currentSongIndex] || playlistRef.current[0];
     if (!audio) {
-      audio = new Audio(song.source);
-      audio.preload = 'auto';
-      audio.setAttribute('playsinline', 'true');
-      audio.setAttribute('webkit-playsinline', 'true');
-      try { audio.volume = 0.95; } catch {}
+      const existing =
+        typeof document !== 'undefined'
+          ? (document.getElementById('countdown-bg-audio') as HTMLAudioElement | null)
+          : null;
+      if (existing) {
+        audio = existing;
+      } else {
+        const song = playlistRef.current[currentSongIndex] || playlistRef.current[0];
+        audio = new Audio(song.source);
+        audio.id = 'countdown-bg-audio';
+        audio.preload = 'auto';
+        audio.setAttribute('playsinline', 'true');
+        audio.setAttribute('webkit-playsinline', 'true');
+      }
+      try {
+        audio.volume = 0.95;
+      } catch {}
       audioRef.current = audio;
     }
+    const song = playlistRef.current[currentSongIndex] || playlistRef.current[0];
     if (!audio.src || !audio.src.endsWith(song.source)) {
       audio.src = song.source;
     }
@@ -127,8 +139,8 @@ export const useCountdownPlaylist = ({
   const safePlay = useCallback(() => {
     const audio = getOrCreateAudio();
     unlockAudioContext();
-    try { audio.muted = false; } catch {}
-    try { audio.volume = 0.95; } catch {}
+    audio.muted = false;
+    audio.volume = 0.95;
 
     const playPromise = audio.play();
     if (playPromise !== undefined) {
@@ -137,8 +149,13 @@ export const useCountdownPlaylist = ({
           setIsPlaying(true);
           setHasAutoplayBlocked(false);
         })
-        .catch((err) => {
-          console.log('Mobile autoplay waiting for user gesture:', err);
+        .catch(() => {
+          // If unmuted autoplay blocked by mobile browser, start playing muted
+          // so the media pipeline is primed and ready immediately.
+          audio.muted = true;
+          audio.play().then(() => {
+            setIsPlaying(true);
+          }).catch(() => {});
           setHasAutoplayBlocked(true);
         });
     }
@@ -214,30 +231,44 @@ export const useCountdownPlaylist = ({
     // Try initial play
     safePlay();
 
-    const handleUserGesture = () => {
-      unlockAudioContext();
-      const audio = getOrCreateAudio();
-      try { audio.muted = false; } catch {}
-      try { audio.volume = 0.95; } catch {}
-      if (audio.paused) {
-        audio.play().then(() => {
-          setIsPlaying(true);
-          setHasAutoplayBlocked(false);
-        }).catch(() => {});
-      }
+    let isUnlocking = false;
+    const gestureEvents = ['touchstart', 'touchend', 'click', 'scroll', 'pointerdown'];
+
+    const cleanupListeners = () => {
+      gestureEvents.forEach((ev) => {
+        window.removeEventListener(ev, handleUserGesture, true);
+        document.removeEventListener(ev, handleUserGesture, true);
+      });
     };
 
-    const gestureEvents = ['touchstart', 'touchend', 'pointerdown', 'click', 'keydown'];
+    const handleUserGesture = () => {
+      if (isUnlocking) return;
+      isUnlocking = true;
+      unlockAudioContext();
+      const audio = getOrCreateAudio();
+      audio.muted = false;
+      audio.volume = 0.95;
+
+      const p = audio.paused ? audio.play() : Promise.resolve();
+      p.then(() => {
+        setIsPlaying(true);
+        setHasAutoplayBlocked(false);
+      })
+        .catch(() => {})
+        .finally(() => {
+          isUnlocking = false;
+        });
+
+      cleanupListeners();
+    };
+
     gestureEvents.forEach((ev) => {
       window.addEventListener(ev, handleUserGesture, { capture: true, passive: true });
       document.addEventListener(ev, handleUserGesture, { capture: true, passive: true });
     });
 
     return () => {
-      gestureEvents.forEach((ev) => {
-        window.removeEventListener(ev, handleUserGesture, true);
-        document.removeEventListener(ev, handleUserGesture, true);
-      });
+      cleanupListeners();
     };
   }, [enabled, getOrCreateAudio, safePlay]);
 

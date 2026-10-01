@@ -21,6 +21,64 @@
 
 <body
   class="bg-[#0B6075] text-[#123E45] selection:bg-[#B8E7E5] selection:text-[#0B6075] antialiased min-h-screen overflow-x-hidden">
+  <audio id="countdown-bg-audio" preload="auto" playsinline webkit-playsinline src="/music/Rathinamo.mp3"></audio>
+  <script>
+    (function () {
+      try {
+        var s = window.location.search || '';
+        var p = window.location.pathname || '';
+        if (
+          p.indexOf('/mobile') !== -1 ||
+          p.indexOf('/preview') !== -1 ||
+          s.indexOf('preview=') !== -1 ||
+          s.indexOf('demo=') !== -1 ||
+          sessionStorage.getItem('kalai_entered') === 'true'
+        ) {
+          return;
+        }
+      } catch (e) {}
+
+      function startAudio() {
+        var audio = document.getElementById('countdown-bg-audio');
+        if (!audio) return;
+        audio.volume = 0.95;
+        audio.muted = false;
+
+        var playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(function () {
+            // Unmuted autoplay restricted by mobile browser policy.
+            // Immediately start playing muted so the audio pipeline is alive.
+            audio.muted = true;
+            audio.play().catch(function () {});
+
+            var unmuteAudio = function () {
+              audio.muted = false;
+              audio.volume = 0.95;
+              if (audio.paused) {
+                audio.play().catch(function () {});
+              }
+              var events = ['touchstart', 'touchend', 'click', 'scroll', 'pointerdown'];
+              for (var i = 0; i < events.length; i++) {
+                window.removeEventListener(events[i], unmuteAudio, true);
+              }
+            };
+
+            var events = ['touchstart', 'touchend', 'click', 'scroll', 'pointerdown'];
+            for (var i = 0; i < events.length; i++) {
+              window.addEventListener(events[i], unmuteAudio, { capture: true, passive: true, once: true });
+            }
+          });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startAudio, { once: true });
+      } else {
+        startAudio();
+      }
+    })();
+  </script>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>

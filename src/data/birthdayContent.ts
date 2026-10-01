@@ -60,8 +60,8 @@ export const birthdayContent = {
     eyebrow: "KALAIVANI",
     title: "Something quiet is waiting for you.",
     subtitle: "Not yet, Kalai...",
-    dateDisplay: "10.10.2026",
-    timeDisplay: "12:00:00 AM IST",
+    dateDisplay: "10/10/2026",
+    timeDisplay: "00:00:00 IST",
     music: {
       title: "Rathinamo",
       source: "/music/Rathinamo.mp3",

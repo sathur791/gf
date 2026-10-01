@@ -11,11 +11,11 @@
 export const siteConfig = {
   // Permanent Production URL placeholder (replace with your deployed domain)
   // e.g., "https://kalai-birthday.vercel.app" or "https://for-kalai.com"
-  productionUrl: "https://kalai-birthday.vercel.app",
+  productionUrl: "https://kalaikahbirthday.vercel.app",
 
   recipientName: "Kalaivani",
   recipientShortName: "Kalai",
-  birthdayDate: "10.10.2026",
+  birthdayDate: "10/10/2026",
 
   // QR Code Aesthetic Settings matching the Birthday Experience
   qr: {
