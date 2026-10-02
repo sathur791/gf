@@ -11,7 +11,7 @@ import { Sparkles, Moon } from 'lucide-react';
 import { StarField } from './StarField';
 import { SparkleBurst } from './SparkleBurst';
 import { useCountdownPlaylist } from '../hooks/useCountdownPlaylist';
-import { getDynamicCountdownMessage, DAY_METADATA } from '../utils/countdownMessages';
+import { getDynamicCountdownMessage } from '../utils/countdownMessages';
 
 interface CountdownGateProps {
   onUnlock: () => void;
@@ -27,16 +27,6 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
   const prevSecondsRef = useRef(state.seconds);
   const [dynamicMessage, setDynamicMessage] = useState<string>(() => getDynamicCountdownMessage());
   const currentMessageRef = useRef(dynamicMessage);
-  const [previewDay, setPreviewDay] = useState<number | null>(null);
-  const [previewTime, setPreviewTime] = useState<string | null>(null);
-
-  const handleSelectPreview = useCallback((dayKey: number | null, timeSlot: string | null) => {
-    setPreviewDay(dayKey);
-    setPreviewTime(timeSlot);
-    const msg = getDynamicCountdownMessage(new Date(), dayKey, timeSlot);
-    currentMessageRef.current = msg;
-    setDynamicMessage(msg);
-  }, []);
 
   // Two-song countdown playlist with synchronized lyrics & autoplay handling
   const {
@@ -141,13 +131,11 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       const next = calculateCountdown();
       setState(next);
 
-      // Automatically update time-based message or daily personal memory quote (unless user selected a preview)
-      if (previewDay === null && previewTime === null) {
-        const nextMsg = getDynamicCountdownMessage();
-        if (nextMsg !== currentMessageRef.current) {
-          currentMessageRef.current = nextMsg;
-          setDynamicMessage(nextMsg);
-        }
+      // Automatically update time-based message or daily personal memory quote
+      const nextMsg = getDynamicCountdownMessage();
+      if (nextMsg !== currentMessageRef.current) {
+        currentMessageRef.current = nextMsg;
+        setDynamicMessage(nextMsg);
       }
 
       // Midnight reached!
@@ -347,12 +335,16 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
               <motion.p
                 key={dynamicMessage}
                 initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-                animate={{ opacity: 0.92, y: 0, filter: 'blur(0px)' }}
+                animate={{ opacity: 0.95, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
                 transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-                className="font-serif italic text-base sm:text-lg text-[#DDF3E9] text-center leading-relaxed tracking-wide drop-shadow-[0_2px_14px_rgba(221,243,233,0.3)] select-none"
+                className={`text-center leading-relaxed tracking-wide select-none ${
+                  dynamicMessage === '💋'
+                    ? 'text-3xl sm:text-4xl filter drop-shadow-[0_0_18px_rgba(255,105,180,0.65)]'
+                    : 'font-serif italic text-base sm:text-lg text-[#DDF3E9] drop-shadow-[0_2px_14px_rgba(221,243,233,0.3)]'
+                }`}
               >
-                "{dynamicMessage}"
+                {dynamicMessage === '💋' ? '💋' : `"${dynamicMessage}"`}
               </motion.p>
             </AnimatePresence>
           </div>
@@ -752,64 +744,6 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
               >
                 Unlock Now
               </button>
-            </div>
-
-            {/* Dynamic Quote & Time Preview Switcher */}
-            <div className="w-full flex items-center gap-1.5 flex-wrap justify-center border-t border-white/20 pt-2 mt-1">
-              <span className="font-mono text-[#FFE39E] text-[10px] font-semibold">Quotes:</span>
-              {DAY_METADATA.map((d) => (
-                <button
-                  key={d.dayNum}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelectPreview(d.key, 'memory');
-                  }}
-                  className={`px-1.5 py-0.5 rounded text-[10px] transition-colors cursor-pointer ${
-                    previewDay === d.key && previewTime === 'memory'
-                      ? 'bg-[#8ED4D6] text-[#073642] font-bold shadow-xs'
-                      : 'bg-white/10 hover:bg-white/20 text-[#DDF3E9]'
-                  }`}
-                  title={`Day ${d.dayNum} (${d.name}): "${d.quote}"`}
-                >
-                  Day {d.dayNum} ({d.name.slice(0, 3)})
-                </button>
-              ))}
-
-              <span className="font-mono text-[#B8E7E5] text-[10px] font-semibold ml-1">Time:</span>
-              {[
-                { slot: 'morning', label: 'Morning' },
-                { slot: 'afternoon', label: 'Afternoon' },
-                { slot: 'evening', label: 'Evening' },
-                { slot: 'night', label: 'Night' },
-              ].map((t) => (
-                <button
-                  key={t.slot}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelectPreview(null, t.slot);
-                  }}
-                  className={`px-1.5 py-0.5 rounded text-[10px] transition-colors cursor-pointer ${
-                    previewTime === t.slot
-                      ? 'bg-[#B8E7E5] text-[#073642] font-bold shadow-xs'
-                      : 'bg-white/10 hover:bg-white/20 text-[#DDF3E9]'
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-
-              {(previewDay !== null || previewTime !== null) && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelectPreview(null, null);
-                  }}
-                  className="px-1.5 py-0.5 rounded text-[10px] bg-red-400/25 hover:bg-red-400/40 text-red-200 font-medium cursor-pointer ml-1"
-                  title="Reset to live real IST time"
-                >
-                  ↺ Live IST
-                </button>
-              )}
             </div>
           </div>
         )}
