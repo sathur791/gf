@@ -19,14 +19,24 @@
  */
 
 export const DAILY_MEMORY_QUOTES: Record<number, string> = {
-  6: "English drama neyabagam eruka ?? Mu ", // Saturday
-  0: "Borewell 😂",                          // Sunday
-  1: "Subramaniyar Kovil 🫠",                 // Monday
-  2: "Evening walks ❤️🩹",                    // Tuesday
-  3: "First 🫂💋 🫠",                         // Wednesday
-  4: "09/11 💗",                             // Thursday
-  5: "Wait pannu di",                        // Friday
+  6: "English drama neyabagam eruka ?? Mu ", // Saturday (Day 1)
+  0: "Borewell 😂",                          // Sunday (Day 2)
+  1: "Subramaniyar Kovil 🫠",                 // Monday (Day 3)
+  2: "Evening walks ❤️🩹",                    // Tuesday (Day 4)
+  3: "First 🫂💋 🫠",                         // Wednesday (Day 5)
+  4: "09/11 💗",                             // Thursday (Day 6)
+  5: "Wait pannu di",                        // Friday (Day 7)
 };
+
+export const DAY_METADATA = [
+  { dayNum: 1, name: "Saturday", key: 6, quote: "English drama neyabagam eruka ?? Mu " },
+  { dayNum: 2, name: "Sunday", key: 0, quote: "Borewell 😂" },
+  { dayNum: 3, name: "Monday", key: 1, quote: "Subramaniyar Kovil 🫠" },
+  { dayNum: 4, name: "Tuesday", key: 2, quote: "Evening walks ❤️🩹" },
+  { dayNum: 5, name: "Wednesday", key: 3, quote: "First 🫂💋 🫠" },
+  { dayNum: 6, name: "Thursday", key: 4, quote: "09/11 💗" },
+  { dayNum: 7, name: "Friday", key: 5, quote: "Wait pannu di" },
+];
 
 /**
  * Returns current date and time components adjusted to Indian Standard Time (IST / UTC+5:30)
@@ -41,7 +51,6 @@ export function getISTDateTime(date: Date = new Date()): {
   month: number;
   day: number;
 } {
-  // Convert UTC timestamp to IST by applying the +5.5 hour offset
   const utcMs = date.getTime() + date.getTimezoneOffset() * 60000;
   const istOffsetMs = 5.5 * 3600000;
   const istDate = new Date(utcMs + istOffsetMs);
@@ -59,9 +68,65 @@ export function getISTDateTime(date: Date = new Date()): {
 }
 
 /**
- * Computes the dynamic message based on the current IST time and countdown day
+ * Computes the dynamic message based on current IST time or URL preview parameter overrides
  */
-export function getDynamicCountdownMessage(date: Date = new Date()): string {
+export function getDynamicCountdownMessage(
+  date: Date = new Date(),
+  overrideDay?: number | null,
+  overrideTime?: string | null
+): string {
+  // 1. Check for manual/URL parameter overrides for preview testing
+  let activeDayOverride = overrideDay;
+  let activeTimeOverride = overrideTime;
+
+  if (typeof window !== 'undefined' && (activeDayOverride === undefined || activeTimeOverride === undefined)) {
+    const params = new URLSearchParams(window.location.search);
+    const dayParam = params.get('day') || params.get('testDay') || params.get('previewDay');
+    const timeParam = params.get('time') || params.get('testTime') || params.get('previewTime');
+
+    if (activeDayOverride === undefined && dayParam) {
+      const lower = dayParam.toLowerCase();
+      if (lower === '1' || lower === 'sat' || lower === 'saturday') activeDayOverride = 6;
+      else if (lower === '2' || lower === 'sun' || lower === 'sunday') activeDayOverride = 0;
+      else if (lower === '3' || lower === 'mon' || lower === 'monday') activeDayOverride = 1;
+      else if (lower === '4' || lower === 'tue' || lower === 'tuesday') activeDayOverride = 2;
+      else if (lower === '5' || lower === 'wed' || lower === 'wednesday') activeDayOverride = 3;
+      else if (lower === '6' || lower === 'thu' || lower === 'thursday') activeDayOverride = 4;
+      else if (lower === '7' || lower === 'fri' || lower === 'friday') activeDayOverride = 5;
+    }
+
+    if (activeTimeOverride === undefined && timeParam) {
+      activeTimeOverride = timeParam.toLowerCase();
+    }
+  }
+
+  // Handle explicit time slot preview override
+  if (activeTimeOverride) {
+    if (activeTimeOverride === 'morning' || activeTimeOverride === 'am') {
+      return "good morning kalai 💗💋";
+    }
+    if (activeTimeOverride === 'afternoon' || activeTimeOverride === 'pm' || activeTimeOverride === 'lunch') {
+      return "Saptiya, illa na poi thinnu di";
+    }
+    if (activeTimeOverride === 'evening' || activeTimeOverride === 'rest') {
+      return "💗 v2 ku vanthu tu rest yadu muu";
+    }
+    if (activeTimeOverride === 'night' || activeTimeOverride === 'sleep') {
+      return "muditu thungu di kalai 💋";
+    }
+    if (activeTimeOverride === 'memory' || activeTimeOverride === 'quote' || activeTimeOverride === 'special') {
+      const targetDay = activeDayOverride !== undefined && activeDayOverride !== null ? activeDayOverride : getISTDateTime(date).dayOfWeek;
+      return DAILY_MEMORY_QUOTES[targetDay] || "Wait pannu di";
+    }
+  }
+
+  // If day is overridden alone (e.g. ?day=1), default to showing that day's special memory quote
+  if (activeDayOverride !== undefined && activeDayOverride !== null) {
+    const memoryQuote = DAILY_MEMORY_QUOTES[activeDayOverride];
+    if (memoryQuote) return memoryQuote;
+  }
+
+  // Standard live IST dynamic calculation
   const { totalMinutes, dayOfWeek } = getISTDateTime(date);
 
   // 1. Evening Special Memory Quote Window: 6:00 PM to 8:00 PM IST (18:00 - 19:59:59)
