@@ -7,10 +7,11 @@ import {
   setDevTestTargetMs,
   type CountdownState,
 } from '../utils/countdownTime';
-import { Sparkles, Moon, Clock } from 'lucide-react';
+import { Sparkles, Moon } from 'lucide-react';
 import { StarField } from './StarField';
 import { SparkleBurst } from './SparkleBurst';
 import { useCountdownPlaylist } from '../hooks/useCountdownPlaylist';
+import { getDynamicCountdownMessage } from '../utils/countdownMessages';
 
 interface CountdownGateProps {
   onUnlock: () => void;
@@ -24,6 +25,8 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
   const [gateDismissed, setGateDismissed] = useState<boolean>(false);
   const [secondsPulse, setSecondsPulse] = useState(false);
   const prevSecondsRef = useRef(state.seconds);
+  const [dynamicMessage, setDynamicMessage] = useState<string>(() => getDynamicCountdownMessage());
+  const currentMessageRef = useRef(dynamicMessage);
 
   // Two-song countdown playlist with synchronized lyrics & autoplay handling
   const {
@@ -127,6 +130,13 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     const timer = setInterval(() => {
       const next = calculateCountdown();
       setState(next);
+
+      // Automatically update time-based message or daily personal memory quote
+      const nextMsg = getDynamicCountdownMessage();
+      if (nextMsg !== currentMessageRef.current) {
+        currentMessageRef.current = nextMsg;
+        setDynamicMessage(nextMsg);
+      }
 
       // Midnight reached!
       if (next.isUnlocked && !isTransitioning) {
@@ -319,22 +329,21 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
             ))}
           </div>
 
-          {/* Target Date Note */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.85 }}
-            transition={{ duration: 1, delay: 1 }}
-            className="flex items-center justify-center gap-2 text-xs font-sans tracking-[0.24em] uppercase text-[#8ED4D6] font-medium mb-3"
-          >
-            <Clock className="w-3.5 h-3.5 text-[#8ED4D6]" />
-            <span>
-              {countdown.dateDisplay} • {countdown.timeDisplay}
-            </span>
-          </motion.div>
-
-          <p className="font-serif italic text-sm text-[#B8E7E5]/75 max-w-sm">
-            "The moon is waiting. The stars are waiting. And I am waiting for you."
-          </p>
+          {/* Dynamic Time-Based & Daily Personal Memory Message Area */}
+          <div className="min-h-[56px] sm:min-h-[64px] flex items-center justify-center px-4 max-w-sm sm:max-w-md mx-auto">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={dynamicMessage}
+                initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
+                animate={{ opacity: 0.92, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+                className="font-serif italic text-base sm:text-lg text-[#DDF3E9] text-center leading-relaxed tracking-wide drop-shadow-[0_2px_14px_rgba(221,243,233,0.3)] select-none"
+              >
+                "{dynamicMessage}"
+              </motion.p>
+            </AnimatePresence>
+          </div>
         </motion.div>
 
         {/* ------------------------------------------------------------ */}
