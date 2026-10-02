@@ -151,6 +151,15 @@ export const useCountdownPlaylist = ({
   const currentSongRef = useRef<SongItem>(currentSong);
   currentSongRef.current = currentSong;
 
+  // When playlist updates (e.g. transitioning from Rathinamo solo to full playlist at midnight)
+  useEffect(() => {
+    playlistRef.current = playlist;
+    if (shuffleDeckRef.current.length !== playlist.length && playlist.length > 0) {
+      shuffleDeckRef.current = createShuffledIndices(playlist.length, currentSongIndex);
+      deckPositionRef.current = 0;
+    }
+  }, [playlist, currentSongIndex]);
+
   const getOrCreateAudio = useCallback(() => {
     let audio = audioRef.current;
     if (!audio) {

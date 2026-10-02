@@ -1339,3 +1339,34 @@ export const fullCountdownPlaylist: SongItem[] = [
   maruvaarthaiSong,
   wannaBeYoursSong,
 ];
+
+export const rathinamoSoloPlaylist: SongItem[] = [rathinamoSong];
+
+// Epoch timestamp for 12:00:00 AM Midnight IST on October 3, 2026 (02 Oct 2026 18:30:00 UTC)
+export const MIDNIGHT_OCT_3_IST = Date.UTC(2026, 9, 2, 18, 30, 0, 0);
+
+/**
+ * Checks if the current moment is before October 3, 2026 00:00:00 IST.
+ * Up to midnight today, only Rathinamo is played.
+ * After midnight today, the full playlist plays in continuous shuffle mode as usual.
+ */
+export function isRathinamoSoloPeriod(date: Date = new Date()): boolean {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('songs') === 'all' || params.get('playlist') === 'all') {
+      return false;
+    }
+    if (params.get('songs') === 'rathinamo') {
+      return true;
+    }
+  }
+  return date.getTime() < MIDNIGHT_OCT_3_IST;
+}
+
+export function getCurrentCountdownPlaylist(date: Date = new Date()): SongItem[] {
+  if (isRathinamoSoloPeriod(date)) {
+    return rathinamoSoloPlaylist;
+  }
+  return fullCountdownPlaylist;
+}
+

@@ -616,7 +616,13 @@ export const birthdayContent = {
   }
 };
 
-export { rathinamoSong, fullCountdownPlaylist } from './countdownSongs';
-import { fullCountdownPlaylist } from './countdownSongs';
-export const countdownPlaylist: SongItem[] = fullCountdownPlaylist;
+export {
+  rathinamoSong,
+  fullCountdownPlaylist,
+  rathinamoSoloPlaylist,
+  isRathinamoSoloPeriod,
+  getCurrentCountdownPlaylist,
+} from './countdownSongs';
+import { getCurrentCountdownPlaylist } from './countdownSongs';
+export const countdownPlaylist: SongItem[] = getCurrentCountdownPlaylist();
 

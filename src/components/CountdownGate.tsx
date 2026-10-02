@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { birthdayContent, countdownPlaylist } from '../data/birthdayContent';
+import {
+  birthdayContent,
+  getCurrentCountdownPlaylist,
+  type SongItem,
+} from '../data/birthdayContent';
 import {
   calculateCountdown,
   formatTwoDigits,
@@ -28,7 +32,10 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
   const [dynamicMessage, setDynamicMessage] = useState<string>(() => getDynamicCountdownMessage());
   const currentMessageRef = useRef(dynamicMessage);
 
-  // Two-song countdown playlist with synchronized lyrics & autoplay handling
+  const [activePlaylist, setActivePlaylist] = useState<SongItem[]>(() => getCurrentCountdownPlaylist());
+  const activePlaylistRef = useRef<SongItem[]>(activePlaylist);
+
+  // Countdown playlist with synchronized lyrics & autoplay handling
   const {
     currentSong,
     currentSongIndex,
@@ -43,7 +50,7 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     selectSong,
     fadeOutAudio,
   } = useCountdownPlaylist({
-    playlist: countdownPlaylist,
+    playlist: activePlaylist,
     enabled: !isTransitioning,
   });
 
@@ -130,6 +137,13 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
     const timer = setInterval(() => {
       const next = calculateCountdown();
       setState(next);
+
+      // Check if midnight struck to switch playlist from Rathinamo solo to full playlist
+      const nextPlaylist = getCurrentCountdownPlaylist();
+      if (nextPlaylist.length !== activePlaylistRef.current.length) {
+        activePlaylistRef.current = nextPlaylist;
+        setActivePlaylist(nextPlaylist);
+      }
 
       // Automatically update time-based message or daily personal memory quote
       const nextMsg = getDynamicCountdownMessage();
@@ -682,7 +696,7 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
         new URLSearchParams(window.location.search).get('embedded') !== '1' && (
           <div className="fixed bottom-3 left-1/2 -translate-x-1/2 sm:left-3 sm:translate-x-0 z-50 bg-[#073F4D]/95 backdrop-blur-md px-3 py-2 rounded-2xl border border-[#8ED4D6]/40 text-xs text-white flex flex-wrap items-center justify-center gap-2 shadow-2xl max-w-[95vw]">
             <span className="font-mono text-[#8ED4D6] uppercase tracking-wider font-semibold text-[11px]">
-              Song {currentSongIndex + 1}/{countdownPlaylist.length}:
+              Song {currentSongIndex + 1}/{activePlaylist.length}:
             </span>
             <select
               value={currentSongIndex}
@@ -692,7 +706,7 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
               }}
               className="bg-[#031C23] text-[#FAF6ED] text-[11px] font-sans px-2 py-1 rounded-lg border border-[#8ED4D6]/40 focus:outline-none max-w-[150px] sm:max-w-[200px] truncate"
             >
-              {countdownPlaylist.map((s, idx) => (
+              {activePlaylist.map((s, idx) => (
                 <option key={s.id} value={idx}>
                   {idx + 1}. {s.title}
                 </option>
