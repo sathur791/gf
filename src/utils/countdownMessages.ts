@@ -125,9 +125,9 @@ export function getDynamicCountdownMessage(date: Date = new Date()): string {
   const { year, month, day, totalMinutes, dayOfWeek } = getISTDateTime(date);
 
   // 1. FOR TODAY (Oct 2, 2026 or before Oct 3, 2026 IST):
-  // User explicitly instructed: "and for today . just use 💋, from tommorrow do as scheduled ."
+  // User instructed: "just change the 💋 to \" the moon is waiting , the stars are waiting , and im waiting for u 💋\""
   if (year === 2026 && month === 10 && day <= 2) {
-    return "💋";
+    return "the moon is waiting , the stars are waiting , and im waiting for u 💋";
   }
 
   // 2. FROM TOMORROW (Oct 3, 2026 onwards):

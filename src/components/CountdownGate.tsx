@@ -338,13 +338,9 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
                 animate={{ opacity: 0.95, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
                 transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-                className={`text-center leading-relaxed tracking-wide select-none ${
-                  dynamicMessage === '💋'
-                    ? 'text-3xl sm:text-4xl filter drop-shadow-[0_0_18px_rgba(255,105,180,0.65)]'
-                    : 'font-serif italic text-base sm:text-lg text-[#DDF3E9] drop-shadow-[0_2px_14px_rgba(221,243,233,0.3)]'
-                }`}
+                className="font-serif italic text-base sm:text-lg text-[#DDF3E9] text-center leading-relaxed tracking-wide drop-shadow-[0_2px_14px_rgba(221,243,233,0.3)] select-none"
               >
-                {dynamicMessage === '💋' ? '💋' : `"${dynamicMessage}"`}
+                "{dynamicMessage}"
               </motion.p>
             </AnimatePresence>
           </div>
