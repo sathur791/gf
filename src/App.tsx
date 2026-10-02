@@ -137,7 +137,7 @@ export const App: React.FC = () => {
         Never loaded or played during the countdown phase.
       */}
       {isBirthdayUnlocked && (
-        <MusicController autoStart={appState === 'experience'} />
+        <MusicController autoStart={true} />
       )}
 
       <main className="relative z-10 w-full min-h-screen flex flex-col items-center">

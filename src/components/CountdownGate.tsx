@@ -9,6 +9,7 @@ import {
 } from '../utils/countdownTime';
 import { Sparkles, Moon, Clock } from 'lucide-react';
 import { StarField } from './StarField';
+import { SparkleBurst } from './SparkleBurst';
 import { useCountdownPlaylist } from '../hooks/useCountdownPlaylist';
 
 interface CountdownGateProps {
@@ -19,18 +20,24 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
   const { countdown, moon } = birthdayContent;
   const [state, setState] = useState<CountdownState>(() => calculateCountdown());
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+  const [isUnsealing, setIsUnsealing] = useState<boolean>(false);
+  const [gateDismissed, setGateDismissed] = useState<boolean>(false);
   const [secondsPulse, setSecondsPulse] = useState(false);
   const prevSecondsRef = useRef(state.seconds);
 
   // Two-song countdown playlist with synchronized lyrics & autoplay handling
   const {
     currentSong,
+    currentSongIndex,
     isPlaying,
     activeLyric,
     previousLyric,
     nextLyric,
+    hasAutoplayBlocked,
     play,
     nextSong,
+    previousSong,
+    selectSong,
     fadeOutAudio,
   } = useCountdownPlaylist({
     playlist: countdownPlaylist,
@@ -131,10 +138,20 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
   }, [isTransitioning, triggerMidnightTransition]);
 
   const handleGlobalInteraction = useCallback(() => {
-    if (!isPlaying) {
+    if (!isPlaying || hasAutoplayBlocked) {
       play();
     }
-  }, [isPlaying, play]);
+  }, [isPlaying, hasAutoplayBlocked, play]);
+
+  const handleUnseal = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) e.stopPropagation();
+    if (isUnsealing) return;
+    setIsUnsealing(true);
+    play();
+    window.setTimeout(() => {
+      setGateDismissed(true);
+    }, 750);
+  }, [isUnsealing, play]);
 
   return (
     <div
@@ -431,23 +448,6 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
                 </p>
               </div>
             )}
-
-            {/* Song Switcher Pill (Toggles between Rathinamo & Main Tera) */}
-            <div className="mt-3 flex items-center justify-center">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  nextSong();
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFDF8]/12 hover:bg-[#FFFDF8]/22 border border-[#8ED4D6]/35 text-[11px] font-sans tracking-wider uppercase text-[#DDF3E9] cursor-pointer transition-all active:scale-95 shadow-sm"
-                title="Switch song between Rathinamo and Main Tera"
-              >
-                <span className="text-[#8ED4D6]">♪</span>
-                <span>{currentSong.title}</span>
-                <span className="text-[10px] text-[#8ED4D6]/80 ml-1 font-semibold">⇄ Switch</span>
-              </button>
-            </div>
           </div>
         </motion.div>
       </div>
@@ -539,51 +539,201 @@ export const CountdownGate: React.FC<CountdownGateProps> = ({ onUnlock }) => {
       </AnimatePresence>
 
       {/* ============================================================ */}
-      {/* 4. DEV-ONLY TEST CONTROLS (Strictly import.meta.env.DEV)      */}
+      {/* 4. MOBILE UNSEAL GATE (When mobile browser blocks cold sound)*/}
       {/* ============================================================ */}
-      {import.meta.env.DEV &&
-        typeof window !== 'undefined' &&
+      <AnimatePresence>
+        {hasAutoplayBlocked && !isPlaying && !isTransitioning && !gateDismissed && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            onClick={handleUnseal}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 text-center select-none overflow-hidden cursor-pointer"
+            style={{
+              background: 'radial-gradient(ellipse at center, #0B6075 0%, #073642 55%, #031B22 100%)',
+            }}
+          >
+            {/* Background Starlight */}
+            <StarField count={36} />
+
+            {/* Glowing Moon in Distance */}
+            <div className="absolute top-6 right-6 w-24 h-24 sm:w-32 sm:h-32 pointer-events-none opacity-80">
+              <img
+                src={moon.image}
+                alt="Moon"
+                className="w-full h-full object-contain filter brightness-110"
+                style={{ mixBlendMode: 'screen' }}
+              />
+            </div>
+
+            {/* Radiant golden aura */}
+            <motion.div
+              animate={{
+                scale: isUnsealing ? [1, 1.8, 3] : [1, 1.15, 1],
+                opacity: isUnsealing ? [0.4, 0.9, 0] : [0.35, 0.6, 0.35],
+              }}
+              transition={{
+                duration: isUnsealing ? 0.75 : 3.5,
+                repeat: isUnsealing ? 0 : Infinity,
+                ease: 'easeInOut',
+              }}
+              className="absolute w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-[#FFE39E]/25 blur-[90px] pointer-events-none"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.15 }}
+              className="relative z-10 flex flex-col items-center max-w-sm mx-auto"
+            >
+              {/* Title */}
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-[#FFFDF8] font-light tracking-wide mb-10 leading-snug text-center drop-shadow-[0_2px_16px_rgba(255,253,248,0.25)]">
+                Something's waiting for you...
+              </h2>
+
+              {/* Central Seal Container with Sparkles & Unsealing Animation */}
+              <div className="relative flex items-center justify-center">
+                {/* Sparkle burst and expanding shockwave upon touch */}
+                {isUnsealing && (
+                  <>
+                    <SparkleBurst
+                      count={36}
+                      colors={['#FFE39E', '#FFFDF8', '#F4CA64', '#8ED4D6', '#D4AF37', '#FFF']}
+                    />
+                    <motion.div
+                      initial={{ scale: 0.5, opacity: 1 }}
+                      animate={{ scale: [0.5, 2.8], opacity: [1, 0] }}
+                      transition={{ duration: 0.75, ease: 'easeOut' }}
+                      className="absolute w-44 h-44 rounded-full border-2 border-[#FFE39E] pointer-events-none"
+                    />
+                    <motion.div
+                      initial={{ scale: 0.3, opacity: 0.8 }}
+                      animate={{ scale: [0.3, 3.5], opacity: [0.8, 0] }}
+                      transition={{ duration: 0.85, delay: 0.08, ease: 'easeOut' }}
+                      className="absolute w-44 h-44 rounded-full border border-[#8ED4D6] pointer-events-none"
+                    />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.2 }}
+                      animate={{ opacity: [0, 0.95, 0], scale: [0.2, 3] }}
+                      transition={{ duration: 0.7, ease: 'easeOut' }}
+                      className="absolute w-56 h-56 rounded-full bg-radial from-[#FFFDF8] via-[#FFE39E]/70 to-transparent blur-xl pointer-events-none"
+                    />
+                  </>
+                )}
+
+                {/* Shimmering Wax Seal Touch Button (just 'K', no OPEN text) */}
+                <motion.button
+                  whileHover={!isUnsealing ? { scale: 1.05 } : {}}
+                  whileTap={!isUnsealing ? { scale: 0.95 } : {}}
+                  animate={
+                    isUnsealing
+                      ? {
+                          scale: [1, 1.35, 1.6],
+                          opacity: [1, 0.9, 0],
+                          rotate: [0, -6, 6],
+                          filter: ['brightness(1)', 'brightness(1.8)', 'brightness(2.5)'],
+                        }
+                      : {
+                          boxShadow: [
+                            '0 0 0 0 rgba(142, 212, 214, 0.45)',
+                            '0 0 0 18px rgba(142, 212, 214, 0)',
+                          ],
+                        }
+                  }
+                  transition={
+                    isUnsealing
+                      ? { duration: 0.75, ease: 'easeOut' }
+                      : {
+                          boxShadow: { duration: 2, repeat: Infinity, ease: 'easeOut' },
+                        }
+                  }
+                  onClick={handleUnseal}
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-[#FFE39E] via-[#F4CA64] to-[#D4AF37] p-1 shadow-[0_12px_40px_rgba(0,0,0,0.5)] flex items-center justify-center cursor-pointer border border-[#FFFDF8]/60 transition-transform select-none"
+                >
+                  <div className="w-full h-full rounded-full border border-[#B38728]/40 flex items-center justify-center text-[#5C4308]">
+                    <span className="font-serif font-bold text-3xl sm:text-4xl text-[#5C4308] leading-none drop-shadow-xs">
+                      K
+                    </span>
+                  </div>
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ============================================================ */}
+      {/* 5. VERIFICATION & PREVIEW CONTROLS (DEV or ?preview=1 / ?test=1) */}
+      {/* ============================================================ */}
+      {typeof window !== 'undefined' &&
+        (import.meta.env.DEV ||
+          new URLSearchParams(window.location.search).has('preview') ||
+          new URLSearchParams(window.location.search).has('test')) &&
         new URLSearchParams(window.location.search).get('embedded') !== '1' && (
-          <div className="fixed bottom-3 left-3 z-50 bg-[#073F4D]/90 backdrop-blur-md p-2 rounded-xl border border-[#8ED4D6]/30 text-[10px] text-white flex items-center gap-1.5 shadow-lg">
-          <span className="font-mono text-[#8ED4D6] uppercase tracking-wider font-semibold">
-            DEV:
-          </span>
-          <button
-            onClick={() => {
-              setDevTestTargetMs(null);
-              setState(calculateCountdown());
-            }}
-            className="px-2 py-1 rounded bg-white/15 hover:bg-white/25"
-          >
-            Real Time
-          </button>
-          <button
-            onClick={() => {
-              setDevTestTargetMs(Date.now() + 10000);
-              setState(calculateCountdown());
-            }}
-            className="px-2 py-1 rounded bg-[#8ED4D6]/30 hover:bg-[#8ED4D6]/50 text-[#FFFDF8]"
-          >
-            10s to Midnight
-          </button>
-          <button
-            onClick={() => {
-              setDevTestTargetMs(Date.now() - 1000);
-              setState(calculateCountdown());
-              triggerMidnightTransition();
-            }}
-            className="px-2 py-1 rounded bg-[#DDF3E9]/30 hover:bg-[#DDF3E9]/50 text-[#FFFDF8]"
-          >
-            Unlock Now
-          </button>
-          <button
-            onClick={() => nextSong()}
-            className="px-2 py-1 rounded bg-[#8ED4D6]/20 hover:bg-[#8ED4D6]/40 text-[#DDF3E9]"
-          >
-            Toggle Song
-          </button>
-        </div>
-      )}
+          <div className="fixed bottom-3 left-1/2 -translate-x-1/2 sm:left-3 sm:translate-x-0 z-50 bg-[#073F4D]/95 backdrop-blur-md px-3 py-2 rounded-2xl border border-[#8ED4D6]/40 text-xs text-white flex flex-wrap items-center justify-center gap-2 shadow-2xl max-w-[95vw]">
+            <span className="font-mono text-[#8ED4D6] uppercase tracking-wider font-semibold text-[11px]">
+              Song {currentSongIndex + 1}/{countdownPlaylist.length}:
+            </span>
+            <select
+              value={currentSongIndex}
+              onChange={(e) => {
+                e.stopPropagation();
+                selectSong(Number(e.target.value));
+              }}
+              className="bg-[#031C23] text-[#FAF6ED] text-[11px] font-sans px-2 py-1 rounded-lg border border-[#8ED4D6]/40 focus:outline-none max-w-[150px] sm:max-w-[200px] truncate"
+            >
+              {countdownPlaylist.map((s, idx) => (
+                <option key={s.id} value={idx}>
+                  {idx + 1}. {s.title}
+                </option>
+              ))}
+            </select>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  previousSong();
+                }}
+                title="Previous Song (p or Left Arrow)"
+                className="px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-[#FAF6ED] text-[11px] font-medium"
+              >
+                ◀ Prev
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextSong();
+                }}
+                title="Next Song (s or Right Arrow)"
+                className="px-2.5 py-1 rounded-lg bg-[#8ED4D6]/30 hover:bg-[#8ED4D6]/50 text-[#FFFDF8] text-[11px] font-semibold"
+              >
+                Next ▶
+              </button>
+            </div>
+            <div className="hidden sm:flex items-center gap-1.5 pl-1 border-l border-white/20">
+              <button
+                onClick={() => {
+                  setDevTestTargetMs(Date.now() + 10000);
+                  setState(calculateCountdown());
+                }}
+                className="px-2 py-1 rounded-lg bg-[#8ED4D6]/20 hover:bg-[#8ED4D6]/35 text-[#DDF3E9] text-[10px]"
+              >
+                10s to Midnight
+              </button>
+              <button
+                onClick={() => {
+                  setDevTestTargetMs(Date.now() - 1000);
+                  setState(calculateCountdown());
+                  triggerMidnightTransition();
+                }}
+                className="px-2 py-1 rounded-lg bg-[#FFE39E]/20 hover:bg-[#FFE39E]/35 text-[#FFE39E] text-[10px]"
+              >
+                Unlock Now
+              </button>
+            </div>
+          </div>
+        )}
     </div>
   );
 };

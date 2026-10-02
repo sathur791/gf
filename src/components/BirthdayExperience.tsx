@@ -36,6 +36,11 @@ export const BirthdayExperience: React.FC<BirthdayExperienceProps> = ({ onReplay
     }, 600);
   };
 
+  // Ensure Muzumathi plays automatically as soon as the birthday experience is entered
+  React.useEffect(() => {
+    window.dispatchEvent(new CustomEvent('play-birthday-music'));
+  }, []);
+
   return (
     <div
       ref={containerRef}

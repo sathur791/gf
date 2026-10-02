@@ -29,8 +29,10 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
     if (!audioRef.current) {
       const audio = new Audio(birthdayContent.music.source);
       audio.loop = true;
-      audio.preload = autoStart ? 'auto' : 'none';
-      audio.muted = true; // Primed for iOS Safari
+      audio.preload = 'auto';
+      audio.setAttribute('playsinline', 'true');
+      audio.setAttribute('webkit-playsinline', 'true');
+      audio.muted = false;
 
       // Connect Web Audio Clarity enhancement pipeline (anti-rumble, vocal air & presence, mastering compressor)
       clarityRef.current = setupAudioClarity(audio, 1.0);
@@ -56,16 +58,30 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
     }
 
     const triggerPlay = () => {
-      if (audioRef.current) {
-        audioRef.current.muted = false;
-        audioRef.current
-          .play()
+      const audio = audioRef.current;
+      if (!audio) return;
+
+      if (clarityRef.current?.audioContext && clarityRef.current.audioContext.state === 'suspended') {
+        clarityRef.current.audioContext.resume().catch(() => {});
+      }
+
+      audio.muted = false;
+      audio.volume = 1.0;
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
           .then(() => {
             setIsPlaying(true);
             setHasError(false);
           })
           .catch((err) => {
-            console.log('Autoplay deferred until user interaction:', err);
+            console.log('Mobile unmuted autoplay waiting for user interaction:', err);
+            // Fallback: start track muted so it buffers and rolls, then unmute on first gesture
+            audio.muted = true;
+            audio.play().then(() => {
+              setIsPlaying(true);
+            }).catch(() => {});
           });
       }
     };
@@ -102,16 +118,21 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
     window.addEventListener('play-birthday-music', triggerPlay);
     window.addEventListener('fade-birthday-music', handleFadeMusic as EventListener);
 
-    const interactionEvents = ['click', 'touchstart', 'touchend', 'pointerdown', 'keydown'];
-    const handleFirstInteraction = () => {
+    const gestureEvents = ['click', 'touchstart', 'touchend', 'touchmove', 'scroll', 'pointerdown', 'keydown'];
+    const handleGesture = () => {
       triggerPlay();
-      interactionEvents.forEach((ev) => {
-        window.removeEventListener(ev, handleFirstInteraction);
-      });
+      const a = audioRef.current;
+      if (a && !a.paused && !a.muted) {
+        gestureEvents.forEach((ev) => {
+          window.removeEventListener(ev, handleGesture, true);
+          document.removeEventListener(ev, handleGesture, true);
+        });
+      }
     };
 
-    interactionEvents.forEach((ev) => {
-      window.addEventListener(ev, handleFirstInteraction, { once: true });
+    gestureEvents.forEach((ev) => {
+      window.addEventListener(ev, handleGesture, { capture: true, passive: true });
+      document.addEventListener(ev, handleGesture, { capture: true, passive: true });
     });
 
     if (autoStart) {
@@ -122,8 +143,9 @@ export const MusicController: React.FC<MusicControllerProps> = ({ autoStart = fa
       if (fadeInterval) clearInterval(fadeInterval);
       window.removeEventListener('play-birthday-music', triggerPlay);
       window.removeEventListener('fade-birthday-music', handleFadeMusic as EventListener);
-      interactionEvents.forEach((ev) => {
-        window.removeEventListener(ev, handleFirstInteraction);
+      gestureEvents.forEach((ev) => {
+        window.removeEventListener(ev, handleGesture, true);
+        document.removeEventListener(ev, handleGesture, true);
       });
     };
   }, [autoStart]);

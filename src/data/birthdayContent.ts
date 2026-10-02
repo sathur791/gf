@@ -1,4 +1,5 @@
 import { type SongItem, type LyricLine, mainTeraSong } from './mainTeraLyrics';
+export { mainTeraSong };
 export type { SongItem, LyricLine };
 
 export interface MemoryItem {
@@ -615,15 +616,7 @@ export const birthdayContent = {
   }
 };
 
-export const rathinamoSong: SongItem = {
-  id: 'rathinamo',
-  title: 'Rathinamo',
-  source: '/music/Rathinamo.mp3',
-  lyrics: birthdayContent.countdown.lyricsData.lines,
-};
-
-export const countdownPlaylist: SongItem[] = [
-  rathinamoSong,
-  mainTeraSong,
-];
+export { rathinamoSong, fullCountdownPlaylist } from './countdownSongs';
+import { fullCountdownPlaylist } from './countdownSongs';
+export const countdownPlaylist: SongItem[] = fullCountdownPlaylist;
 

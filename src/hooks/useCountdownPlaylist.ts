@@ -20,6 +20,8 @@ export interface UseCountdownPlaylistReturn {
   play: () => void;
   pause: () => void;
   nextSong: () => void;
+  previousSong: () => void;
+  selectSong: (index: number) => void;
   fadeOutAudio: () => void;
 }
 
@@ -56,36 +58,64 @@ const unlockAudioContext = () => {
   }
 };
 
+// Fisher-Yates shuffle helper
+const createShuffledIndices = (count: number, prioritizeFirst?: number): number[] => {
+  const indices = Array.from({ length: count }, (_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  if (prioritizeFirst !== undefined && prioritizeFirst >= 0 && prioritizeFirst < count) {
+    const idx = indices.indexOf(prioritizeFirst);
+    if (idx !== -1) {
+      indices.splice(idx, 1);
+      indices.unshift(prioritizeFirst);
+    }
+  }
+  return indices;
+};
+
 const getInitialSongIndex = (playlist: SongItem[]): number => {
   if (typeof window === 'undefined' || playlist.length <= 1) return 0;
   try {
     const params = new URLSearchParams(window.location.search);
     const songParam = params.get('song');
     if (songParam) {
-      const lower = songParam.toLowerCase();
-      if (lower.includes('tera') || lower === '2' || lower.includes('mein') || lower.includes('main')) {
-        const found = playlist.findIndex((s) => s.id === 'main-tera');
-        if (found !== -1) return found;
+      const lower = songParam.toLowerCase().trim();
+      const num = parseInt(lower, 10);
+      if (!isNaN(num)) {
+        if (num >= 1 && num <= playlist.length) return num - 1;
+        if (num >= 0 && num < playlist.length) return num;
       }
-      if (lower.includes('rathinamo') || lower === '1') {
-        const found = playlist.findIndex((s) => s.id === 'rathinamo');
-        if (found !== -1) return found;
-      }
+      const foundIdx = playlist.findIndex(
+        (s) =>
+          s.id.toLowerCase() === lower ||
+          s.id.toLowerCase().includes(lower) ||
+          s.title.toLowerCase().includes(lower)
+      );
+      if (foundIdx !== -1) return foundIdx;
     }
 
-    const saved = localStorage.getItem('kalai_countdown_song_idx');
-    if (saved === null) {
-      // 1st time opened: play Rathinamo (index 0)
-      localStorage.setItem('kalai_countdown_song_idx', '1');
-      return 0;
+    // Random song selection on open, avoiding repeating the song from the immediately previous visit
+    const LAST_SONG_KEY = 'kalai_countdown_last_song';
+    const lastSongId = localStorage.getItem(LAST_SONG_KEY);
+
+    const candidates = playlist
+      .map((s, idx) => ({ id: s.id, idx }))
+      .filter((item) => !lastSongId || item.id !== lastSongId)
+      .map((item) => item.idx);
+
+    const pool = candidates.length > 0 ? candidates : playlist.map((_, i) => i);
+    const chosenIndex = pool[Math.floor(Math.random() * pool.length)];
+
+    const chosenSong = playlist[chosenIndex];
+    if (chosenSong) {
+      localStorage.setItem(LAST_SONG_KEY, chosenSong.id);
     }
-    const currentIdx = parseInt(saved, 10);
-    const validIdx = isNaN(currentIdx) ? 0 : currentIdx % playlist.length;
-    // Prepare next visit to alternate to the other song
-    localStorage.setItem('kalai_countdown_song_idx', String((validIdx + 1) % playlist.length));
-    return validIdx;
+
+    return chosenIndex;
   } catch {
-    return 0;
+    return Math.floor(Math.random() * playlist.length);
   }
 };
 
@@ -93,9 +123,21 @@ export const useCountdownPlaylist = ({
   playlist,
   enabled = true,
 }: UseCountdownPlaylistProps): UseCountdownPlaylistReturn => {
-  const [currentSongIndex, setCurrentSongIndex] = useState<number>(() =>
-    getInitialSongIndex(playlist)
-  );
+  const [initialIndex] = useState<number>(() => getInitialSongIndex(playlist));
+  
+  // Shuffled queue management: continuous non-repeating shuffle deck
+  const shuffleDeckRef = useRef<number[]>([]);
+  const deckPositionRef = useRef<number>(0);
+
+  if (shuffleDeckRef.current.length === 0 && playlist.length > 0) {
+    shuffleDeckRef.current = createShuffledIndices(playlist.length, initialIndex);
+    deckPositionRef.current = 0;
+  }
+
+  const [currentSongIndex, setCurrentSongIndex] = useState<number>(() => {
+    return shuffleDeckRef.current[0] ?? initialIndex;
+  });
+
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [hasAutoplayBlocked, setHasAutoplayBlocked] = useState<boolean>(true);
@@ -104,7 +146,10 @@ export const useCountdownPlaylist = ({
   const playlistRef = useRef<SongItem[]>(playlist);
   playlistRef.current = playlist;
 
+  const isSwitchingRef = useRef<boolean>(false);
   const currentSong = playlist[currentSongIndex] || playlist[0];
+  const currentSongRef = useRef<SongItem>(currentSong);
+  currentSongRef.current = currentSong;
 
   const getOrCreateAudio = useCallback(() => {
     let audio = audioRef.current;
@@ -122,20 +167,20 @@ export const useCountdownPlaylist = ({
         audio.preload = 'auto';
         audio.setAttribute('playsinline', 'true');
         audio.setAttribute('webkit-playsinline', 'true');
+        if (typeof document !== 'undefined' && !document.getElementById('countdown-bg-audio')) {
+          audio.style.display = 'none';
+          document.body.appendChild(audio);
+        }
       }
       try {
         audio.volume = 0.95;
       } catch {}
       audioRef.current = audio;
     }
-    const song = playlistRef.current[currentSongIndex] || playlistRef.current[0];
-    if (!audio.src || !audio.src.endsWith(song.source)) {
-      audio.src = song.source;
-    }
     return audio;
   }, [currentSongIndex]);
 
-  // Play audio safely with mobile compatibility
+  // Safely play audio with mobile audio unlock
   const safePlay = useCallback(() => {
     const audio = getOrCreateAudio();
     unlockAudioContext();
@@ -150,24 +195,160 @@ export const useCountdownPlaylist = ({
           setHasAutoplayBlocked(false);
         })
         .catch(() => {
-          // If unmuted autoplay blocked by mobile browser, start playing muted
-          // so the media pipeline is primed and ready immediately.
-          audio.muted = true;
-          audio.play().then(() => {
-            setIsPlaying(true);
-          }).catch(() => {});
+          // If browser policy blocks auto-play before user gesture,
+          // don't abort audio source; wait for the first click/touch.
+          setIsPlaying(false);
           setHasAutoplayBlocked(true);
         });
     }
   }, [getOrCreateAudio]);
 
-  // Advance to next song in playlist
+  // Core continuous shuffle function: advances to next random song without stopping
   const advanceToNextSong = useCallback(() => {
-    setCurrentSongIndex((prevIndex) => {
-      const nextIndex = (prevIndex + 1) % playlistRef.current.length;
-      return nextIndex;
-    });
-  }, []);
+    if (playlistRef.current.length === 0) return;
+    const count = playlistRef.current.length;
+
+    deckPositionRef.current += 1;
+    // When the current shuffle deck finishes, generate a new shuffled deck
+    if (deckPositionRef.current >= shuffleDeckRef.current.length) {
+      const lastIndex = shuffleDeckRef.current[shuffleDeckRef.current.length - 1];
+      const newDeck = createShuffledIndices(count);
+      // Ensure the first song of the new deck doesn't repeat the last song
+      if (count > 1 && newDeck[0] === lastIndex) {
+        [newDeck[0], newDeck[1]] = [newDeck[1], newDeck[0]];
+      }
+      shuffleDeckRef.current = newDeck;
+      deckPositionRef.current = 0;
+    }
+
+    const nextIndex = shuffleDeckRef.current[deckPositionRef.current];
+    const nextSongItem = playlistRef.current[nextIndex];
+    if (!nextSongItem) return;
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('kalai_countdown_last_song', nextSongItem.id);
+      } catch {}
+    }
+
+    setCurrentSongIndex(nextIndex);
+    setCurrentTime(0);
+
+    const audio = audioRef.current || getOrCreateAudio();
+    audio.src = nextSongItem.source;
+    audio.currentTime = 0;
+
+    // Immediately play the next song continuously
+    unlockAudioContext();
+    audio.muted = false;
+    audio.volume = 0.95;
+    const p = audio.play();
+    if (p !== undefined) {
+      p.then(() => {
+        setIsPlaying(true);
+        setHasAutoplayBlocked(false);
+      })
+      .catch((err) => {
+        console.warn('Playback continuation notice:', err);
+      })
+      .finally(() => {
+        isSwitchingRef.current = false;
+      });
+    } else {
+      isSwitchingRef.current = false;
+    }
+  }, [getOrCreateAudio]);
+
+  // Go to previous song in the shuffle history
+  const goToPreviousSong = useCallback(() => {
+    if (playlistRef.current.length === 0) return;
+    if (deckPositionRef.current > 0) {
+      deckPositionRef.current -= 1;
+    } else {
+      deckPositionRef.current = Math.max(0, shuffleDeckRef.current.length - 1);
+    }
+
+    const prevIndex = shuffleDeckRef.current[deckPositionRef.current];
+    const prevSongItem = playlistRef.current[prevIndex];
+    if (!prevSongItem) return;
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('kalai_countdown_last_song', prevSongItem.id);
+      } catch {}
+    }
+
+    setCurrentSongIndex(prevIndex);
+    setCurrentTime(0);
+
+    const audio = audioRef.current || getOrCreateAudio();
+    audio.src = prevSongItem.source;
+    audio.currentTime = 0;
+
+    unlockAudioContext();
+    audio.muted = false;
+    audio.volume = 0.95;
+    const p = audio.play();
+    if (p !== undefined) {
+      p.then(() => {
+        setIsPlaying(true);
+        setHasAutoplayBlocked(false);
+      })
+      .catch(() => {})
+      .finally(() => {
+        isSwitchingRef.current = false;
+      });
+    } else {
+      isSwitchingRef.current = false;
+    }
+  }, [getOrCreateAudio]);
+
+  // Direct song selection (e.g. testing toolbar or selector)
+  const selectSong = useCallback((index: number) => {
+    if (index >= 0 && index < playlistRef.current.length) {
+      const songItem = playlistRef.current[index];
+      if (!songItem) return;
+
+      // Find or insert into current deck position
+      const foundDeckPos = shuffleDeckRef.current.indexOf(index);
+      if (foundDeckPos !== -1) {
+        deckPositionRef.current = foundDeckPos;
+      } else {
+        shuffleDeckRef.current.splice(deckPositionRef.current + 1, 0, index);
+        deckPositionRef.current += 1;
+      }
+
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('kalai_countdown_last_song', songItem.id);
+        } catch {}
+      }
+
+      setCurrentSongIndex(index);
+      setCurrentTime(0);
+
+      const audio = audioRef.current || getOrCreateAudio();
+      audio.src = songItem.source;
+      audio.currentTime = 0;
+
+      unlockAudioContext();
+      audio.muted = false;
+      audio.volume = 0.95;
+      const p = audio.play();
+      if (p !== undefined) {
+        p.then(() => {
+          setIsPlaying(true);
+          setHasAutoplayBlocked(false);
+        })
+        .catch(() => {})
+        .finally(() => {
+          isSwitchingRef.current = false;
+        });
+      } else {
+        isSwitchingRef.current = false;
+      }
+    }
+  }, [getOrCreateAudio]);
 
   const stopAudio = useCallback(() => {
     const audio =
@@ -184,7 +365,7 @@ export const useCountdownPlaylist = ({
     setIsPlaying(false);
   }, []);
 
-  // Setup single persistent Audio instance
+  // Setup single persistent Audio event listeners (only on mount / enabled toggle)
   useEffect(() => {
     if (!enabled) {
       stopAudio();
@@ -192,10 +373,19 @@ export const useCountdownPlaylist = ({
     }
 
     const audio = getOrCreateAudio();
+    isSwitchingRef.current = false;
 
     const handleTimeUpdate = () => {
       if (audioRef.current) {
-        setCurrentTime(audioRef.current.currentTime);
+        const time = audioRef.current.currentTime;
+        const dur = audioRef.current.duration;
+        setCurrentTime(time);
+
+        // Automatic seamless continuous advance to next song 0.5s before track ends
+        if (dur > 0 && time >= dur - 0.5 && !isSwitchingRef.current) {
+          isSwitchingRef.current = true;
+          advanceToNextSong();
+        }
       }
     };
 
@@ -205,17 +395,24 @@ export const useCountdownPlaylist = ({
     };
 
     const handlePause = () => {
-      setIsPlaying(false);
+      // Only set paused if not in the middle of track switching
+      if (!isSwitchingRef.current) {
+        setIsPlaying(false);
+      }
     };
 
     const handleEnded = () => {
-      advanceToNextSong();
+      if (!isSwitchingRef.current) {
+        isSwitchingRef.current = true;
+        advanceToNextSong();
+      }
     };
 
     const handleError = (e: Event) => {
-      console.warn(`Audio source load error for ${currentSong.title}:`, e);
-      if (currentSongIndex !== 0) {
-        setCurrentSongIndex(0);
+      console.warn(`Audio track error on ${currentSongRef.current?.title}, advancing to next:`, e);
+      if (!isSwitchingRef.current) {
+        isSwitchingRef.current = true;
+        advanceToNextSong();
       }
     };
 
@@ -225,11 +422,10 @@ export const useCountdownPlaylist = ({
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
-    // Update source when currentSong changes
-    const expectedSrc = currentSong.source;
-    if (!audio.src.endsWith(expectedSrc)) {
+    // Initial source check
+    const expectedSrc = currentSongRef.current.source;
+    if (!audio.src || !audio.src.endsWith(expectedSrc)) {
       audio.src = expectedSrc;
-      audio.load();
       safePlay();
     }
 
@@ -239,19 +435,19 @@ export const useCountdownPlaylist = ({
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
-      stopAudio();
+      // NOTE: Do NOT call stopAudio here! That would kill audio when advancing songs.
     };
-  }, [currentSong.source, currentSong.title, currentSongIndex, advanceToNextSong, enabled, getOrCreateAudio, safePlay, stopAudio]);
+  }, [enabled, advanceToNextSong, getOrCreateAudio, safePlay, stopAudio]);
 
-  // Global mobile touch/click listeners to unlock audio immediately on first interaction
+  // Global user interaction listener to unlock audio immediately on first interaction (mobile iOS/Android)
   useEffect(() => {
     if (!enabled) return;
 
-    // Try initial play
+    // Try initial auto-play
     safePlay();
 
     let isUnlocking = false;
-    const gestureEvents = ['touchstart', 'touchend', 'click', 'scroll', 'pointerdown'];
+    const gestureEvents = ['touchstart', 'touchend', 'touchmove', 'click', 'scroll', 'pointerdown'];
 
     const cleanupListeners = () => {
       gestureEvents.forEach((ev) => {
@@ -291,18 +487,21 @@ export const useCountdownPlaylist = ({
     };
   }, [enabled, getOrCreateAudio, safePlay]);
 
-  // Keyboard shortcut: Press 's' to cycle songs easily
+  // Keyboard shortcut: Press 's', 'n', or right arrow for next song, 'p' or left arrow for previous song
   useEffect(() => {
     if (!enabled) return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key.toLowerCase() === 's') {
+      const key = e.key.toLowerCase();
+      if (key === 's' || key === 'n' || e.key === 'ArrowRight') {
         advanceToNextSong();
+      } else if (key === 'p' || e.key === 'ArrowLeft') {
+        goToPreviousSong();
       }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [enabled, advanceToNextSong]);
+  }, [enabled, advanceToNextSong, goToPreviousSong]);
 
   // Toggle play/pause
   const togglePlay = useCallback(
@@ -333,7 +532,7 @@ export const useCountdownPlaylist = ({
     }
   }, []);
 
-  // Smooth fade-out and complete pause on unlock
+  // Smooth fade-out and complete pause on unlock (midnight reveal transition)
   const fadeOutAudio = useCallback(() => {
     const audio =
       audioRef.current ||
@@ -350,17 +549,44 @@ export const useCountdownPlaylist = ({
 
   // Synchronized lyric calculation
   const lyrics = currentSong.lyrics || [];
-  const activeLyricIndex = lyrics.findIndex(
-    (line) => currentTime >= line.start && currentTime < line.end
-  );
+  let activeLyricIndex = -1;
 
-  const activeLyric = activeLyricIndex >= 0 ? lyrics[activeLyricIndex] : null;
+  for (let i = 0; i < lyrics.length; i++) {
+    const line = lyrics[i];
+    const nextLine = lyrics[i + 1];
+    if (currentTime >= line.start) {
+      if (currentTime < line.end) {
+        activeLyricIndex = i;
+        break;
+      }
+      // In brief pause between lines, keep current line active
+      if (nextLine && currentTime < nextLine.start) {
+        activeLyricIndex = i;
+        break;
+      }
+      if (!nextLine) {
+        activeLyricIndex = i;
+        break;
+      }
+    }
+  }
+
+  // Active lyric: If current time hasn't reached the first lyric line yet, show music symbol ♪ • • • ♪
+  const defaultLeadLyric: LyricLine = { start: 0, end: (lyrics[0]?.start ?? 10), text: "♪  •  •  •  ♪" };
+  const activeLyric =
+    activeLyricIndex >= 0
+      ? lyrics[activeLyricIndex]
+      : (lyrics.length > 0 && currentTime < lyrics[0].start
+          ? (lyrics[0].text.includes('♪') ? lyrics[0] : defaultLeadLyric)
+          : null);
+
   const previousLyric =
     activeLyricIndex > 0 ? lyrics[activeLyricIndex - 1] : null;
+
   const nextLyric =
     activeLyricIndex >= 0 && activeLyricIndex < lyrics.length - 1
       ? lyrics[activeLyricIndex + 1]
-      : null;
+      : (activeLyricIndex === -1 && lyrics.length > 0 ? lyrics[0] : null);
 
   return {
     currentSong,
@@ -376,6 +602,8 @@ export const useCountdownPlaylist = ({
     play,
     pause,
     nextSong: advanceToNextSong,
+    previousSong: goToPreviousSong,
+    selectSong,
     fadeOutAudio,
   };
 };
